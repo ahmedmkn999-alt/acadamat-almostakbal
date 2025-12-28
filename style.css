@@ -1,0 +1,85 @@
+:root {
+    --bg: #050811;
+    --card-bg: #0f172a;
+    --gold: #FFD700;
+    --gold-dark: #b48811;
+    --gold-grad: linear-gradient(135deg, #FFD700 0%, #FDB931 50%, #b48811 100%);
+}
+
+body { font-family: 'Cairo'; background: var(--bg); color: white; margin: 0; overflow-x: hidden; }
+
+/* التنقل */
+.page-section { display: none; min-height: 100vh; }
+.page-section.active { display: flex; flex-direction: column; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* --- تصميم الأزرار الاحترافية (Professional Buttons) --- */
+.btn-pro {
+    position: relative;
+    padding: 14px 28px;
+    font-family: 'Cairo';
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+}
+
+/* الزر الذهبي */
+.btn-gold {
+    background: var(--gold-grad);
+    color: #000;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+.btn-gold:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
+}
+.btn-gold:active { transform: translateY(0); }
+
+/* زر الخروج الأحمر */
+.btn-red-outline {
+    background: rgba(255, 77, 77, 0.1);
+    color: #ff4d4d;
+    border: 1px solid #ff4d4d;
+}
+.btn-red-outline:hover { background: #ff4d4d; color: white; box-shadow: 0 5px 15px rgba(255, 77, 77, 0.4); }
+
+/* زر الزجاج (Glass) */
+.btn-glass {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+}
+.btn-glass:hover { background: rgba(255, 255, 255, 0.15); border-color: var(--gold); }
+
+/* كروت المواد */
+.subjects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; padding: 25px; }
+.subject-card { background: var(--card-bg); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.3s; overflow: hidden; }
+.subject-card:hover { transform: translateY(-10px); border-color: var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.card-img { height: 180px; background: #000; position: relative; }
+.card-img img { width: 100%; height: 100%; object-fit: cover; }
+.card-info { padding: 20px; text-align: center; }
+
+/* صفحة الدخول */
+.login-container { margin: auto; background: rgba(255,255,255,0.02); padding: 50px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); text-align: center; max-width: 400px; }
+.logo-icon { font-size: 4rem; color: var(--gold); filter: drop-shadow(0 0 10px var(--gold)); }
+.gold-text { background: var(--gold-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+/* النجوم */
+#stars-container { position: fixed; width: 100%; height: 100%; z-index: -1; }
+.star { position: absolute; background: white; border-radius: 50%; animation: blink 2s infinite; }
+@keyframes blink { 50% { opacity: 0.2; } }
+
+/* المشغل */
+.player-layout { display: flex; height: calc(100vh - 80px); }
+.sidebar { width: 300px; background: #080b14; border-left: 1px solid rgba(255,255,255,0.05); overflow-y: auto; }
+.lesson-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.03); cursor: pointer; transition: 0.2s; }
+.lesson-item.active { background: rgba(255, 215, 0, 0.1); color: var(--gold); border-right: 4px solid var(--gold); }
