@@ -1,89 +1,108 @@
 /* =========================================
-   كود التشغيل الرئيسي
+   كود التشغيل والمنطق
    ========================================= */
 
-// جمل تتغير كل مرة بتأثير الكتابة
-const QUOTES = [
-    "النجاح قرار.. وليس صدفة!",
-    "تعب اليوم.. هو راحة الغد.",
-    "أنت أقوى مما تتخيل.. استمر!",
-    "الدرجة النهائية تنتظرك..",
-    "لا تؤجل عمل اليوم إلى الغد."
+// جمل تتغير بتأثير الكتابة (Typewriter)
+const MESSAGES = [
+    "حلمك يستاهل تعبك..",
+    "النجاح قرار وليس صدفة..",
+    "عافر هتوصل..",
+    "دفعة 2026 أبطال.."
 ];
 
 let currentData = null;
+let msgIndex = 0;
+let charIndex = 0;
+let isDeleting = false;
+const typeSpeed = 100;
+const deleteSpeed = 50;
+const delayBetween = 2000;
 
 window.onload = function() {
     createStars();
-    // اختيار جملة عشوائية وتفعيل الأنيميشن
-    const randomQuote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
-    const quoteEl = document.getElementById('quote-text');
-    quoteEl.innerText = randomQuote;
-    
-    // إعادة تشغيل الأنيميشن
-    quoteEl.style.animation = 'none';
-    quoteEl.offsetHeight; /* trigger reflow */
-    quoteEl.style.animation = null; 
+    typeWriterEffect();
 };
 
-// --- زر الدخول ---
+// تأثير الكتابة المتحركة
+function typeWriterEffect() {
+    const textElement = document.getElementById("typewriter-text");
+    const currentMsg = MESSAGES[msgIndex];
+    
+    if (isDeleting) {
+        textElement.innerText = currentMsg.substring(0, charIndex - 1);
+        charIndex--;
+    } else {
+        textElement.innerText = currentMsg.substring(0, charIndex + 1);
+        charIndex++;
+    }
+
+    let speed = isDeleting ? deleteSpeed : typeSpeed;
+
+    if (!isDeleting && charIndex === currentMsg.length) {
+        speed = delayBetween;
+        isDeleting = true;
+    } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        msgIndex = (msgIndex + 1) % MESSAGES.length;
+        speed = 500;
+    }
+
+    setTimeout(typeWriterEffect, speed);
+}
+
+// زر الدخول
 document.getElementById('login-btn').addEventListener('click', () => {
     const track = document.getElementById('track-select').value;
     const code = document.getElementById('access-code').value;
 
-    // 1. السماح بأي كود (عشان مشكلة الدخول)
     if(!code || code.length < 1) {
-        return alert("اكتب أي رقم يا بطل عشان تدخل!");
+        return alert("من فضلك اكتب أي كود للدخول!");
     }
 
-    // 2. تحميل البيانات بناء على الملفات الخارجية
-    // بنستخدم try-catch عشان لو الملفات مش مربوطة صح منعملش كراش
+    // فحص تحميل الملفات (عشان نحل مشكلة 'مش راضي يخش')
     try {
         if (track === 'science') {
-            if (typeof SCIENCE_DATA !== 'undefined') currentData = SCIENCE_DATA;
-            else throw new Error("ملف علمي علوم مفقود");
+            if (typeof SCIENCE_DATA === 'undefined') throw new Error();
+            currentData = SCIENCE_DATA;
         } 
         else if (track === 'math') {
-            if (typeof MATH_DATA !== 'undefined') currentData = MATH_DATA;
-            else throw new Error("ملف علمي رياضة مفقود");
+            if (typeof MATH_DATA === 'undefined') throw new Error();
+            currentData = MATH_DATA;
         } 
         else if (track === 'lit') {
-            if (typeof LIT_DATA !== 'undefined') currentData = LIT_DATA;
-            else throw new Error("ملف أدبي مفقود");
+            if (typeof LIT_DATA === 'undefined') throw new Error();
+            currentData = LIT_DATA;
         }
     } catch (e) {
-        alert("خطأ: تأكد من أن ملفات المواد (1_science.js, etc) موجودة ومربوطة في ملف الـ HTML");
+        alert("خطأ: ملف بيانات الشعبة غير موجود! تأكد من وجود ملفات (1_science.js, 2_math.js, 3_lit.js) في نفس المجلد.");
         return;
     }
 
-    // 3. الانتقال للصفحة
+    // الانتقال للصفحة
     document.getElementById('login-section').classList.remove('active');
     document.getElementById('content-section').classList.add('active');
     
     const trackName = track === 'science' ? 'علمي علوم' : track === 'math' ? 'علمي رياضة' : 'أدبي';
-    document.getElementById('student-display').innerText = `${trackName} | كود: ${code}`;
+    document.getElementById('student-display').innerHTML = `👤 ${trackName} <span style="color:#666">|</span> 🔑 ${code}`;
 
     renderSubjects();
 });
 
-// --- عرض المواد (بدون id و created_at) ---
+// عرض المواد
 function renderSubjects() {
     const grid = document.getElementById('cards-container');
     grid.innerHTML = "";
     document.getElementById('page-title').innerText = "المواد الدراسية";
     document.getElementById('back-btn').style.display = "none";
 
-    // هنا بنضمن إننا بنعرض المواد بس، مش أي داتا تانية
     Object.keys(currentData).forEach(subject => {
-        // فلتر أمان: لو المفتاح مش مادة حقيقية (زي id او name) تجاهله
-        if (subject === 'id' || subject === 'name') return;
-
         createCard(subject, "https://cdn-icons-png.flaticon.com/512/3426/3426653.png", () => {
             renderTeachers(currentData[subject], renderSubjects);
         });
     });
 }
 
+// عرض المدرسين
 function renderTeachers(teachers, goBack) {
     const grid = document.getElementById('cards-container');
     grid.innerHTML = "";
@@ -97,11 +116,14 @@ function renderTeachers(teachers, goBack) {
     });
 }
 
+// عرض الفيديوهات
 function renderCourses(courses, goBack) {
     const grid = document.getElementById('cards-container');
     grid.innerHTML = "";
     document.getElementById('page-title').innerText = "المحاضرات";
     setupBack(goBack);
+
+    if(courses.length === 0) grid.innerHTML = "<p style='width:100%;text-align:center'>لا توجد محاضرات حالياً</p>";
 
     courses.forEach(course => {
         const div = document.createElement('div');
@@ -112,13 +134,14 @@ function renderCourses(courses, goBack) {
     });
 }
 
+// تشغيل الفيديو
 function playVideo(url, goBack) {
     const grid = document.getElementById('cards-container');
     const id = extractYouTubeID(url);
     
     if(!id) {
-        alert("فيديو غير متاح حالياً");
-        return; 
+        alert("عفواً، رابط الفيديو غير متاح حالياً");
+        return;
     }
 
     grid.innerHTML = `<div class="video-wrapper"><div id="player" data-plyr-provider="youtube" data-plyr-embed-id="${id}"></div></div>`;
@@ -126,6 +149,7 @@ function playVideo(url, goBack) {
     setupBack(goBack);
 }
 
+// أدوات مساعدة
 function createCard(title, icon, action) {
     const d = document.createElement('div');
     d.className = 'card';
