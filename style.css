@@ -1,31 +1,67 @@
-:root { --bg: #050a10; --card: #0e1e2b; --neon: #00ff88; --text: #fff; --gold: #ffd700; }
-body { margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+/* --- شريط الأخبار المتحرك (News Ticker) --- */
+.ticker-wrap {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    height: 40px;
+    background-color: rgba(0, 0, 0, 0.9);
+    border-top: 1px solid var(--neon);
+    padding-left: 100%; /* يبدأ من خارج الشاشة */
+    box-sizing: border-box;
+    z-index: 999;
+}
 
-#stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle, #1b2735 0%, #090a0f 100%); }
-.star { position: absolute; background: white; border-radius: 50%; box-shadow: 0 0 5px #fff; animation: twinkle 3s infinite; }
-@keyframes twinkle { 50% { opacity: 1; transform: scale(1.3); } }
+.ticker-move {
+    display: inline-block;
+    height: 40px;
+    line-height: 40px;
+    white-space: nowrap;
+    padding-right: 100%;
+    animation: ticker 25s linear infinite;
+}
 
-.page { display: none; min-height: 100vh; flex-direction: column; }
-.active { display: flex !important; }
-.vertical-layout { display: flex; flex-direction: column; height: 100vh; justify-content: space-between; padding: 20px; box-sizing: border-box; text-align: center; }
+.ticker-item {
+    display: inline-block;
+    padding: 0 2rem;
+    font-size: 1rem;
+    color: var(--neon);
+    font-weight: bold;
+}
 
-.logo { font-size: 3rem; color: var(--neon); text-shadow: 0 0 20px var(--neon); margin: 0; }
-.sub-logo { color: #aaa; font-size: 0.9rem; }
-.login-body { display: flex; align-items: center; justify-content: center; flex-grow: 1; }
-#login-form-area { width: 100%; max-width: 350px; background: rgba(255,255,255,0.05); padding: 25px; border-radius: 20px; border: 1px solid var(--neon); backdrop-filter: blur(5px); }
+@keyframes ticker {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-100%, 0, 0); }
+}
 
-select, input { width: 100%; padding: 15px; margin-bottom: 20px; background: #000; border: 1px solid #333; color: #fff; border-radius: 10px; box-sizing: border-box; font-size: 16px; outline: none; }
-input:focus { border-color: var(--neon); }
-button { width: 100%; padding: 15px; background: var(--neon); border: none; font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 18px; color: #000; }
-.quote { color: var(--gold); background: rgba(0,0,0,0.6); padding: 10px; border-radius: 10px; }
+/* --- تأثير الكتابة (Typer Effect) تحت زر الدخول --- */
+.typewriter h3 {
+    overflow: hidden; 
+    border-left: .15em solid var(--gold); 
+    white-space: nowrap; 
+    margin: 0 auto; 
+    letter-spacing: .10em; 
+    animation: 
+      typing 3.5s steps(40, end),
+      blink-caret .75s step-end infinite;
+    font-size: 14px;
+    color: var(--gold);
+    max-width: fit-content;
+}
 
-.grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 20px; padding-bottom: 50px; }
-.card { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); text-align: center; cursor: pointer; transition: 0.2s; }
-.card:active { transform: scale(0.98); background: rgba(0,255,136,0.1); }
-.card img { width: 60px; height: 60px; object-fit: contain; margin-bottom: 10px; }
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+}
 
-.video-wrapper { border-radius: 15px; overflow: hidden; border: 2px solid var(--neon); margin: 20px 0; }
-.navbar { display: flex; justify-content: space-between; padding: 15px 20px; align-items: center; background: rgba(0,0,0,0.2); }
-.user-badge { border: 1px solid var(--neon); padding: 5px 15px; border-radius: 20px; background: rgba(0,255,136,0.1); font-size: 0.9rem; }
-#back-btn { background: transparent; border: 1px solid var(--neon); color: var(--neon); padding: 5px 15px; border-radius: 20px; }
-.plyr--full-ui { --plyr-color-main: var(--neon); }
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: var(--gold); }
+}
+
+/* --- إصلاح مشكلة الزرار --- */
+#login-btn {
+    z-index: 100; /* عشان مفيش حاجة تغطي عليه */
+    position: relative;
+}
