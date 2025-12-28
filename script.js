@@ -1,136 +1,112 @@
-// التكوين الأساسي مع روابطك المباشرة
-const CONFIG = {
-    tracks: {
-        '100': "https://plus-teal.vercel.app/organized_output.json",
-        '200': "https://platform-sigma-seven.vercel.app/organized_output-e.json",
-        '300': "https://plus-teal.vercel.app/organized_output-a.json"
-    }
+const JSON_URLS = {
+    'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
+    'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
+    'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json"
 };
 
-let fullData = null;
-let currentLessons = [];
-let playerInstance = null;
+let fullData = {};
 
-// دالة التنقل الآمنة
-function switchPage(pageId) {
-    document.querySelectorAll('.page-section').forEach(p => {
-        p.style.display = 'none';
-        p.classList.remove('active');
-    });
-    const target = document.getElementById(pageId);
-    if (target) {
-        target.style.display = 'flex';
-        setTimeout(() => target.classList.add('active'), 10);
+// توليد النجوم
+function createStars() {
+    const container = document.getElementById('stars-container');
+    for (let i = 0; i < 120; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.width = star.style.height = Math.random() * 3 + 'px';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.animationDelay = Math.random() * 5 + 's';
+        container.appendChild(star);
     }
 }
 
-// دالة تسجيل الدخول ومعالجة البيانات
-async function handleLogin() {
-    const code = document.getElementById('student-code').value.trim();
-    const btn = document.querySelector('.main-btn-pro');
-    
-    if (CONFIG.tracks[code]) {
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري جلب البيانات...';
-        try {
-            // نستخدم AllOrigins فقط إذا فشل الطلب المباشر لتجاوز الحظر
-            const targetUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(CONFIG.tracks[code])}`;
-            const res = await fetch(targetUrl);
-            fullData = await res.json();
-            
-            console.log("البيانات المحملة:", fullData); // للتأكد في وحدة التحكم
-            
-            renderSubjects();
-            switchPage('dashboard-section');
-        } catch (e) {
-            alert("حدث خطأ في الاتصال بالسيرفر. تأكد من الإنترنت.");
-            btn.innerHTML = 'ابدأ الرحلة الآن <i class="fas fa-rocket"></i>';
-        }
-    } else {
-        alert("الكود غير صحيح!");
-    }
-}
+// تسجيل الدخول
+document.getElementById('login-btn').addEventListener('click', async () => {
+    const name = document.getElementById('student-name').value;
+    const track = document.getElementById('student-track').value;
+    const code = document.getElementById('student-code').value;
 
-// دالة عرض المدرسين (حل مشكلة الأرقام 0 و 1)
-function renderSubjects() {
-    const grid = document.getElementById('subjects-grid');
-    grid.innerHTML = '';
+    if (!name || !code) return alert("أكمل بياناتك يا بطل!");
 
-    // تحويل البيانات سواء كانت Object أو Array إلى شكل موحد
-    let items = [];
-    if (Array.isArray(fullData)) {
-        // إذا كانت مصفوفة، نأخذ الخصائص من داخل العناصر
-        fullData.forEach((obj, index) => {
-            let name = obj.name || obj.teacher || obj.subject || `قسم ${index + 1}`;
-            items.push({ title: name, data: obj.lessons || obj.videos || obj });
-        });
-    } else {
-        // إذا كانت Object (أسماء المدرسين هي المفاتيح)
-        Object.entries(fullData).forEach(([key, value]) => {
-            items.push({ title: key, data: value });
-        });
-    }
-
-    items.forEach((item, index) => {
-        const card = document.createElement('div');
-        card.className = 'subject-card';
-        card.onclick = () => openPlayer(item.data, item.title);
+    try {
+        const res = await fetch(JSON_URLS[track]);
+        fullData = await res.json();
         
-        card.innerHTML = `
-            <div class="card-image"><img src="https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=400"></div>
-            <div class="card-body">
-                <h3>${item.title}</h3>
-                <p style="color:var(--gold); font-size:0.8rem; margin-top:5px;">اضغط للمشاهدة</p>
-            </div>
-        `;
+        document.getElementById('login-section').classList.remove('active');
+        document.getElementById('platform-section').classList.add('active');
+        
+        document.getElementById('user-display').innerHTML = `<b>الطالب:</b> ${name} <br> <b>الكود:</b> ${code} (صالح لـ 2026)`;
+        renderSubjects();
+    } catch (e) { alert("خطأ في تحميل البيانات!"); }
+});
+
+function renderSubjects() {
+    const grid = document.getElementById('main-grid');
+    grid.innerHTML = "";
+    document.getElementById('section-title').innerText = "المواد الدراسية";
+    document.getElementById('back-button').style.display = "none";
+
+    Object.keys(fullData).forEach(subject => {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/3426/3426653.png"><h3>${subject}</h3>`;
+        card.onclick = () => renderTeachers(fullData[subject]);
         grid.appendChild(card);
     });
 }
 
-// فتح المشغل
-function openPlayer(lessons, subjectTitle) {
-    document.getElementById('current-subject-title').textContent = subjectTitle;
-    const list = document.getElementById('lessons-list');
-    list.innerHTML = '';
-    
-    // التأكد أن الدروس عبارة عن مصفوفة
-    currentLessons = Array.isArray(lessons) ? lessons : (lessons.lessons || []);
+function renderTeachers(teachers) {
+    const grid = document.getElementById('main-grid');
+    grid.innerHTML = "";
+    document.getElementById('section-title').innerText = "اختر المدرس";
+    document.getElementById('back-button').style.display = "block";
+    document.getElementById('back-button').onclick = renderSubjects;
 
-    currentLessons.forEach((l, i) => {
-        const li = document.createElement('li');
-        li.textContent = l.lesson_name || l.title || `محاضرة ${i + 1}`;
-        li.onclick = () => playVideo(l, i);
-        list.appendChild(li);
+    Object.keys(teachers).forEach(t => {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/1995/1995539.png"><h3>${t}</h3>`;
+        card.onclick = () => renderCourses(teachers[t]);
+        grid.appendChild(card);
     });
-    
-    switchPage('player-section');
-    if(currentLessons.length > 0) playVideo(currentLessons[0], 0);
 }
 
-function playVideo(lesson, i) {
-    const url = lesson.url || lesson.link || "";
-    const videoIdMatch = url.match(/(?:v=|\/)([0-9A-Za-z_-]{11})/);
-    
-    if (videoIdMatch) {
-        const id = videoIdMatch[1];
-        document.querySelector('#player iframe').src = `https://www.youtube.com/embed/${id}?modestbranding=1&rel=0`;
-        document.getElementById('lesson-title-display').textContent = lesson.lesson_name || lesson.title;
-        
-        document.querySelectorAll('#lessons-list li').forEach((li, idx) => {
-            li.classList.toggle('active', idx === i);
-        });
+function renderCourses(courses) {
+    const grid = document.getElementById('main-grid');
+    grid.innerHTML = "";
+    document.getElementById('section-title').innerText = "المحاضرات";
 
-        if(!playerInstance) playerInstance = new Plyr('#player');
-    }
+    courses.forEach(course => {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `<h3>${course.name || "محاضرة"}</h3><p>اضغط للمشاهدة</p>`;
+        card.onclick = () => playVideo(course.link || course.url);
+        grid.appendChild(card);
+    });
 }
 
-function logout() { location.reload(); }
+// أهم جزء: تشغيل الفيديو بدون علامات يوتيوب
+function playVideo(url) {
+    const grid = document.getElementById('main-grid');
+    const videoId = extractID(url);
+    
+    grid.innerHTML = `
+        <div class="video-container">
+            <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="${videoId}"></div>
+        </div>
+    `;
 
-// تأثيرات بصرية
-window.onload = () => {
-    const container = document.getElementById('stars-container');
-    for(let i=0; i<50; i++) {
-        const s = document.createElement('div'); s.className='star';
-        s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%';
-        s.style.width=s.style.height=Math.random()*2+'px'; container.appendChild(s);
-    }
-};
+    // إعدادات Plyr لإخفاء علامة يوتيوب ومنع الاقتراحات
+    const player = new Plyr('#player', {
+        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
+        youtube: { noCookie: true, rel: 0, showinfo: 0, iv_load_policy: 3, modestbranding: 1 }
+    });
+}
+
+function extractID(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length == 11) ? match[2] : url;
+}
+
+createStars();
