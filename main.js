@@ -1,53 +1,50 @@
-/* =========================================
-   كود التشغيل والمنطق
-   ========================================= */
+/* ============================================================
+   كود التشغيل الرئيسي (Logic) + صور المواد
+   ============================================================ */
 
-// جمل تتغير بتأثير الكتابة (Typewriter)
-const MESSAGES = [
-    "حلمك يستاهل تعبك..",
-    "النجاح قرار وليس صدفة..",
-    "عافر هتوصل..",
-    "دفعة 2026 أبطال.."
+// 🎨 قاموس صور المواد (أي مادة جديدة ضيفلها صورة هنا)
+const SUBJECT_IMAGES = {
+    "اللغة العربية": "https://cdn-icons-png.flaticon.com/512/3389/3389081.png", // كتاب وقلم
+    "اللغة الإنجليزية": "https://cdn-icons-png.flaticon.com/512/197/197484.png", // حرف A
+    "الفرنساوي": "https://cdn-icons-png.flaticon.com/512/330/330490.png", // برج إيفل
+    "الفيزياء": "https://cdn-icons-png.flaticon.com/512/2933/2933886.png", // ذرة
+    "الكيمياء": "https://cdn-icons-png.flaticon.com/512/1231/1231466.png", // دورق اختبار
+    "الأحياء": "https://cdn-icons-png.flaticon.com/512/2921/2921229.png", // ميكروسكوب و DNA
+    "الجيولوجيا": "https://cdn-icons-png.flaticon.com/512/2933/2933198.png", // طبقات الأرض
+    "الرياضيات البحتة": "https://cdn-icons-png.flaticon.com/512/2933/2933855.png", // أدوات هندسية
+    "الرياضيات التطبيقية": "https://cdn-icons-png.flaticon.com/512/3082/3082353.png", // آلة حاسبة
+    "التاريخ": "https://cdn-icons-png.flaticon.com/512/2682/2682446.png", // لفافة ورق قديمة
+    "الجغرافيا": "https://cdn-icons-png.flaticon.com/512/2947/2947656.png", // كرة أرضية
+    "علم النفس": "https://cdn-icons-png.flaticon.com/512/2490/2490428.png", // مخ
+    "الفلسفة": "https://cdn-icons-png.flaticon.com/512/3209/3209983.png", // عمود يوناني
+    "default": "https://cdn-icons-png.flaticon.com/512/3426/3426653.png" // صورة افتراضية لو المادة ملهاش صورة
+};
+
+const QUOTES = [
+    "النجاح قرار، مش صدفة.",
+    "تعبك النهاردة راحة لبكرة.",
+    "أنت قد الحلم، كمل.",
+    "الدرجة النهائية في انتظارك."
 ];
 
 let currentData = null;
-let msgIndex = 0;
-let charIndex = 0;
-let isDeleting = false;
-const typeSpeed = 100;
-const deleteSpeed = 50;
-const delayBetween = 2000;
 
 window.onload = function() {
     createStars();
-    typeWriterEffect();
+    document.getElementById('quote-text').innerText = `"${QUOTES[Math.floor(Math.random() * QUOTES.length)]}"`;
 };
 
-// تأثير الكتابة المتحركة
-function typeWriterEffect() {
-    const textElement = document.getElementById("typewriter-text");
-    const currentMsg = MESSAGES[msgIndex];
-    
-    if (isDeleting) {
-        textElement.innerText = currentMsg.substring(0, charIndex - 1);
-        charIndex--;
-    } else {
-        textElement.innerText = currentMsg.substring(0, charIndex + 1);
-        charIndex++;
+// إنشاء النجوم
+function createStars() {
+    const container = document.getElementById('stars-container');
+    if(!container) return;
+    for(let i=0; i<80; i++){
+        const s = document.createElement('div');
+        s.className = 'star';
+        s.style.left = Math.random()*100+'%'; s.style.top = Math.random()*100+'%';
+        let size = Math.random()*3; s.style.width=size+'px'; s.style.height=size+'px';
+        container.appendChild(s);
     }
-
-    let speed = isDeleting ? deleteSpeed : typeSpeed;
-
-    if (!isDeleting && charIndex === currentMsg.length) {
-        speed = delayBetween;
-        isDeleting = true;
-    } else if (isDeleting && charIndex === 0) {
-        isDeleting = false;
-        msgIndex = (msgIndex + 1) % MESSAGES.length;
-        speed = 500;
-    }
-
-    setTimeout(typeWriterEffect, speed);
 }
 
 // زر الدخول
@@ -55,49 +52,44 @@ document.getElementById('login-btn').addEventListener('click', () => {
     const track = document.getElementById('track-select').value;
     const code = document.getElementById('access-code').value;
 
-    if(!code || code.length < 1) {
-        return alert("من فضلك اكتب أي كود للدخول!");
-    }
+    if(!code) return alert("اكتب الكود يا هندسة!");
 
-    // فحص تحميل الملفات (عشان نحل مشكلة 'مش راضي يخش')
+    // هنا بنختار الداتا بناء على الشعبة
     try {
-        if (track === 'science') {
-            if (typeof SCIENCE_DATA === 'undefined') throw new Error();
-            currentData = SCIENCE_DATA;
-        } 
-        else if (track === 'math') {
-            if (typeof MATH_DATA === 'undefined') throw new Error();
-            currentData = MATH_DATA;
-        } 
-        else if (track === 'lit') {
-            if (typeof LIT_DATA === 'undefined') throw new Error();
-            currentData = LIT_DATA;
-        }
-    } catch (e) {
-        alert("خطأ: ملف بيانات الشعبة غير موجود! تأكد من وجود ملفات (1_science.js, 2_math.js, 3_lit.js) في نفس المجلد.");
+        if (track === 'science') currentData = SCIENCE_DATA;
+        else if (track === 'math') currentData = MATH_DATA;
+        else if (track === 'lit') currentData = LIT_DATA;
+        
+        if(!currentData) throw new Error("البيانات لم تحمل");
+
+    } catch(e) {
+        // رسالة خطأ لو الملفات مش مترتبة صح على جيت هاب
+        alert("خطأ! تأكد أنك قمت بتسمية ملفات الداتا على GitHub بـ: 1_science.js و 2_math.js و 3_lit.js");
         return;
     }
 
-    // الانتقال للصفحة
     document.getElementById('login-section').classList.remove('active');
     document.getElementById('content-section').classList.add('active');
     
-    const trackName = track === 'science' ? 'علمي علوم' : track === 'math' ? 'علمي رياضة' : 'أدبي';
-    document.getElementById('student-display').innerHTML = `👤 ${trackName} <span style="color:#666">|</span> 🔑 ${code}`;
+    const names = {"science": "علمي علوم", "math": "علمي رياضة", "lit": "أدبي"};
+    document.getElementById('student-display').innerText = `${names[track]} | كود: ${code}`;
 
     renderSubjects();
 });
 
-// عرض المواد
+// عرض المواد (تم التعديل لإضافة الصور)
 function renderSubjects() {
     const grid = document.getElementById('cards-container');
     grid.innerHTML = "";
     document.getElementById('page-title').innerText = "المواد الدراسية";
     document.getElementById('back-btn').style.display = "none";
 
-    Object.keys(currentData).forEach(subject => {
-        createCard(subject, "https://cdn-icons-png.flaticon.com/512/3426/3426653.png", () => {
-            renderTeachers(currentData[subject], renderSubjects);
+    Object.keys(currentData).forEach(subjectName => {
+        // نختار الصورة المناسبة من القاموس اللي فوق، لو ملهاش صورة ناخد الافتراضية
+        const subjectIcon = SUBJECT_IMAGES[subjectName] || SUBJECT_IMAGES["default"];
+        
+        createCard(subjectName, subjectIcon, () => {
+            renderTeachers(currentData[subjectName], renderSubjects);
         });
     });
 }
@@ -110,6 +102,7 @@ function renderTeachers(teachers, goBack) {
     setupBack(goBack);
 
     Object.keys(teachers).forEach(teacher => {
+        // صورة ثابتة للمدرسين
         createCard(teacher, "https://cdn-icons-png.flaticon.com/512/1995/1995539.png", () => {
             renderCourses(teachers[teacher], () => renderTeachers(teachers, goBack));
         });
@@ -122,8 +115,6 @@ function renderCourses(courses, goBack) {
     grid.innerHTML = "";
     document.getElementById('page-title').innerText = "المحاضرات";
     setupBack(goBack);
-
-    if(courses.length === 0) grid.innerHTML = "<p style='width:100%;text-align:center'>لا توجد محاضرات حالياً</p>";
 
     courses.forEach(course => {
         const div = document.createElement('div');
@@ -140,20 +131,21 @@ function playVideo(url, goBack) {
     const id = extractYouTubeID(url);
     
     if(!id) {
-        alert("عفواً، رابط الفيديو غير متاح حالياً");
-        return;
+        alert("فيديو تجريبي (الرابط يحتاج تحديث)");
+        grid.innerHTML = `<div class="video-wrapper"><div id="player" data-plyr-provider="youtube" data-plyr-embed-id="S212g44vPjE"></div></div>`;
+    } else {
+        grid.innerHTML = `<div class="video-wrapper"><div id="player" data-plyr-provider="youtube" data-plyr-embed-id="${id}"></div></div>`;
     }
-
-    grid.innerHTML = `<div class="video-wrapper"><div id="player" data-plyr-provider="youtube" data-plyr-embed-id="${id}"></div></div>`;
+    
     new Plyr('#player', { controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'], youtube: { noCookie: true, rel: 0, showinfo: 0, modestbranding: 1 } });
     setupBack(goBack);
 }
 
-// أدوات مساعدة
 function createCard(title, icon, action) {
     const d = document.createElement('div');
     d.className = 'card';
-    d.innerHTML = `<img src="${icon}"><h3>${title}</h3>`;
+    // تعديل بسيط في ال CSS عشان الصور الجديدة تظهر بشكل أحسن
+    d.innerHTML = `<img src="${icon}" style="width: 70px; height: 70px; margin-bottom: 15px;"><h3>${title}</h3>`;
     d.onclick = action;
     document.getElementById('cards-container').appendChild(d);
 }
@@ -162,18 +154,6 @@ function setupBack(action) {
     const b = document.getElementById('back-btn');
     b.style.display = "block";
     b.onclick = action;
-}
-
-function createStars() {
-    const container = document.getElementById('stars-container');
-    if(!container) return;
-    for(let i=0; i<80; i++){
-        const s = document.createElement('div');
-        s.className = 'star';
-        s.style.left = Math.random()*100+'%'; s.style.top = Math.random()*100+'%';
-        let size = Math.random()*3; s.style.width=size+'px'; s.style.height=size+'px';
-        container.appendChild(s);
-    }
 }
 
 function extractYouTubeID(url) {
