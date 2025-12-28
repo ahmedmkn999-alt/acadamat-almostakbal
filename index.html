@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FULL MARK Platform</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <link rel="stylesheet" href="style.css">
@@ -12,36 +12,46 @@
     <div id="stars-container"></div>
 
     <section id="login-section" class="page active">
-        <div class="login-box">
+        <div class="login-container-fixed">
             <h1 class="logo">FULL MARK</h1>
-            <p class="slogan">بوابتك نحو الدرجة النهائية</p>
             
-            <div class="input-group">
-                <label>اختر الشعبة:</label>
-                <select id="track-select">
-                    <option value="علمي علوم">علمي علوم</option>
-                    <option value="علمي رياضة">علمي رياضة</option>
-                    <option value="أدبي">أدبي</option>
-                </select>
-                
-                <input type="text" id="access-code" placeholder="أدخل كود الاشتراك هنا">
-                <button id="login-btn">دخول المنصة 🚀</button>
+            <div id="saved-account-area" style="display: none;">
+                <p>مرحباً بك مجدداً! 👋</p>
+                <div class="saved-code-box" onclick="autoLogin()">
+                    <span id="saved-code-text"></span>
+                    <small>(اضغط للدخول)</small>
+                </div>
+                <button class="clear-btn" onclick="clearSavedData()">تسجيل دخول بكود جديد</button>
             </div>
-            <p id="error-msg" style="color: #ff4444; display: none;">الكود غير صحيح أو انتهت صلاحيته</p>
+
+            <div id="login-form-area">
+                <p class="slogan">بوابتك نحو الدرجة النهائية</p>
+                <div class="input-group">
+                    <label>اختر الشعبة:</label>
+                    <select id="track-select">
+                        <option value="علمي علوم">علمي علوم</option>
+                        <option value="علمي رياضة">علمي رياضة</option>
+                        <option value="أدبي">أدبي</option>
+                    </select>
+                    
+                    <input type="tel" id="access-code" placeholder="أدخل كود الاشتراك هنا">
+                    <button id="login-btn">دخول المنصة 🚀</button>
+                </div>
+            </div>
+
+            <p id="countdown-msg" style="display:none; color: var(--neon); margin-top: 15px;">جاري الدخول خلال <span id="timer">5</span>...</p>
         </div>
     </section>
 
     <section id="content-section" class="page">
         <nav class="navbar">
-            <div class="student-info" id="student-display">
-                </div>
+            <div class="student-info" id="student-display"></div>
             <button id="back-btn" style="display: none;">⬅ رجوع</button>
         </nav>
 
         <h2 id="page-title">المواد الدراسية</h2>
         
-        <div class="grid-container" id="cards-container">
-            </div>
+        <div class="grid-container" id="cards-container"></div>
     </section>
 
     <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
