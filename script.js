@@ -8,21 +8,41 @@ const CONFIG = {
 
 let fullData = null, playerInstance = null;
 
-function switchPage(id) {
-    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+// دالة التنقل المحسنة
+function switchPage(pageId) {
+    const allPages = document.querySelectorAll('.page-section');
+    allPages.forEach(p => {
+        p.style.display = 'none';
+        p.classList.remove('active');
+    });
+    
+    const target = document.getElementById(pageId);
+    if (target) {
+        target.style.display = (pageId === 'login-section') ? 'flex' : 'flex';
+        if(pageId === 'dashboard-section' || pageId === 'player-section') target.style.display = 'flex';
+        setTimeout(() => target.classList.add('active'), 10);
+    }
 }
 
+// دالة تسجيل الدخول
 async function handleLogin() {
     const code = document.getElementById('student-code').value.trim();
+    const btn = document.querySelector('.btn-gold');
+    
     if (CONFIG.tracks[code]) {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
         try {
             const res = await fetch(CONFIG.tracks[code]);
             fullData = await res.json();
             renderDashboard();
             switchPage('dashboard-section');
-        } catch (e) { alert("خطأ في الاتصال بالسيرفر"); }
-    } else { alert("الكود غير صحيح!"); }
+        } catch (e) {
+            alert("خطأ في جلب البيانات، تأكد من الانترنت.");
+            btn.innerHTML = 'ابدأ الرحلة الآن <i class="fas fa-rocket"></i>';
+        }
+    } else {
+        alert("الكود غير صحيح!");
+    }
 }
 
 function renderDashboard() {
@@ -36,7 +56,7 @@ function renderDashboard() {
             <div class="card-img"><img src="https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=400"></div>
             <div class="card-info">
                 <h3>${key}</h3>
-                <p style="color:#888; font-size:0.9rem">اضغط لبدء المذاكرة</p>
+                <p style="color:#888; font-size:0.9rem">اضغط للمشاهدة</p>
             </div>
         `;
         grid.appendChild(card);
@@ -48,6 +68,7 @@ function openPlayer(key) {
     const lessons = Array.isArray(fullData[key]) ? fullData[key] : [];
     const list = document.getElementById('lessons-list');
     list.innerHTML = '';
+    
     lessons.forEach((l, i) => {
         const li = document.createElement('li');
         li.className = 'lesson-item';
@@ -55,14 +76,19 @@ function openPlayer(key) {
         li.onclick = () => playVideo(l, i);
         list.appendChild(li);
     });
+    
     switchPage('player-section');
     if(lessons.length) playVideo(lessons[0], 0);
 }
 
 function playVideo(lesson, index) {
-    const videoId = lesson.url.match(/(?:v=|\/)([0-9A-Za-z_-]{11})/)[1];
-    document.querySelector('#player iframe').src = `https://www.youtube.com/embed/${videoId}?modestbranding=1&rel=0`;
+    const videoIdMatch = lesson.url.match(/(?:v=|\/)([0-9A-Za-z_-]{11})/);
+    if (!videoIdMatch) return;
+    
+    const id = videoIdMatch[1];
+    document.querySelector('#player iframe').src = `https://www.youtube.com/embed/${id}?modestbranding=1&rel=0`;
     document.getElementById('lesson-title-display').textContent = lesson.title || lesson.lesson_name;
+    
     document.querySelectorAll('.lesson-item').forEach((li, i) => li.classList.toggle('active', i === index));
     if(!playerInstance) playerInstance = new Plyr('#player');
 }
