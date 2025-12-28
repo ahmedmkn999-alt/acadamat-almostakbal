@@ -18,13 +18,13 @@
         <div class="login-container">
             <div class="logo-area">
                 <i class="fas fa-graduation-cap logo-icon"></i>
-                <h1 class="gold-text">أكاديمية المستقبل</h1>
+                <h1 class="gold-text title-main">أكاديمية المستقبل</h1>
             </div>
             <div class="typing-text gold-text"><span id="typewriter"></span></div>
             <div class="input-form">
                 <div class="input-group">
-                    <i class="fas fa-key"></i>
-                    <input type="text" id="student-code" placeholder="أدخل كود المرور..." autocomplete="off">
+                    <i class="fas fa-lock"></i>
+                    <input type="text" id="student-code" placeholder="أدخل الكود الخاص بك..." autocomplete="off">
                 </div>
                 <button onclick="handleLogin()" class="btn-pro btn-gold">
                     <span>ابدأ الرحلة الآن</span>
@@ -35,7 +35,7 @@
         </div>
     </section>
 
-    <section id="dashboard-section" class="page-section">
+    <section id="dashboard-section" class="page-section" style="display:none;">
         <header class="pro-header">
             <div class="user-info">
                 <div class="avatar">ط</div>
@@ -43,13 +43,13 @@
             </div>
             <button onclick="logout()" class="btn-pro btn-red-outline">خروج</button>
         </header>
-        <div class="main-content">
-            <h2 class="title-section">المواد والمدرسين المتاحين</h2>
+        <div class="main-content container">
+            <h2 class="section-title">المواد والمدرسين المتاحين</h2>
             <div class="subjects-grid" id="subjects-grid"></div>
         </div>
     </section>
 
-    <section id="player-section" class="page-section">
+    <section id="player-section" class="page-section" style="display:none;">
         <header class="pro-header">
             <button onclick="switchPage('dashboard-section')" class="btn-pro btn-glass">
                 <i class="fas fa-arrow-right"></i> عودة
@@ -58,7 +58,7 @@
         </header>
         <div class="player-layout">
             <aside class="sidebar">
-                <div class="sidebar-header">المحاضرات</div>
+                <div class="sidebar-header">قائمة المحاضرات</div>
                 <ul id="lessons-list"></ul>
             </aside>
             <main class="video-main">
@@ -66,8 +66,8 @@
                     <iframe src="" allowfullscreen allow="autoplay"></iframe>
                 </div>
                 <div class="lesson-desc">
-                    <h2 id="lesson-title-display"></h2>
-                    <p>استمتع بالمشاهدة ودون ملاحظاتك.</p>
+                    <h2 id="lesson-title-display" class="gold-text"></h2>
+                    <p>استمتع بالمشاهدة ودون ملاحظاتك لتحقيق حلمك.</p>
                 </div>
             </main>
         </div>
