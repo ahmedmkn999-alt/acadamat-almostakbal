@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أكاديمية المستقبل | برو</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="stars-container"></div>
+
+    <section id="login-section" class="page-section active">
+        <div class="login-container">
+            <div class="logo-area">
+                <i class="fas fa-graduation-cap logo-icon"></i>
+                <h1 class="gold-text">أكاديمية المستقبل</h1>
+            </div>
+            <div class="typing-text gold-text"><span id="typewriter"></span></div>
+            <div class="input-form">
+                <div class="input-group">
+                    <i class="fas fa-key"></i>
+                    <input type="text" id="student-code" placeholder="أدخل كود المرور..." autocomplete="off">
+                </div>
+                <button onclick="handleLogin()" class="btn-pro btn-gold">
+                    <span>ابدأ الرحلة الآن</span>
+                    <i class="fas fa-rocket"></i>
+                </button>
+                <p id="login-error" class="error-msg"></p>
+            </div>
+        </div>
+    </section>
+
+    <section id="dashboard-section" class="page-section">
+        <header class="pro-header">
+            <div class="user-info">
+                <div class="avatar">ط</div>
+                <h3>مرحباً بك يا بطل</h3>
+            </div>
+            <button onclick="logout()" class="btn-pro btn-red-outline">خروج</button>
+        </header>
+        <div class="main-content">
+            <h2 class="title-section">المواد والمدرسين المتاحين</h2>
+            <div class="subjects-grid" id="subjects-grid"></div>
+        </div>
+    </section>
+
+    <section id="player-section" class="page-section">
+        <header class="pro-header">
+            <button onclick="switchPage('dashboard-section')" class="btn-pro btn-glass">
+                <i class="fas fa-arrow-right"></i> عودة
+            </button>
+            <h3 id="current-subject-title" class="gold-text">المادة</h3>
+        </header>
+        <div class="player-layout">
+            <aside class="sidebar">
+                <div class="sidebar-header">المحاضرات</div>
+                <ul id="lessons-list"></ul>
+            </aside>
+            <main class="video-main">
+                <div class="plyr__video-embed" id="player">
+                    <iframe src="" allowfullscreen allow="autoplay"></iframe>
+                </div>
+                <div class="lesson-desc">
+                    <h2 id="lesson-title-display"></h2>
+                    <p>استمتع بالمشاهدة ودون ملاحظاتك.</p>
+                </div>
+            </main>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>
