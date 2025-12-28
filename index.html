@@ -3,37 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FULL MARK | منصة التفوق</title>
+    <title>FULL MARK Platform</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    
     <div id="stars-container"></div>
 
     <section id="login-section" class="page active">
         <div class="login-box">
-            <h1 class="main-logo">FULL MARK</h1>
-            <p class="quote">"طريقك للدرجة النهائية يبدأ هنا"</p>
-            <div class="form-group">
-                <input type="text" id="student-name" placeholder="اسمك">
-                <select id="student-track">
+            <h1 class="logo">FULL MARK</h1>
+            <p class="slogan">بوابتك نحو الدرجة النهائية</p>
+            
+            <div class="input-group">
+                <label>اختر الشعبة:</label>
+                <select id="track-select">
                     <option value="علمي علوم">علمي علوم</option>
                     <option value="علمي رياضة">علمي رياضة</option>
                     <option value="أدبي">أدبي</option>
                 </select>
-                <input type="text" id="student-code" placeholder="كود التفعيل">
-                <button id="login-btn">دخول المنصة</button>
+                
+                <input type="text" id="access-code" placeholder="أدخل كود الاشتراك هنا">
+                <button id="login-btn">دخول المنصة 🚀</button>
             </div>
+            <p id="error-msg" style="color: #ff4444; display: none;">الكود غير صحيح أو انتهت صلاحيته</p>
         </div>
     </section>
 
-    <section id="platform-section" class="page">
-        <nav class="top-nav">
-            <div class="user-card" id="user-display"></div>
-            <button class="back-btn" id="back-button" style="display: none;">⬅ رجوع</button>
+    <section id="content-section" class="page">
+        <nav class="navbar">
+            <div class="student-info" id="student-display">
+                </div>
+            <button id="back-btn" style="display: none;">⬅ رجوع</button>
         </nav>
-        <h2 id="section-title">المواد الدراسية</h2>
-        <div class="content-grid" id="main-grid"></div>
+
+        <h2 id="page-title">المواد الدراسية</h2>
+        
+        <div class="grid-container" id="cards-container">
+            </div>
     </section>
 
     <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
