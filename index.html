@@ -3,76 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أكاديمية المستقبل | برو</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>FULL MARK | منصة التفوق</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div id="stars-container"></div>
 
-    <section id="login-section" class="page-section active">
+    <section id="login-section" class="page active">
         <div class="login-box">
-            <div class="header-logo">
-                <i class="fas fa-graduation-cap"></i>
-                <h1 class="gold-text">أكاديمية المستقبل</h1>
-            </div>
-            <p class="typing-text gold-text" id="typewriter"></p>
-            <div class="form-container">
-                <div class="field-input">
-                    <i class="fas fa-lock"></i>
-                    <input type="text" id="student-code" placeholder="أدخل كود المرور..." autocomplete="off">
-                </div>
-                <button onclick="handleLogin()" class="main-btn-pro">
-                    <span>ابدأ الرحلة الآن</span>
-                    <i class="fas fa-rocket"></i>
-                </button>
-                <p id="login-error" class="err-msg"></p>
+            <h1 class="main-logo">FULL MARK</h1>
+            <p class="quote">"طريقك للدرجة النهائية يبدأ هنا"</p>
+            <div class="form-group">
+                <input type="text" id="student-name" placeholder="اسمك">
+                <select id="student-track">
+                    <option value="علمي علوم">علمي علوم</option>
+                    <option value="علمي رياضة">علمي رياضة</option>
+                    <option value="أدبي">أدبي</option>
+                </select>
+                <input type="text" id="student-code" placeholder="كود التفعيل">
+                <button id="login-btn">دخول المنصة</button>
             </div>
         </div>
     </section>
 
-    <section id="dashboard-section" class="page-section">
-        <header class="top-nav">
-            <div class="profile-part">
-                <div class="avatar">ط</div>
-                <h3 id="welcome-msg">مرحباً بك يا بطل</h3>
-            </div>
-            <button onclick="logout()" class="btn-exit">خروج <i class="fas fa-sign-out-alt"></i></button>
-        </header>
-        <div class="container-main">
-            <h2 class="title-head">المواد والمدرسين المتاحين</h2>
-            <div class="cards-grid" id="subjects-grid"></div>
-        </div>
+    <section id="platform-section" class="page">
+        <nav class="top-nav">
+            <div class="user-card" id="user-display"></div>
+            <button class="back-btn" id="back-button" style="display: none;">⬅ رجوع</button>
+        </nav>
+        <h2 id="section-title">المواد الدراسية</h2>
+        <div class="content-grid" id="main-grid"></div>
     </section>
 
-    <section id="player-section" class="page-section">
-        <header class="top-nav">
-            <button onclick="switchPage('dashboard-section')" class="btn-back">
-                <i class="fas fa-arrow-right"></i> عودة
-            </button>
-            <h3 id="current-subject-title" class="gold-text">المادة</h3>
-        </header>
-        <div class="player-content">
-            <aside class="side-menu">
-                <div class="side-head">قائمة المحاضرات</div>
-                <ul id="lessons-list"></ul>
-            </aside>
-            <main class="video-main">
-                <div class="plyr__video-embed" id="player">
-                    <iframe src="" allowfullscreen allow="autoplay"></iframe>
-                </div>
-                <div class="info-footer">
-                    <h2 id="lesson-title-display" class="gold-text"></h2>
-                    <p>استمتع بالمشاهدة.. مستقبلك يستحق التركيز.</p>
-                </div>
-            </main>
-        </div>
-    </section>
-
+    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
