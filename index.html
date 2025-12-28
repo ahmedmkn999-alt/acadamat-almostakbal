@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FULL MARK Platform</title>
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    
     <link rel="stylesheet" href="style.css">
+    
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 </head>
 <body>
 
@@ -21,7 +23,7 @@
             <div class="login-body">
                 <div id="login-form-area">
                     <div class="input-group">
-                        <label>اختر مسارك:</label>
+                        <label>اختر الشعبة:</label>
                         <select id="track-select">
                             <option value="science">علمي علوم 🧬</option>
                             <option value="math">علمي رياضة 📐</option>
@@ -34,24 +36,13 @@
                         <button id="login-btn">دخول المنصة 🚀</button>
                     </div>
                 </div>
-            </div>
-            
-            <div class="login-footer">
-                <div class="typewriter">
-                    <h3 id="quote-text">"جاري تحميل حكم اليوم..."</h3>
+                
+                <div class="typewriter-container">
+                    <span id="typewriter-text"></span><span class="cursor">|</span>
                 </div>
             </div>
         </div>
     </section>
-
-    <div class="ticker-wrap">
-        <div class="ticker-move">
-            <div class="ticker-item">📢 أهلاً بك في منصة Full Mark</div>
-            <div class="ticker-item">⭐ ذاكر بذكاء وليس بجهد</div>
-            <div class="ticker-item">🚀 حلمك يستاهل المحاولة</div>
-            <div class="ticker-item">🎓 دفعة 2026 أبطال المستقبل</div>
-        </div>
-    </div>
 
     <section id="content-section" class="page">
         <nav class="navbar">
@@ -68,5 +59,6 @@
     
     <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
     <script src="main.js"></script>
+
 </body>
 </html>
