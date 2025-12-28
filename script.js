@@ -3,217 +3,233 @@ const JSON_URLS = {
     'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
     'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json"
 };
-const BLOCKED_KEYS = ['id', 'name', 'created_at', 'updated_at', 'image_url', 'description', 'subjects'];
-let currentData = null; 
 
-// --- 1. التحقق عند فتح الصفحة ---
+// 🚫 مفاتيح ممنوع تظهر في الكروت
+const BLOCKED_KEYS = ['id', 'name', 'created_at', 'updated_at', 'image_url', 'description', 'subjects', 'metadata', 'title'];
+
+let currentData = null; 
+let loginTimer = null;
+
+// تشغيل عند فتح الموقع
 window.onload = function() {
     createStars();
     checkSavedLogin();
 };
 
+// --- 1. نظام الدخول والحفظ ---
 function checkSavedLogin() {
     const savedCode = localStorage.getItem('studentCode');
     const savedTrack = localStorage.getItem('studentTrack');
 
     if (savedCode && savedTrack) {
-        // إخفاء الفورم العادي وإظهار المنطقة المحفوظة
+        // إخفاء الفورم وإظهار الحساب المحفوظ
         document.getElementById('login-form-area').style.display = 'none';
         document.getElementById('saved-account-area').style.display = 'block';
-        document.getElementById('saved-code-text').innerText = `${savedCode} (${savedTrack})`;
+        document.getElementById('saved-info').innerText = `${savedCode} (${savedTrack})`;
         
-        // بدء العد التنازلي للدخول التلقائي
+        // تشغيل العداد
         startCountdown(savedCode, savedTrack);
     }
 }
 
-// دالة الدخول التلقائي (بالضغط أو بعد العداد)
-function autoLogin() {
-    const savedCode = localStorage.getItem('studentCode');
-    const savedTrack = localStorage.getItem('studentTrack');
-    if(savedCode) performLogin(savedTrack, savedCode);
-}
-
-// دالة مسح البيانات المحفوظة
-function clearSavedData() {
-    localStorage.removeItem('studentCode');
-    localStorage.removeItem('studentTrack');
-    // إيقاف أي عداد شغال
-    clearTimeout(window.loginTimer); 
-    document.getElementById('saved-account-area').style.display = 'none';
-    document.getElementById('countdown-msg').style.display = 'none';
-    document.getElementById('login-form-area').style.display = 'block';
-}
-
-// عداد تنازلي
 function startCountdown(code, track) {
     let timeLeft = 5;
-    const msg = document.getElementById('countdown-msg');
-    const timerSpan = document.getElementById('timer');
-    msg.style.display = 'block';
-
-    const interval = setInterval(() => {
+    const timerElem = document.getElementById('timer-count');
+    const barElem = document.getElementById('progress-fill');
+    
+    // ريست للبار
+    barElem.style.width = '100%';
+    
+    loginTimer = setInterval(() => {
         timeLeft--;
-        timerSpan.innerText = timeLeft;
+        timerElem.innerText = timeLeft;
+        barElem.style.width = (timeLeft * 20) + '%'; // تصغير الشريط
+        
         if (timeLeft <= 0) {
-            clearInterval(interval);
+            clearInterval(loginTimer);
             performLogin(track, code);
         }
     }, 1000);
-
-    // تخزين الـ interval عشان لو الطالب داس "إلغاء" نوقفه
-    window.loginTimer = interval; 
 }
 
-// --- 2. معالجة زر الدخول اليدوي ---
+function autoLogin() {
+    const code = localStorage.getItem('studentCode');
+    const track = localStorage.getItem('studentTrack');
+    if(code) performLogin(track, code);
+}
+
+function clearSavedData() {
+    clearInterval(loginTimer); // وقف العداد فوراً
+    localStorage.removeItem('studentCode');
+    localStorage.removeItem('studentTrack');
+    
+    document.getElementById('saved-account-area').style.display = 'none';
+    document.getElementById('login-form-area').style.display = 'block';
+}
+
+// زر الدخول اليدوي
 document.getElementById('login-btn').addEventListener('click', () => {
     const track = document.getElementById('track-select').value;
     const code = document.getElementById('access-code').value;
-    if(!code) return alert("من فضلك اكتب الكود");
     
-    // حفظ البيانات للمرة القادمة
+    if(!code) return alert("اكتب الكود يا بطل");
+    
+    // حفظ البيانات
     localStorage.setItem('studentCode', code);
     localStorage.setItem('studentTrack', track);
-
+    
     performLogin(track, code);
 });
 
-// --- 3. دالة الدخول الرئيسية (Fetch Data) ---
+// --- 2. جلب البيانات وتنظيفها ---
 async function performLogin(track, code) {
-    const btn = document.getElementById('login-btn');
-    // تغيير النص لو الزر ظاهر
-    if(btn) btn.innerText = "جاري التحميل...";
+    // لو بنعمل دخول أوتوماتيك نغير نص الكارت
+    const loadingText = document.querySelector('.welcome-back') || document.getElementById('login-btn');
+    if(loadingText) loadingText.innerText = "جاري تحضير المواد...";
 
     try {
         const response = await fetch(JSON_URLS[track]);
-        const rawData = await response.json();
+        let rawData = await response.json();
 
+        // 🧠 الذكاء الاصطناعي للفلترة:
+        // 1. لو مصفوفة خد أول عنصر
+        if (Array.isArray(rawData)) rawData = rawData[0];
+
+        // 2. دور على المواد جوه المفاتيح المحتملة
         if (rawData.subjects) currentData = rawData.subjects;
-        else currentData = rawData;
+        else if (rawData.Subjects) currentData = rawData.Subjects;
+        else currentData = rawData; // لو مفيش، خد كله وهنفلتر تحت
 
-        // الانتقال للصفحة التالية
+        // الانتقال للصفحة
         document.getElementById('login-section').classList.remove('active');
         document.getElementById('content-section').classList.add('active');
+        document.getElementById('student-display').innerText = `الشعبة: ${track} | الكود: ${code}`;
         
-        document.getElementById('student-display').innerHTML = `
-            🎓 الشعبة: <b>${track}</b> | 🔑 الكود: <b>${code}</b>
-        `;
+        renderSubjects();
 
-        renderSubjects(); 
-
-    } catch (error) {
-        console.error(error);
-        alert("فشل الاتصال، حاول مرة أخرى");
-        if(btn) btn.innerText = "دخول المنصة 🚀";
-        // لو فشل الأوتوماتيك نرجع للفورم
-        clearSavedData();
+    } catch (e) {
+        console.error(e);
+        alert("خطأ في الاتصال! تأكد من النت");
+        clearSavedData(); // نرجعه يسجل تاني
     }
 }
 
-// --- 4. باقي دوال العرض (بدون تغيير كبير) ---
-function createStars() {
-    const container = document.getElementById('stars-container');
-    if(!container) return;
-    for(let i=0; i<80; i++){
-        const star = document.createElement('div');
-        star.className = 'star';
-        star.style.left = Math.random() * 100 + '%';
-        star.style.top = Math.random() * 100 + '%';
-        const size = Math.random() * 3;
-        star.style.width = size + 'px'; star.style.height = size + 'px';
-        star.style.animationDuration = (Math.random() * 3 + 2) + 's';
-        container.appendChild(star);
-    }
-}
-
+// --- 3. عرض المحتوى (Rendering) ---
 function renderSubjects() {
-    const container = document.getElementById('cards-container');
-    container.innerHTML = "";
+    const grid = document.getElementById('cards-container');
+    grid.innerHTML = "";
     document.getElementById('page-title').innerText = "المواد الدراسية";
     document.getElementById('back-btn').style.display = "none";
 
     const keys = Object.keys(currentData);
+    if(keys.length === 0) grid.innerHTML = "<p>لا توجد مواد.</p>";
+
     keys.forEach(key => {
-        if(BLOCKED_KEYS.includes(key) || typeof currentData[key] !== 'object') return;
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/3426/3426653.png"><h3>${key}</h3>`;
-        card.onclick = () => renderTeachers(currentData[key], renderSubjects);
-        container.appendChild(card);
+        // 🛑 الفلتر: أي مفتاح من القائمة المحظورة أو قيمته مش (مجموعة بيانات) تجاهله
+        if(BLOCKED_KEYS.includes(key)) return;
+        if(typeof currentData[key] !== 'object' && !Array.isArray(currentData[key])) return;
+
+        createCard(key, "https://cdn-icons-png.flaticon.com/512/3426/3426653.png", () => {
+            renderTeachers(currentData[key], renderSubjects);
+        });
     });
 }
 
-function renderTeachers(teachersData, backFunction) {
-    const container = document.getElementById('cards-container');
-    container.innerHTML = "";
-    document.getElementById('page-title').innerText = "اختر المدرس";
-    const backBtn = document.getElementById('back-btn');
-    backBtn.style.display = "block";
-    backBtn.onclick = backFunction;
+function renderTeachers(data, goBack) {
+    const grid = document.getElementById('cards-container');
+    grid.innerHTML = "";
+    document.getElementById('page-title').innerText = "المدرسين";
+    setupBackBtn(goBack);
 
-    let teachersList = teachersData;
-    if (!Array.isArray(teachersData) && typeof teachersData === 'object') {
-        teachersList = Object.keys(teachersData).map(key => {
-            return typeof teachersData[key] === 'object' ? {name: key, ...teachersData[key]} : {name: key};
-        });
-    }
+    // توحيد شكل البيانات (Array ولا Object)
+    let list = [];
+    if(Array.isArray(data)) list = data;
+    else list = Object.keys(data).map(k => typeof data[k] === 'object' ? {name: k, ...data[k]} : {name: k});
 
-    if (!teachersList || Object.keys(teachersList).length === 0) {
-        container.innerHTML = "<p style='width:100%; text-align:center;'>لا يوجد مدرسين</p>"; return;
-    }
-
-    const loopData = Array.isArray(teachersData) ? teachersData : Object.keys(teachersData);
-    loopData.forEach(item => {
-        let name, content;
-        if (typeof item === 'string') { name = item; content = teachersData[item]; }
-        else { name = item.name || "مدرس"; content = item.courses || item; }
+    list.forEach(item => {
+        let name = item.name || "مدرس";
+        let content = item.courses || item;
         if(BLOCKED_KEYS.includes(name)) return;
 
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/1995/1995539.png"><h3>${name}</h3>`;
-        card.onclick = () => renderCourses(content, () => renderTeachers(teachersData, backFunction));
-        container.appendChild(card);
+        createCard(name, "https://cdn-icons-png.flaticon.com/512/1995/1995539.png", () => {
+            renderCourses(content, () => renderTeachers(data, goBack));
+        });
     });
 }
 
-function renderCourses(coursesData, backFunction) {
-    const container = document.getElementById('cards-container');
-    container.innerHTML = "";
+function renderCourses(data, goBack) {
+    const grid = document.getElementById('cards-container');
+    grid.innerHTML = "";
     document.getElementById('page-title').innerText = "المحاضرات";
-    document.getElementById('back-btn').onclick = backFunction;
+    setupBackBtn(goBack);
 
-    let coursesArray = [];
-    if (Array.isArray(coursesData)) coursesArray = coursesData;
-    else if (typeof coursesData === 'object') coursesArray = Object.keys(coursesData).map(k => ({name: k, ...coursesData[k]}));
+    let list = [];
+    if(Array.isArray(data)) list = data;
+    else list = Object.keys(data).map(k => ({name: k, ...data[k]}));
 
-    if(coursesArray.length === 0) { container.innerHTML = "<p>لا توجد محاضرات.</p>"; return; }
+    if(list.length === 0) grid.innerHTML = "<p>لا توجد محاضرات.</p>";
 
-    coursesArray.forEach(course => {
-        const name = course.name || course.title || course.lesson_name || "محاضرة";
-        const link = course.link || course.url || course.video_url || course.video;
+    list.forEach(item => {
+        const name = item.name || item.title || item.lesson_name || "محاضرة";
+        const link = item.link || item.url || item.video || item.video_url;
+        
         const card = document.createElement('div');
         card.className = 'card';
-        card.innerHTML = `<div style="font-size:40px; margin-bottom:10px">📺</div><h3>${name}</h3>`;
-        if(link) card.onclick = () => playVideo(link, () => renderCourses(coursesData, backFunction));
-        else { card.style.opacity = "0.5"; card.innerHTML += "<small>(غير متاح)</small>"; }
-        container.appendChild(card);
+        card.innerHTML = `<div style="font-size:35px;margin-bottom:5px">📺</div><h3>${name}</h3>`;
+        
+        if(link) {
+            card.onclick = () => playVideo(link, () => renderCourses(data, goBack));
+        } else {
+            card.style.opacity = "0.5";
+            card.innerHTML += "<small>(قريباً)</small>";
+        }
+        grid.appendChild(card);
     });
 }
 
-function playVideo(url, backFunction) {
-    const container = document.getElementById('cards-container');
-    const videoId = extractYouTubeID(url);
-    if(!videoId) return alert("رابط الفيديو غير صالح");
+function playVideo(url, goBack) {
+    const grid = document.getElementById('cards-container');
+    const id = extractYouTubeID(url);
+    if(!id) return alert("الريديو غير متاح");
 
-    container.innerHTML = `<div class="video-wrapper"><div id="player" data-plyr-provider="youtube" data-plyr-embed-id="${videoId}"></div></div>`;
-    new Plyr('#player', { controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'], youtube: { noCookie: true, rel: 0, showinfo: 0, iv_load_policy: 3, modestbranding: 1 } });
-    document.getElementById('back-btn').onclick = backFunction;
+    grid.innerHTML = `<div class="video-wrapper"><div id="player" data-plyr-provider="youtube" data-plyr-embed-id="${id}"></div></div>`;
+    new Plyr('#player', { 
+        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
+        youtube: { noCookie: true, rel: 0, showinfo: 0, modestbranding: 1 } 
+    });
+    setupBackBtn(goBack);
+}
+
+// دوال مساعدة
+function createCard(title, icon, action) {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `<img src="${icon}"><h3>${title}</h3>`;
+    div.onclick = action;
+    document.getElementById('cards-container').appendChild(div);
+}
+
+function setupBackBtn(action) {
+    const btn = document.getElementById('back-btn');
+    btn.style.display = "block";
+    btn.onclick = action;
 }
 
 function extractYouTubeID(url) {
-    if (!url) return null;
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
+    if(!url) return null;
+    const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
     return (match && match[2].length == 11) ? match[2] : null;
+}
+
+function createStars() {
+    const c = document.getElementById('stars-container');
+    if(!c) return;
+    for(let i=0; i<60; i++){
+        const s = document.createElement('div');
+        s.className = 'star';
+        s.style.left = Math.random()*100+'%'; s.style.top = Math.random()*100+'%';
+        s.style.width = Math.random()*2+'px'; s.style.height = s.style.width;
+        s.style.animationDuration = (Math.random()*3+2)+'s';
+        c.appendChild(s);
+    }
 }
