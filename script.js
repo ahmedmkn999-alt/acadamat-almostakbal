@@ -4,89 +4,117 @@ const JSON_URLS = {
     'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json"
 };
 
-let fullData = {};
+let currentData = null;
 
-// توليد النجوم
-function createStars() {
+// نجوم الخلفية
+function initStars() {
     const container = document.getElementById('stars-container');
-    for (let i = 0; i < 120; i++) {
+    for (let i = 0; i < 100; i++) {
         const star = document.createElement('div');
         star.className = 'star';
         star.style.width = star.style.height = Math.random() * 3 + 'px';
         star.style.top = Math.random() * 100 + '%';
         star.style.left = Math.random() * 100 + '%';
-        star.style.animationDelay = Math.random() * 5 + 's';
         container.appendChild(star);
     }
 }
+initStars();
 
-// تسجيل الدخول
+// تسجيل الدخول بالكود
 document.getElementById('login-btn').addEventListener('click', async () => {
-    const name = document.getElementById('student-name').value;
     const track = document.getElementById('student-track').value;
     const code = document.getElementById('student-code').value;
 
-    if (!name || !code) return alert("أكمل بياناتك يا بطل!");
+    if (!code) return alert("من فضلك أدخل كود الاشتراك");
 
     try {
         const res = await fetch(JSON_URLS[track]);
-        fullData = await res.json();
+        const data = await res.json();
         
+        // هنا بنوصل لقائمة المواد الفعالة جوه الرابط
+        currentData = data.subjects || data; 
+
         document.getElementById('login-section').classList.remove('active');
         document.getElementById('platform-section').classList.add('active');
         
-        document.getElementById('user-display').innerHTML = `<b>الطالب:</b> ${name} <br> <b>الكود:</b> ${code} (صالح لـ 2026)`;
+        document.getElementById('user-display').innerHTML = `<b>كود الطالب:</b> ${code} <br> <b>الشعبة:</b> ${track}`;
+        
         renderSubjects();
-    } catch (e) { alert("خطأ في تحميل البيانات!"); }
+    } catch (e) {
+        alert("خطأ في الاتصال.. تأكد من الإنترنت");
+    }
 });
 
+// عرض المواد
 function renderSubjects() {
     const grid = document.getElementById('main-grid');
     grid.innerHTML = "";
     document.getElementById('section-title').innerText = "المواد الدراسية";
     document.getElementById('back-button').style.display = "none";
 
-    Object.keys(fullData).forEach(subject => {
+    // لو البيانات عبارة عن Array أو Object
+    const subjectsList = Array.isArray(currentData) ? currentData : Object.keys(currentData);
+
+    subjectsList.forEach(subject => {
+        const subjectName = typeof subject === 'string' ? subject : (subject.name || "مادة دراسية");
         const card = document.createElement('div');
         card.className = 'item-card';
-        card.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/3426/3426653.png"><h3>${subject}</h3>`;
-        card.onclick = () => renderTeachers(fullData[subject]);
+        card.innerHTML = `
+            <img src="https://cdn-icons-png.flaticon.com/512/3426/3426653.png">
+            <h3>${subjectName}</h3>
+        `;
+        // لما يدوس يفتح المدرسين بتوع المادة دي
+        card.onclick = () => renderTeachers(typeof subject === 'string' ? currentData[subject] : subject.teachers);
         grid.appendChild(card);
     });
 }
 
+// عرض المدرسين
 function renderTeachers(teachers) {
+    if (!teachers) return alert("لا يوجد مدرسين متاحين حالياً");
     const grid = document.getElementById('main-grid');
     grid.innerHTML = "";
     document.getElementById('section-title').innerText = "اختر المدرس";
     document.getElementById('back-button').style.display = "block";
     document.getElementById('back-button').onclick = renderSubjects;
 
-    Object.keys(teachers).forEach(t => {
+    const teacherList = Array.isArray(teachers) ? teachers : Object.keys(teachers);
+
+    teacherList.forEach(t => {
+        const tName = typeof t === 'string' ? t : (t.name || "مدرس المادة");
         const card = document.createElement('div');
         card.className = 'item-card';
-        card.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/1995/1995539.png"><h3>${t}</h3>`;
-        card.onclick = () => renderCourses(teachers[t]);
+        card.innerHTML = `
+            <img src="https://cdn-icons-png.flaticon.com/512/1995/1995539.png">
+            <h3>${tName}</h3>
+        `;
+        card.onclick = () => renderCourses(typeof t === 'string' ? teachers[t] : t.courses);
         grid.appendChild(card);
     });
 }
 
+// عرض الكورسات (المحاضرات)
 function renderCourses(courses) {
+    if (!courses) return alert("لا يوجد محاضرات لهذا المدرس");
     const grid = document.getElementById('main-grid');
     grid.innerHTML = "";
-    document.getElementById('section-title').innerText = "المحاضرات";
+    document.getElementById('section-title').innerText = "المحاضرات المتاحة";
 
-    courses.forEach(course => {
+    courses.forEach(lesson => {
         const card = document.createElement('div');
         card.className = 'item-card';
-        card.innerHTML = `<h3>${course.name || "محاضرة"}</h3><p>اضغط للمشاهدة</p>`;
-        card.onclick = () => playVideo(course.link || course.url);
+        card.innerHTML = `
+            <div style="font-size: 40px;">📺</div>
+            <h3>${lesson.name || "محاضرة جديدة"}</h3>
+        `;
+        card.onclick = () => playVideo(lesson.link || lesson.url);
         grid.appendChild(card);
     });
 }
 
-// أهم جزء: تشغيل الفيديو بدون علامات يوتيوب
+// مشغل الفيديو
 function playVideo(url) {
+    if (!url) return alert("عفواً، رابط الفيديو غير متوفر");
     const grid = document.getElementById('main-grid');
     const videoId = extractID(url);
     
@@ -95,11 +123,8 @@ function playVideo(url) {
             <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="${videoId}"></div>
         </div>
     `;
-
-    // إعدادات Plyr لإخفاء علامة يوتيوب ومنع الاقتراحات
-    const player = new Plyr('#player', {
-        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
-        youtube: { noCookie: true, rel: 0, showinfo: 0, iv_load_policy: 3, modestbranding: 1 }
+    new Plyr('#player', {
+        youtube: { noCookie: true, modestbranding: 1, rel: 0 }
     });
 }
 
@@ -108,5 +133,3 @@ function extractID(url) {
     const match = url.match(regExp);
     return (match && match[2].length == 11) ? match[2] : url;
 }
-
-createStars();
