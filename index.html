@@ -12,46 +12,48 @@
     <div id="stars-container"></div>
 
     <section id="login-section" class="page active">
-        <div class="login-container-fixed">
+        <div class="login-wrapper">
             <h1 class="logo">FULL MARK</h1>
             
             <div id="saved-account-area" style="display: none;">
-                <p>مرحباً بك مجدداً! 👋</p>
-                <div class="saved-code-box" onclick="autoLogin()">
-                    <span id="saved-code-text"></span>
-                    <small>(اضغط للدخول)</small>
+                <p class="welcome-back">أهلاً بعودتك يا بطل! 👋</p>
+                <div class="saved-card" onclick="autoLogin()">
+                    <span id="saved-info"></span>
+                    <div class="loader-bar"><div id="progress-fill"></div></div>
+                    <small>جاري الدخول خلال <span id="timer-count">5</span>...</small>
                 </div>
-                <button class="clear-btn" onclick="clearSavedData()">تسجيل دخول بكود جديد</button>
+                <button class="text-btn" onclick="clearSavedData()">تسجيل دخول بكود مختلف</button>
             </div>
 
             <div id="login-form-area">
-                <p class="slogan">بوابتك نحو الدرجة النهائية</p>
+                <p class="slogan">منصة التفوق للمرحلة الثانوية</p>
                 <div class="input-group">
-                    <label>اختر الشعبة:</label>
+                    <label>الشعبة الدراسية</label>
                     <select id="track-select">
                         <option value="علمي علوم">علمي علوم</option>
                         <option value="علمي رياضة">علمي رياضة</option>
                         <option value="أدبي">أدبي</option>
                     </select>
                     
-                    <input type="tel" id="access-code" placeholder="أدخل كود الاشتراك هنا">
+                    <label>كود الطالب</label>
+                    <input type="tel" id="access-code" placeholder="اكتب الكود هنا">
+                    
                     <button id="login-btn">دخول المنصة 🚀</button>
                 </div>
             </div>
-
-            <p id="countdown-msg" style="display:none; color: var(--neon); margin-top: 15px;">جاري الدخول خلال <span id="timer">5</span>...</p>
         </div>
     </section>
 
     <section id="content-section" class="page">
         <nav class="navbar">
-            <div class="student-info" id="student-display"></div>
+            <div class="user-badge" id="student-display"></div>
             <button id="back-btn" style="display: none;">⬅ رجوع</button>
         </nav>
 
         <h2 id="page-title">المواد الدراسية</h2>
         
-        <div class="grid-container" id="cards-container"></div>
+        <div class="grid-container" id="cards-container">
+            </div>
     </section>
 
     <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
