@@ -2,76 +2,57 @@
     --bg: #050811;
     --card-bg: #0f172a;
     --gold: #FFD700;
-    --gold-dark: #b48811;
-    --gold-grad: linear-gradient(135deg, #FFD700 0%, #FDB931 50%, #b48811 100%);
+    --gold-grad: linear-gradient(135deg, #FFD700 0%, #D4AC0D 100%);
+    --glass: rgba(255, 255, 255, 0.05);
 }
 
-body { font-family: 'Cairo'; background: var(--bg); color: white; margin: 0; overflow-x: hidden; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Cairo', sans-serif; background: var(--bg); color: white; overflow-x: hidden; }
 
-/* التنقل */
-.page-section { display: none; min-height: 100vh; }
-.page-section.active { display: flex; flex-direction: column; animation: fadeIn 0.4s ease; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+/* إدارة الصفحات */
+.page-section { display: none; min-height: 100vh; width: 100%; }
+.page-section.active { display: flex; flex-direction: column; animation: fadeIn 0.5s ease forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* --- تصميم الأزرار الاحترافية (Professional Buttons) --- */
+/* تصميم تسجيل الدخول الاحترافي */
+#login-section { justify-content: center; align-items: center; }
+.login-container {
+    background: var(--glass); backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 215, 0, 0.2); padding: 50px 40px;
+    border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    text-align: center; width: 90%; max-width: 420px;
+}
+.logo-icon { font-size: 4rem; color: var(--gold); filter: drop-shadow(0 0 10px var(--gold)); margin-bottom: 20px; }
+.title-main { font-size: 2rem; margin-bottom: 10px; }
+.gold-text { background: var(--gold-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
+
+.input-group { position: relative; margin: 30px 0; }
+.input-group input {
+    width: 100%; padding: 15px 15px 15px 50px; border-radius: 12px;
+    border: 1px solid rgba(255, 215, 0, 0.3); background: rgba(0,0,0,0.4);
+    color: white; font-family: 'Cairo'; font-size: 1.1rem; text-align: center;
+}
+.input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--gold); }
+
+/* الأزرار الاحترافية */
 .btn-pro {
-    position: relative;
-    padding: 14px 28px;
-    font-family: 'Cairo';
-    font-weight: 700;
-    font-size: 1rem;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    overflow: hidden;
+    padding: 15px 30px; border: none; border-radius: 12px; font-family: 'Cairo';
+    font-weight: 700; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; gap: 10px; transition: 0.3s all ease; width: 100%;
 }
+.btn-gold { background: var(--gold-grad); color: black; box-shadow: 0 5px 20px rgba(212, 172, 13, 0.3); }
+.btn-gold:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(212, 172, 13, 0.5); }
 
-/* الزر الذهبي */
-.btn-gold {
-    background: var(--gold-grad);
-    color: #000;
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
-}
-.btn-gold:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
-}
-.btn-gold:active { transform: translateY(0); }
-
-/* زر الخروج الأحمر */
-.btn-red-outline {
-    background: rgba(255, 77, 77, 0.1);
-    color: #ff4d4d;
-    border: 1px solid #ff4d4d;
-}
-.btn-red-outline:hover { background: #ff4d4d; color: white; box-shadow: 0 5px 15px rgba(255, 77, 77, 0.4); }
-
-/* زر الزجاج (Glass) */
-.btn-glass {
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(5px);
-}
-.btn-glass:hover { background: rgba(255, 255, 255, 0.15); border-color: var(--gold); }
+.btn-red-outline { background: transparent; border: 1px solid #ff4d4d; color: #ff4d4d; width: auto; }
+.btn-red-outline:hover { background: #ff4d4d; color: white; }
 
 /* كروت المواد */
-.subjects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; padding: 25px; }
-.subject-card { background: var(--card-bg); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.3s; overflow: hidden; }
-.subject-card:hover { transform: translateY(-10px); border-color: var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-.card-img { height: 180px; background: #000; position: relative; }
+.subjects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; padding: 20px 0; }
+.subject-card { background: var(--card-bg); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; cursor: pointer; overflow: hidden; }
+.subject-card:hover { transform: translateY(-10px); border-color: var(--gold); }
+.card-img { height: 180px; background: #000; }
 .card-img img { width: 100%; height: 100%; object-fit: cover; }
 .card-info { padding: 20px; text-align: center; }
-
-/* صفحة الدخول */
-.login-container { margin: auto; background: rgba(255,255,255,0.02); padding: 50px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); text-align: center; max-width: 400px; }
-.logo-icon { font-size: 4rem; color: var(--gold); filter: drop-shadow(0 0 10px var(--gold)); }
-.gold-text { background: var(--gold-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
 /* النجوم */
 #stars-container { position: fixed; width: 100%; height: 100%; z-index: -1; }
@@ -79,7 +60,14 @@ body { font-family: 'Cairo'; background: var(--bg); color: white; margin: 0; ove
 @keyframes blink { 50% { opacity: 0.2; } }
 
 /* المشغل */
+.pro-header { background: rgba(0,0,0,0.6); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
 .player-layout { display: flex; height: calc(100vh - 80px); }
-.sidebar { width: 300px; background: #080b14; border-left: 1px solid rgba(255,255,255,0.05); overflow-y: auto; }
-.lesson-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.03); cursor: pointer; transition: 0.2s; }
+.sidebar { width: 300px; background: #080b14; overflow-y: auto; border-left: 1px solid rgba(255,255,255,0.1); }
+.video-area { flex: 1; padding: 20px; overflow-y: auto; }
+.lesson-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.03); cursor: pointer; font-size: 0.95rem; }
 .lesson-item.active { background: rgba(255, 215, 0, 0.1); color: var(--gold); border-right: 4px solid var(--gold); }
+
+@media (max-width: 768px) {
+    .player-layout { flex-direction: column; }
+    .sidebar { width: 100%; height: 250px; }
+}
