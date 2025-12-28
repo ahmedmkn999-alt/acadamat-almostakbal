@@ -1,64 +1,20 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FULL MARK Platform</title>
-    
-    <link rel="stylesheet" href="style.css">
-    
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FULL MARK - تسجيل الدخول</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div id="stars-container"></div>
-
-    <section id="login-section" class="page active">
-        <div class="vertical-layout">
-            <div class="login-header">
-                <h1 class="logo">FULL MARK</h1>
-                <p class="sub-logo">رحلة التفوق تبدأ هنا</p>
-            </div>
-
-            <div class="login-body">
-                <div id="login-form-area">
-                    <div class="input-group">
-                        <label>اختر الشعبة:</label>
-                        <select id="track-select">
-                            <option value="science">علمي علوم 🧬</option>
-                            <option value="math">علمي رياضة 📐</option>
-                            <option value="lit">أدبي 📜</option>
-                        </select>
-                        
-                        <label>كود الطالب:</label>
-                        <input type="tel" id="access-code" placeholder="اكتب أي رقم للدخول">
-                        
-                        <button id="login-btn">دخول المنصة 🚀</button>
-                    </div>
-                </div>
-                
-                <div class="typewriter-container">
-                    <span id="typewriter-text"></span><span class="cursor">|</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="content-section" class="page">
-        <nav class="navbar">
-            <div class="user-badge" id="student-display"></div>
-            <button id="back-btn" style="display: none;">رجوع</button>
-        </nav>
-        <h2 id="page-title">المواد</h2>
-        <div class="grid-container" id="cards-container"></div>
-    </section>
-
-    <script src="1_science.js"></script>
-    <script src="2_math.js"></script>
-    <script src="3_lit.js"></script>
-    
-    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
-    <script src="main.js"></script>
-
+<div class="login-container">
+  <h1>FULL MARK</h1>
+  <div class="motivational"><span>استعد لتفوقك! | تعلم اليوم لتنجح غداً! | النجاح يبدأ من هنا!</span></div>
+  <input type="text" id="codeInput" placeholder="أدخل كود الدخول">
+  <button onclick="checkCode()">دخول</button>
+  <div id="errorMsg" class="error"></div>
+</div>
+<script src="main.js"></script>
+<script src="index.js"></script>
 </body>
 </html>
