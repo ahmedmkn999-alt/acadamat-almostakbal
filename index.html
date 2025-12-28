@@ -15,59 +15,59 @@
     <div id="stars-container"></div>
 
     <section id="login-section" class="page-section active">
-        <div class="login-container">
-            <div class="logo-area">
-                <i class="fas fa-graduation-cap logo-icon"></i>
-                <h1 class="gold-text title-main">أكاديمية المستقبل</h1>
+        <div class="login-box">
+            <div class="header-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <h1 class="gold-text">أكاديمية المستقبل</h1>
             </div>
-            <div class="typing-text gold-text"><span id="typewriter"></span></div>
-            <div class="input-form">
-                <div class="input-group">
+            <p class="typing-text gold-text" id="typewriter"></p>
+            <div class="form-container">
+                <div class="field-input">
                     <i class="fas fa-lock"></i>
-                    <input type="text" id="student-code" placeholder="أدخل الكود الخاص بك..." autocomplete="off">
+                    <input type="text" id="student-code" placeholder="أدخل كود المرور..." autocomplete="off">
                 </div>
-                <button onclick="handleLogin()" class="btn-pro btn-gold">
+                <button onclick="handleLogin()" class="main-btn-pro">
                     <span>ابدأ الرحلة الآن</span>
                     <i class="fas fa-rocket"></i>
                 </button>
-                <p id="login-error" class="error-msg"></p>
+                <p id="login-error" class="err-msg"></p>
             </div>
         </div>
     </section>
 
-    <section id="dashboard-section" class="page-section" style="display:none;">
-        <header class="pro-header">
-            <div class="user-info">
+    <section id="dashboard-section" class="page-section">
+        <header class="top-nav">
+            <div class="profile-part">
                 <div class="avatar">ط</div>
-                <h3>مرحباً بك يا بطل</h3>
+                <h3 id="welcome-msg">مرحباً بك يا بطل</h3>
             </div>
-            <button onclick="logout()" class="btn-pro btn-red-outline">خروج</button>
+            <button onclick="logout()" class="btn-exit">خروج <i class="fas fa-sign-out-alt"></i></button>
         </header>
-        <div class="main-content container">
-            <h2 class="section-title">المواد والمدرسين المتاحين</h2>
-            <div class="subjects-grid" id="subjects-grid"></div>
+        <div class="container-main">
+            <h2 class="title-head">المواد والمدرسين المتاحين</h2>
+            <div class="cards-grid" id="subjects-grid"></div>
         </div>
     </section>
 
-    <section id="player-section" class="page-section" style="display:none;">
-        <header class="pro-header">
-            <button onclick="switchPage('dashboard-section')" class="btn-pro btn-glass">
+    <section id="player-section" class="page-section">
+        <header class="top-nav">
+            <button onclick="switchPage('dashboard-section')" class="btn-back">
                 <i class="fas fa-arrow-right"></i> عودة
             </button>
             <h3 id="current-subject-title" class="gold-text">المادة</h3>
         </header>
-        <div class="player-layout">
-            <aside class="sidebar">
-                <div class="sidebar-header">قائمة المحاضرات</div>
+        <div class="player-content">
+            <aside class="side-menu">
+                <div class="side-head">قائمة المحاضرات</div>
                 <ul id="lessons-list"></ul>
             </aside>
             <main class="video-main">
                 <div class="plyr__video-embed" id="player">
                     <iframe src="" allowfullscreen allow="autoplay"></iframe>
                 </div>
-                <div class="lesson-desc">
+                <div class="info-footer">
                     <h2 id="lesson-title-display" class="gold-text"></h2>
-                    <p>استمتع بالمشاهدة ودون ملاحظاتك لتحقيق حلمك.</p>
+                    <p>استمتع بالمشاهدة.. مستقبلك يستحق التركيز.</p>
                 </div>
             </main>
         </div>
