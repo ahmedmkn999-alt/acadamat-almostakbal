@@ -2,30 +2,43 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>المدرسين</title>
+    <title>اختر المدرس</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="auth.js"></script>
-    <style>body { background: #020617; color: white; font-family: sans-serif; }</style>
+    <style>
+        body { background: #020617; color: white; font-family: sans-serif; }
+        .teacher-card {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+        }
+        .teacher-card:hover {
+            transform: translateY(-5px);
+            border-color: #fbbf24;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+    </style>
 </head>
-<body class="p-4">
+<body class="p-4 md:p-8">
     <div id="app">
-        <div class="flex items-center gap-2 mb-6">
-            <button onclick="history.back()" class="bg-blue-900 w-10 h-10 rounded-full text-white">➜</button>
-            <h1 class="text-xl font-bold text-yellow-400">اختر المدرس</h1>
+        <div class="flex items-center gap-4 mb-8">
+            <button onclick="history.back()" class="bg-slate-800 hover:bg-slate-700 w-12 h-12 rounded-full text-white flex items-center justify-center transition">➜</button>
+            <h1 class="text-2xl font-bold text-yellow-400">اختر المدرس</h1>
         </div>
 
-        <div v-if="loading" class="text-center">جاري التحميل...</div>
+        <div v-if="loading" class="text-center mt-20 text-xl">جاري التحميل...</div>
         
-        <div v-else class="grid grid-cols-1 gap-4">
-            <div v-for="t in teachers" :key="t.id" @click="openTeacher(t)" class="bg-slate-800 p-4 rounded-xl flex items-center gap-4 cursor-pointer border border-slate-700 hover:border-yellow-500">
-                <img :src="t.image_url || 'https://img.icons8.com/color/480/teacher.png'" class="w-14 h-14 rounded-full bg-black">
-                <div>
-                    <h3 class="font-bold text-lg">{{ t.name }}</h3>
-                    <span class="text-sm text-gray-400">{{ t.chapters?.length || 0 }} فصول</span>
-                </div>
+        <div v-else class="grid grid-cols-2 gap-6">
+            <div v-for="t in teachers" :key="t.id" @click="openTeacher(t)" class="teacher-card p-6 rounded-3xl flex flex-col items-center text-center cursor-pointer min-h-[200px] justify-center relative overflow-hidden group">
+                <div class="absolute top-0 w-full h-1 bg-gradient-to-r from-blue-500 to-yellow-500 opacity-50 group-hover:opacity-100 transition"></div>
+                
+                <img :src="t.image_url || 'https://img.icons8.com/color/480/teacher.png'" class="w-24 h-24 rounded-full bg-black border-4 border-slate-700 mb-4 object-cover shadow-lg group-hover:scale-110 transition duration-300">
+                
+                <h3 class="font-bold text-xl mb-1">{{ t.name }}</h3>
+                <span class="text-sm text-gray-400">{{ t.chapters?.length || 0 }} وحدات</span>
             </div>
         </div>
     </div>
