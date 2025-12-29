@@ -3,145 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>المحتوى الدراسي</title>
+    <title>المحتوى الدراسي | FULL MARK</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="auth.js"></script> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="auth.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
         body { 
             background: #020617; 
             color: white; 
-            font-family: 'Tajawal', sans-serif; 
+            font-family: 'Cairo', sans-serif; 
             padding-bottom: 80px;
+            overflow-x: hidden;
         }
 
-        /* تصميم عنوان الشهر/الوحدة */
-        .unit-block { margin-bottom: 40px; }
-        .unit-header {
-            display: flex; align-items: center; gap: 15px; margin-bottom: 20px;
+        /* 🌌 خلفية النجوم المتلألئة 🌌 */
+        .stars-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #020617 100%);
         }
+        .star {
+            position: absolute; background: white; border-radius: 50%; opacity: 0;
+            animation: twinkle var(--duration) infinite ease-in-out;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); box-shadow: 0 0 10px white; }
+        }
+
+        /* عنوان الشهر/الوحدة */
+        .unit-block { margin-bottom: 35px; }
+        .unit-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
         .unit-title {
-            background: #1e293b; color: #fbbf24; 
-            padding: 8px 25px; border-radius: 50px; 
-            font-weight: bold; font-size: 1.1rem;
-            border: 1px solid #fbbf24;
-            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.2);
+            background: rgba(99, 102, 241, 0.1); color: #818cf8; 
+            padding: 6px 20px; border-radius: 12px; 
+            font-weight: 800; font-size: 0.9rem;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            text-transform: uppercase; letter-spacing: 1px;
         }
-        .unit-line { flex: 1; height: 1px; background: #334155; }
+        .unit-line { flex: 1; height: 1px; background: linear-gradient(to left, rgba(99, 102, 241, 0.3), transparent); }
 
-        /* كارت الحصة/الدرس */
+        /* كارت الدرس الفضائي */
         .lesson-card {
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            border: 1px solid rgba(255,255,255,0.05);
-            padding: 20px; rounded-2xl;
+            background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 18px; border-radius: 20px;
             display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer; transition: all 0.3s ease;
-            position: relative; overflow: hidden;
+            cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .lesson-card:hover { 
-            background: #172554; /* لون أزرق غامق عند اللمس */
-            border-color: #3b82f6; 
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            background: rgba(99, 102, 241, 0.15);
+            border-color: #d946ef; 
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(217, 70, 239, 0.15);
         }
         
-        /* رقم الدرس */
-        .lesson-number {
-            width: 45px; height: 45px; 
-            background: rgba(59, 130, 246, 0.15); color: #3b82f6;
-            border-radius: 12px; font-weight: bold; font-size: 1.2rem;
+        .lesson-icon-box {
+            width: 48px; height: 48px; 
+            background: linear-gradient(135deg, #6366f1, #d946ef);
+            border-radius: 14px; color: white;
             display: flex; align-items: center; justify-content: center;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-        .lesson-card:hover .lesson-number {
-            background: #fbbf24; color: #000; border-color: #fbbf24;
+            font-size: 1.2rem; box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
         }
 
-        /* أيقونة السهم */
-        .arrow-icon {
-            color: #475569; transition: 0.3s;
-        }
-        .lesson-card:hover .arrow-icon {
-            color: #fbbf24; transform: translateX(-5px);
+        .arrow-icon { color: rgba(255,255,255,0.2); transition: 0.3s; }
+        .lesson-card:hover .arrow-icon { color: #d946ef; transform: translateX(-5px); }
+
+        .header-glass {
+            background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 15px 20px; border-radius: 0 0 25px 25px;
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-0">
+
+    <div id="stars" class="stars-container"></div>
 
     <div id="app">
-        <header class="flex items-center justify-between mb-10">
+        <header class="header-glass flex items-center justify-between mb-8 sticky top-0 z-50">
             <div class="flex items-center gap-4">
-                <button onclick="history.back()" class="bg-slate-800 hover:bg-slate-700 w-12 h-12 rounded-full text-white text-xl flex items-center justify-center transition shadow-lg">
-                    <i class="fas fa-arrow-right"></i>
+                <button onclick="history.back()" class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-fuchsia-400 flex items-center justify-center active:scale-90 transition">
+                    <i class="fas fa-chevron-right"></i>
                 </button>
                 <div>
-                    <h1 class="text-2xl font-bold text-white leading-tight">المحتوى الدراسي</h1>
-                    <p class="text-gray-400 text-sm mt-1 flex items-center gap-2">
-                        <i class="fas fa-chalkboard-teacher text-yellow-500"></i> {{ teacherName }}
+                    <h1 class="text-lg font-black text-white leading-tight">المحتوى التعليمي</h1>
+                    <p class="text-indigo-300 text-[10px] uppercase tracking-widest flex items-center gap-1">
+                        <i class="fas fa-user-tie text-fuchsia-500"></i> {{ teacherName }}
                     </p>
                 </div>
             </div>
             
-            <a href="timer.html" class="bg-blue-600/10 text-blue-400 px-5 py-2.5 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition border border-blue-500/30 flex items-center gap-2">
-                <i class="fas fa-crown"></i> <span class="hidden md:inline">اشتراكي</span>
+            <a href="timer.html" class="w-10 h-10 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-400 flex items-center justify-center">
+                <i class="fas fa-star"></i>
             </a>
         </header>
 
-        <div v-if="loading" class="flex flex-col items-center justify-center mt-20">
-            <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p class="text-gray-400 animate-pulse">جاري تحضير الحصص...</p>
-        </div>
-
-        <div v-else>
-            <div v-for="(unit, uIndex) in units" :key="uIndex" class="unit-block animate-fade-in" :style="{ animationDelay: uIndex * 0.1 + 's' }">
-                
-                <div class="unit-header">
-                    <div class="unit-title">
-                        <i class="fas fa-folder-open ml-2"></i> {{ unit.unit_name }}
-                    </div>
-                    <div class="unit-line"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div v-for="(ch, cIndex) in unit.chapters" :key="cIndex" @click="openParts(uIndex, cIndex)" class="lesson-card group">
-                        
-                        <div class="flex items-center gap-4">
-                            <div class="lesson-number transition-colors duration-300">
-                                {{ cIndex + 1 }}
-                            </div>
-                            
-                            <div>
-                                <h3 class="text-lg font-bold text-white mb-1 group-hover:text-yellow-400 transition-colors">
-                                    {{ ch.chapter_name || ch.name }}
-                                </h3>
-                                <div class="flex items-center gap-3 text-xs text-gray-400">
-                                    <span class="flex items-center gap-1 bg-black/30 px-2 py-1 rounded-md">
-                                        <i class="fas fa-play-circle text-blue-400"></i> {{ getVideoCount(ch) }} فيديو
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <i class="fas fa-chevron-left arrow-icon"></i>
-                    </div>
-                </div>
+        <div class="px-5">
+            <div v-if="loading" class="flex flex-col items-center justify-center mt-32">
+                <div class="w-10 h-10 border-2 border-fuchsia-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p class="text-indigo-300 text-[10px] uppercase tracking-[3px] animate-pulse">Syncing Lessons...</p>
             </div>
 
-            <div v-if="units.length === 0" class="text-center mt-20 opacity-50">
-                <i class="fas fa-box-open text-6xl mb-4 text-gray-600"></i>
-                <p>لا يوجد محتوى مضاف لهذا المدرس حتى الآن.</p>
+            <div v-else>
+                <div v-for="(unit, uIndex) in units" :key="uIndex" class="unit-block">
+                    
+                    <div class="unit-header">
+                        <div class="unit-title">
+                            <i class="fas fa-rocket ml-2 text-[10px]"></i> {{ unit.unit_name }}
+                        </div>
+                        <div class="unit-line"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-3">
+                        <div v-for="(ch, cIndex) in unit.chapters" :key="cIndex" @click="openParts(uIndex, cIndex)" class="lesson-card group">
+                            
+                            <div class="flex items-center gap-4">
+                                <div class="lesson-icon-box">
+                                    <i class="fas fa-play text-sm"></i>
+                                </div>
+                                
+                                <div>
+                                    <h3 class="text-md font-bold text-gray-100 group-hover:text-fuchsia-400 transition-colors">
+                                        {{ ch.chapter_name || ch.name }}
+                                    </h3>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="text-[9px] text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
+                                            <i class="fas fa-video mr-1"></i> {{ getVideoCount(ch) }} أجزاء
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <i class="fas fa-chevron-left arrow-icon text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="units.length === 0" class="text-center mt-32 opacity-30">
+                    <i class="fas fa-satellite text-5xl mb-4"></i>
+                    <p class="text-sm uppercase tracking-widest">No Content Found</p>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        // ✨ توليد النجوم الفضائية ✨
+        function createStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 80; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                const size = Math.random() * 2 + 1 + 'px';
+                star.style.width = size; star.style.height = size;
+                star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+                container.appendChild(star);
+            }
+        }
+        createStars();
+
         const { createApp, ref, onMounted } = Vue;
 
-        // روابط البيانات (نفس الروابط القديمة لضمان ظهور الداتا)
         const URLS = {
             'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
             'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
@@ -155,19 +185,15 @@
                 const loading = ref(true);
                 const teacherName = ref('المدرس');
                 
-                // قراءة البارامترات من الرابط
                 const params = new URLSearchParams(window.location.search);
                 const yid = params.get('yid');
                 const sid = params.get('sid');
                 const tid = params.get('tid');
 
-                // دالة الانتقال لصفحة الفيديوهات
-                // uid = رقم الوحدة (الشهر), cid = رقم الدرس في هذه الوحدة
                 const openParts = (uid, cid) => {
                     window.location.href = `parts.html?yid=${yid}&sid=${sid}&tid=${tid}&uid=${uid}&cid=${cid}`;
                 };
                 
-                // دالة حساب عدد الفيديوهات داخل الدرس
                 const getVideoCount = (ch) => {
                     let c = 0;
                     if(ch.videos) c += ch.videos.length;
@@ -176,57 +202,33 @@
                 };
 
                 onMounted(async () => {
-                    // 1. التحقق من الكود ومعرفة الشعبة
                     const code = localStorage.getItem('activeCode');
-                    if (!code) return; // الحماية موجودة في auth.js
+                    if (!code) return;
 
                     const db = firebase.database();
-                    let section = 'علمي علوم'; // افتراضي
+                    let section = 'علمي علوم';
                     
                     try {
                         const snap = await db.ref('approvedStudents/' + code).once('value');
                         const student = snap.val();
                         if (student && student.section) section = student.section.trim();
 
-                        // 2. جلب البيانات من الرابط المناسب
-                        const url = URLS[section] || URLS['علمي علوم'];
-                        const res = await fetch(url);
+                        const res = await fetch(URLS[section] || URLS['علمي علوم']);
                         const data = await res.json();
                         
-                        // 3. الوصول للمدرس المطلوب
-                        // البحث عن السنة (نبحث عن ID مطابق أو أي سنة بها مواد كاحتياطي)
-                        let year = data.find(y => y.id == yid) || data.find(y => y.subjects && y.subjects.length > 0);
-                        if (!year) throw new Error("السنة غير موجودة");
-
+                        let year = data.find(y => y.id == yid) || data[0];
                         const sub = year.subjects.find(s => s.id == sid);
-                        if (!sub) throw new Error("المادة غير موجودة");
-
                         const teacher = sub.teachers.find(t => t.id == tid);
-                        if (!teacher) throw new Error("المدرس غير موجود");
                         
                         teacherName.value = teacher.name;
 
-                        // 4. المنطق الذكي (Smart Logic) لترتيب المحتوى
-                        if (teacher.units && teacher.units.length > 0) {
-                            // الحالة الأولى: المدرس عنده نظام "وحدات/شهور" (النظام الجديد)
+                        if (teacher.units) {
                             units.value = teacher.units;
-                        } else if (teacher.chapters && teacher.chapters.length > 0) {
-                            // الحالة الثانية: المدرس عنده نظام "فصول" قديم (النظام القديم)
-                            // نقوم بوضعهم جميعاً داخل وحدة افتراضية
-                            units.value = [{
-                                unit_name: "جميع المحاضرات والمراجعات",
-                                chapters: teacher.chapters
-                            }];
-                        } else {
-                            units.value = [];
+                        } else if (teacher.chapters) {
+                            units.value = [{ unit_name: "المحتوى الدراسي المتاح", chapters: teacher.chapters }];
                         }
-
-                    } catch(e) { 
-                        console.error("خطأ في تحميل البيانات:", e);
-                        // يمكن عرض رسالة خطأ للمستخدم هنا لو حبيت
-                    } finally {
-                        loading.value = false;
-                    }
+                    } catch(e) { console.error(e); } 
+                    finally { loading.value = false; }
                 });
 
                 return { units, teacherName, loading, openParts, getVideoCount };
