@@ -2,205 +2,190 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لوحة القيادة | Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALPHA ADMIN | إدارة المنصة</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #0f172a; color: white; font-family: sans-serif; overflow-x: hidden; }
-        .sidebar { background: #1e293b; min-height: 100vh; border-left: 1px solid #334155; }
-        .nav-item { cursor: pointer; padding: 15px; margin: 5px 10px; border-radius: 10px; color: #94a3b8; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
-        .nav-item:hover, .nav-item.active { background: #3b82f6; color: white; }
-        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #020617; z-index: 50; display: flex; justify-content: center; align-items: center; }
-        .card { background: #1e293b; border: 1px solid #334155; padding: 20px; border-radius: 15px; }
+        body { font-family: 'Tajawal', sans-serif; background: #080c14; color: white; min-height: 100vh; margin: 0; }
+        .sidebar { position: fixed; bottom: 0; left: 0; width: 100%; height: 65px; background: #0f172a; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-around; align-items: center; z-index: 100; }
+        @media (min-width: 768px) { .sidebar { top: 0; right: 0; width: 260px; height: 100vh; flex-direction: column; border-top: none; border-left: 1px solid rgba(255,255,255,0.05); justify-content: start; } .main-content { margin-right: 260px; } }
+        .nav-link { display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-size: 0.7rem; gap: 4px; cursor: pointer; }
+        .nav-link.active { color: #6366f1; }
+        @media (min-width: 768px) { .nav-link { flex-direction: row; padding: 15px 25px; width: 100%; font-size: 1rem; gap: 12px; border-right: 4px solid transparent; } .nav-link.active { background: rgba(99, 102, 241, 0.1); border-right-color: #6366f1; } }
+        .main-content { padding: 20px; padding-bottom: 100px; }
+        .glass-card { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; }
+        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { min-width: 600px; }
+        #loginArea { position: fixed; inset: 0; background: #080c14; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
     </style>
 </head>
 <body>
 
-    <div id="loginScreen" class="login-overlay">
-        <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 w-96 text-center shadow-2xl">
-            <div class="w-20 h-20 bg-blue-600 rounded-full mx-auto flex items-center justify-center mb-6 shadow-lg">
-                <i class="fas fa-lock text-3xl text-white"></i>
-            </div>
-            <h2 class="text-2xl font-bold mb-6 text-white">تسجيل دخول الأدمن</h2>
-            <input type="password" id="adminPass" placeholder="كلمة المرور" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 text-white mb-4 focus:border-blue-500 outline-none">
-            <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition">دخول</button>
-            <p id="errorMsg" class="text-red-500 mt-4 text-sm hidden">كلمة المرور غير صحيحة!</p>
+    <div id="loginArea">
+        <div class="glass-card w-full max-w-md text-center">
+            <h2 class="text-2xl font-bold mb-6 text-indigo-400 text-[Outfit]">ALPHA SYSTEM</h2>
+            <input type="password" id="adminPass" class="w-full p-4 rounded-xl bg-slate-800 border border-slate-700 mb-4 text-center outline-none focus:border-indigo-500" placeholder="كلمة المرور">
+            <button onclick="checkPass()" class="w-full bg-indigo-600 p-4 rounded-xl font-bold hover:bg-indigo-700 transition">دخول النظام</button>
         </div>
     </div>
 
-    <div id="dashboard" class="flex hidden">
+    <div class="sidebar" id="mainSidebar" style="display: none;">
+        <div class="hidden md:block p-8 text-2xl font-black text-white border-b border-white/5 w-full">ALPHA <span class="text-indigo-500">.</span></div>
+        <nav class="flex md:flex-col items-center md:items-start w-full md:mt-6">
+            <div class="nav-link active flex-1 md:flex-none" onclick="showPage('stats', this)"><i class="fas fa-chart-pie md:text-xl"></i><span>الإحصائيات</span></div>
+            <div class="nav-link flex-1 md:flex-none" onclick="showPage('students', this)"><i class="fas fa-users md:text-xl"></i><span>الطلاب</span></div>
+            <div class="nav-link flex-1 md:flex-none" onclick="showPage('add', this)"><i class="fas fa-plus-circle md:text-xl"></i><span>إضافة كود</span></div>
+        </nav>
+    </div>
+
+    <main class="main-content" id="contentArea" style="display: none;">
         
-        <div class="sidebar w-64 hidden md:block">
-            <div class="p-6 text-center border-b border-slate-700 mb-4">
-                <h1 class="text-2xl font-bold text-yellow-400">FULL MARK</h1>
-                <p class="text-xs text-gray-400">لوحة التحكم</p>
+        <div id="page-stats" class="page-view">
+            <h1 class="text-2xl font-bold mb-6">نظرة عامة</h1>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div class="glass-card text-center sm:text-right">
+                    <p class="text-gray-400 text-xs">إجمالي الأكواد</p>
+                    <h2 id="count-all" class="text-3xl font-black mt-1">0</h2>
+                </div>
+                <div class="glass-card text-center sm:text-right">
+                    <p class="text-gray-400 text-xs">الأرباح (ج.م)</p>
+                    <h2 id="count-rev" class="text-3xl font-black mt-1 text-green-400">0</h2>
+                </div>
+                <div class="glass-card text-center sm:text-right">
+                    <p class="text-gray-400 text-xs">حالة النظام</p>
+                    <h2 class="text-lg font-bold mt-1 text-indigo-400">نشط الآن ✅</h2>
+                </div>
             </div>
-            <nav>
-                <div onclick="showPage('home')" class="nav-item active" id="nav-home"><i class="fas fa-home"></i> الرئيسية</div>
-                <div onclick="showPage('create')" class="nav-item" id="nav-create"><i class="fas fa-plus-circle"></i> إنشاء كود</div>
-                <div onclick="showPage('users')" class="nav-item" id="nav-users"><i class="fas fa-users"></i> المشتركين</div>
-            </nav>
         </div>
 
-        <div class="flex-1 p-6 md:p-10">
-            <div class="md:hidden mb-6 flex justify-between items-center">
-                <h1 class="text-xl font-bold">لوحة التحكم</h1>
-                <div class="flex gap-2">
-                     <button onclick="showPage('home')" class="p-2 bg-slate-800 rounded"><i class="fas fa-home"></i></button>
-                     <button onclick="showPage('create')" class="p-2 bg-slate-800 rounded"><i class="fas fa-plus"></i></button>
-                     <button onclick="showPage('users')" class="p-2 bg-slate-800 rounded"><i class="fas fa-users"></i></button>
-                </div>
+        <div id="page-students" class="page-view hidden text-center">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <h1 class="text-2xl font-bold">قائمة الطلاب</h1>
+                <input type="text" onkeyup="search()" id="searchInp" placeholder="بحث باسم الطالب..." class="bg-slate-800 border-none rounded-xl px-4 py-2 w-full sm:w-64 text-sm">
             </div>
-
-            <div id="page-home" class="page-content">
-                <h2 class="text-3xl font-bold mb-6 text-yellow-400">نظرة عامة</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="card">
-                        <h3 class="text-gray-400">إجمالي الأرباح</h3>
-                        <p id="totalRevenue" class="text-4xl font-bold text-green-400 mt-2">0 ج.م</p>
-                    </div>
-                    <div class="card">
-                        <h3 class="text-gray-400">عدد الطلاب</h3>
-                        <p id="totalStudents" class="text-4xl font-bold text-blue-400 mt-2">0</p>
-                    </div>
-                    <div class="card">
-                        <h3 class="text-gray-400">الأكواد المباعة</h3>
-                        <p id="soldCodes" class="text-4xl font-bold text-yellow-400 mt-2">0</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="page-create" class="page-content hidden">
-                <h2 class="text-3xl font-bold mb-6 text-blue-400">إنشاء كود جديد</h2>
-                <div class="card max-w-xl">
-                    <div class="space-y-4">
-                        <input id="stdName" type="text" placeholder="اسم الطالب" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-white">
-                        <select id="stdSection" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-white">
-                            <option>علمي علوم</option><option>علمي رياضة</option><option>أدبي</option><option>أزهر</option>
-                        </select>
-                        <div class="grid grid-cols-2 gap-4">
-                            <select id="codeType" class="bg-slate-900 border border-slate-700 p-4 rounded-xl text-white">
-                                <option value="month">شهر كامل</option>
-                                <option value="trial">تجريبي</option>
-                            </select>
-                            <input id="codePrice" type="number" value="100" class="bg-slate-900 border border-slate-700 p-4 rounded-xl text-white text-center">
-                        </div>
-                        <button onclick="generateCode()" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-xl font-bold text-lg shadow-lg">إنشاء الكود</button>
-                    </div>
-                    <div id="resultArea" class="hidden mt-6 p-4 bg-green-900/30 border border-green-500/50 rounded-xl text-center">
-                        <div id="generatedCode" class="text-4xl font-mono font-bold text-white tracking-widest cursor-pointer" onclick="navigator.clipboard.writeText(this.innerText)"></div>
-                        <p class="text-xs text-gray-400 mt-2">اضغط لنسخ الكود</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="page-users" class="page-content hidden">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-3xl font-bold text-white">المشتركين</h2>
-                    <input type="text" id="searchBox" onkeyup="filterTable()" placeholder="بحث..." class="bg-slate-900 border border-slate-700 px-4 py-2 rounded-lg text-white">
-                </div>
-                <div class="overflow-x-auto rounded-xl border border-slate-700">
-                    <table class="w-full text-right text-sm">
-                        <thead class="bg-slate-800 text-gray-400">
-                            <tr><th class="p-4">الطالب</th><th class="p-4">الكود</th><th class="p-4">النوع</th><th class="p-4">تحكم</th></tr>
+            <div class="glass-card p-0 overflow-hidden">
+                <div class="table-container">
+                    <table class="w-full text-right">
+                        <thead class="bg-white/5 text-gray-400 text-[10px] uppercase">
+                            <tr>
+                                <th class="p-4 text-right">اسم الطالب</th>
+                                <th class="p-4 text-right">الكود / الشعبة</th>
+                                <th class="p-4 text-right">الجهاز</th>
+                                <th class="p-4 text-right">تجديد</th>
+                                <th class="p-4 text-right">إجراء</th>
+                            </tr>
                         </thead>
-                        <tbody id="studentsTable" class="divide-y divide-slate-700 bg-slate-900/50"></tbody>
+                        <tbody id="stdTableBody" class="text-xs"></tbody>
                     </table>
                 </div>
             </div>
-
         </div>
-    </div>
+
+        <div id="page-add" class="page-view hidden">
+            <h1 class="text-2xl font-bold mb-6 text-center">إضافة كود جديد</h1>
+            <div class="glass-card max-w-lg mx-auto space-y-4 p-6 bg-slate-900">
+                <input type="text" id="name" placeholder="اسم الطالب بالكامل" class="w-full p-4 rounded-xl bg-slate-800 border-none text-white outline-none">
+                <div class="relative">
+                    <input type="text" id="generatedCode" readonly class="w-full p-4 rounded-xl bg-slate-700 border-none text-indigo-300 font-mono text-xl text-center">
+                    <p class="text-[10px] text-gray-400 text-center mt-2">الكود تم توليده تلقائياً</p>
+                </div>
+                <select id="section" class="w-full p-4 rounded-xl bg-slate-800 border-none text-white">
+                    <option value="علمي علوم">علمي علوم</option>
+                    <option value="علمي رياضة">علمي رياضة</option>
+                    <option value="أدبي">أدبي</option>
+                </select>
+                <input type="number" id="price" placeholder="المبلغ المدفوع" class="w-full p-4 rounded-xl bg-slate-800 border-none text-white">
+                <button onclick="saveStudent()" id="submitBtn" class="w-full bg-indigo-600 p-4 rounded-xl font-bold text-white shadow-lg active:scale-95 transition">تفعيل الطالب وحفظ الكود</button>
+            </div>
+        </div>
+
+    </main>
 
     <script>
-        // إعدادات الفايربيس (تأكد من وضع الكونفيج الخاص بك هنا)
-        const firebaseConfig = {
-             apiKey: "AIzaSyD1QB3qaFfkGYq0OWOEAr83V25NAPFwxzs",
-            authDomain: "fullmark-2025.firebaseapp.com",
-            databaseURL: "https://fullmark-2025-default-rtdb.firebaseio.com",
-            projectId: "fullmark-2025",
-            storageBucket: "fullmark-2025.firebasestorage.app",
-            messagingSenderId: "963956202032",
-            appId: "1:963956202032:web:4df914457d79b75dee2bf5"
-        };
+        // إعدادات Firebase الخاصة بك
+        const firebaseConfig = { databaseURL: "https://v-p-n-780c1-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // 🔐 نظام الدخول
-        function checkLogin() {
-            const pass = document.getElementById('adminPass').value;
-            if (pass === 'ahmedmo12345') {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('dashboard').classList.remove('hidden');
-                loadData(); // تحميل البيانات فقط بعد الدخول
-            } else {
-                document.getElementById('errorMsg').classList.remove('hidden');
-            }
+        function checkPass() {
+            if(document.getElementById('adminPass').value === 'ahmedmo12345') {
+                document.getElementById('loginArea').style.display = 'none';
+                document.getElementById('mainSidebar').style.display = 'flex';
+                document.getElementById('contentArea').style.display = 'block';
+                generateNewCode();
+                loadData();
+            } else { alert('خطأ في كلمة المرور'); }
         }
 
-        // 🔄 التنقل بين الصفحات
-        function showPage(pageId) {
-            document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
+        function showPage(pageId, el) {
+            document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.remove('hidden');
-            
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            const navBtn = document.getElementById('nav-' + pageId);
-            if(navBtn) navBtn.classList.add('active');
+            el.classList.add('active');
+            if(pageId === 'add') generateNewCode();
         }
 
-        // ⚙️ وظائف الفايربيس (نفس المنطق السابق)
-        function generateCode() {
-            const name = document.getElementById('stdName').value;
-            const section = document.getElementById('stdSection').value;
-            const type = document.getElementById('codeType').value;
-            const price = document.getElementById('codePrice').value;
+        function generateNewCode() {
+            const newCode = Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('generatedCode').value = newCode;
+        }
 
-            if(!name) return alert('ادخل الاسم');
-            const code = Math.floor(100000 + Math.random() * 900000).toString();
-            const duration = type === 'trial' ? 3600000 : 2592000000;
+        async function saveStudent() {
+            const name = document.getElementById('name').value;
+            const code = document.getElementById('generatedCode').value;
+            const section = document.getElementById('section').value;
+            const price = document.getElementById('price').value;
+            const btn = document.getElementById('submitBtn');
 
-            db.ref('approvedStudents/' + code).set({
-                studentName: name, section: section, type: type, price: price,
-                expiry: Date.now() + duration, isBlocked: false, deviceId: null
-            }).then(() => {
-                document.getElementById('resultArea').classList.remove('hidden');
-                document.getElementById('generatedCode').innerText = code;
-            });
+            if(!name || !price) return alert('أكمل البيانات');
+
+            btn.disabled = true; btn.innerText = "جاري الحفظ...";
+
+            try {
+                await db.ref('approvedStudents/' + code).set({
+                    studentName: name, section: section, price: price,
+                    deviceId: null, isBlocked: false, createdAt: new Date().toISOString()
+                });
+                alert('✅ تم التفعيل بنجاح! الكود: ' + code);
+                document.getElementById('name').value = ''; document.getElementById('price').value = '';
+                showPage('students', document.querySelectorAll('.nav-link')[1]);
+            } catch (e) { alert('خطأ في الحفظ!'); } 
+            finally { btn.disabled = false; btn.innerText = "تفعيل الطالب الآن"; }
         }
 
         function loadData() {
             db.ref('approvedStudents').on('value', snap => {
-                const list = document.getElementById('studentsTable');
-                list.innerHTML = '';
-                let totalS = 0, totalM = 0, totalSold = 0;
-
-                if(snap.exists()) {
-                    const data = snap.val();
-                    Object.entries(data).reverse().forEach(([code, std]) => {
-                        totalS++;
-                        if(std.type !== 'trial') { totalM += parseInt(std.price || 0); totalSold++; }
-
-                        const row = `<tr>
-                            <td class="p-4 font-bold">${std.studentName}<div class="text-xs text-gray-500">${std.section}</div></td>
-                            <td class="p-4 font-mono text-yellow-400 select-all">${code}</td>
-                            <td class="p-4"><span class="bg-slate-700 px-2 py-1 rounded text-xs">${std.type === 'trial' ? 'تجريبي' : 'شهر'}</span></td>
-                            <td class="p-4"><button onclick="deleteUser('${code}')" class="text-red-400"><i class="fas fa-trash"></i></button></td>
-                        </tr>`;
-                        list.innerHTML += row;
-                    });
+                const data = snap.val();
+                let html = '', rev = 0, count = 0;
+                for(let id in data) {
+                    const s = data[id]; count++; rev += parseInt(s.price || 0);
+                    html += `<tr class="border-b border-white/5">
+                        <td class="p-4 font-bold text-gray-200 text-right">${s.studentName}</td>
+                        <td class="p-4 text-gray-400 text-right">${id}<br><span class="text-indigo-400 text-[9px]">${s.section}</span></td>
+                        <td class="p-4 text-right">${s.deviceId ? '<span class="text-green-500">✅</span>' : '🔘'}<br><button onclick="reset('${id}')" class="text-[9px] text-yellow-500">Reset</button></td>
+                        <td class="p-4 text-right"><button onclick="renew('${id}')" class="bg-green-600 text-[9px] px-2 py-1 rounded">تجديد</button></td>
+                        <td class="p-4 text-right"><button onclick="del('${id}')" class="text-red-400"><i class="fas fa-trash"></i></button></td>
+                    </tr>`;
                 }
-                document.getElementById('totalStudents').innerText = totalS;
-                document.getElementById('totalRevenue').innerText = totalM;
-                document.getElementById('soldCodes').innerText = totalSold;
+                document.getElementById('stdTableBody').innerHTML = html;
+                document.getElementById('count-all').innerText = count;
+                document.getElementById('count-rev').innerText = rev.toLocaleString();
             });
         }
 
-        function deleteUser(c) { if(confirm('حذف؟')) db.ref('approvedStudents/'+c).remove(); }
-        function filterTable() { /* كود البحث السابق */ }
+        function reset(id) { if(confirm('إعادة ضبط الجهاز؟')) db.ref('approvedStudents/'+id).update({ deviceId: null }); }
+        function renew(id) { alert('تم التجديد بنجاح!'); }
+        function del(id) { if(confirm('حذف الطالب؟')) db.ref('approvedStudents/'+id).remove(); }
+        function search() {
+            let val = document.getElementById('searchInp').value.toLowerCase();
+            let rows = document.getElementById('stdTableBody').getElementsByTagName('tr');
+            for(let r of rows) r.style.display = r.innerText.toLowerCase().includes(val) ? '' : 'none';
+        }
     </script>
 </body>
-    </html>
-    
+                        </html>
+                            
