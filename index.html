@@ -3,197 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أكاديمية المستقبل | تسجيل الدخول</title>
-    
+    <title>FULL MARK | تسجيل الدخول</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script type="module" src="devcheck.js"></script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="auth.js"></script> <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-
         body {
-            display: flex; justify-content: center; align-items: center;
-            min-height: 100vh;
-            /* الخلفية الداكنة المنقطة */
-            background-color: #020617; /* لون أزرق داكن جداً */
+            background-color: #020617;
             background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
             background-size: 30px 30px;
-            overflow: hidden;
-            position: relative;
-            color: #fff; /* لون النص الأساسي أبيض */
+            color: white; font-family: 'Cairo', sans-serif;
+            height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0;
+            flex-direction: column;
         }
-
-        /* الكارد الزجاجي المحسن */
         .login-card {
-            position: relative;
-            background: rgba(255, 255, 255, 0.05); /* شفافية أقل */
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 25px;
-            padding: 60px 40px;
-            width: 90%; max-width: 420px;
-            text-align: center;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-            z-index: 10;
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 25px;
+            padding: 40px; width: 90%; max-width: 400px; text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
         }
-
-        .avatar-box {
-            width: 90px; height: 90px;
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8); /* تدرج أزرق */
-            border-radius: 50%;
-            margin: 0 auto 25px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 3rem; color: white;
-            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.5);
+        .avatar {
+            width: 80px; height: 80px; background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
         }
-
-        h2 { 
-            color: #fff; margin-bottom: 15px; font-weight: 800; letter-spacing: 1px; font-size: 2.2rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        h2 { color: #fbbf24; margin: 10px 0; font-size: 2rem; font-weight: 800; text-shadow: 0 0 10px rgba(251,191,36,0.5); }
+        input {
+            width: 100%; padding: 15px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3); color: white; text-align: center; font-size: 1.1rem; outline: none; margin-bottom: 20px;
         }
-        p.subtitle { 
-            color: rgba(255,255,255,0.8); font-size: 1rem; margin-bottom: 40px; font-weight: 600;
+        input:focus { border-color: #fbbf24; box-shadow: 0 0 10px rgba(251,191,36,0.3); }
+        button {
+            width: 100%; padding: 15px; border-radius: 30px; border: none;
+            background: linear-gradient(90deg, #1e3a8a, #2563eb); color: white;
+            font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.3s;
         }
-
-        .input-group { position: relative; margin-bottom: 30px; }
-        .input-group input {
-            width: 100%; padding: 18px 50px 18px 25px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 35px; color: #fff; font-size: 1.1rem;
-            outline: none; transition: 0.3s;
-        }
-        .input-group input::placeholder { color: rgba(255,255,255,0.6); }
-        .input-group input:focus { 
-            background: rgba(255, 255, 255, 0.15); 
-            border-color: #3b82f6; 
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
-        }
-        .input-group .icon { 
-            position: absolute; right: 25px; top: 50%; 
-            transform: translateY(-50%); color: rgba(255,255,255,0.7); font-size: 1.2rem;
-        }
-
-        .login-btn {
-            width: 100%; padding: 18px;
-            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
-            border: none; border-radius: 35px;
-            color: white; font-size: 1.3rem; font-weight: bold;
-            cursor: pointer; transition: 0.3s;
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.5);
-            text-transform: uppercase; letter-spacing: 1px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .login-btn:hover { 
-            transform: translateY(-5px); 
-            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.7);
-        }
-
-        /* الكتابة المتحركة */
-        .typewriter-container {
-            margin-top: 35px; height: 30px;
-            display: flex; justify-content: center; align-items: center;
-        }
-        #typewriter-text {
-            color: #60a5fa; /* لون أزرق فاتح للنص المتحرك */
-            font-weight: 700; font-size: 1.1rem;
-            text-shadow: 0 0 15px rgba(96, 165, 250, 0.6);
-        }
-        .cursor { color: #fff; animation: blink 1s infinite; margin-right: 5px; font-weight: 300;}
-        @keyframes blink { 50% { opacity: 0; } }
-
-        /* رسالة الخطأ */
-        #statusMessage {
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid #ef4444;
-            color: #fca5a5;
-            padding: 15px; border-radius: 15px;
-            margin-bottom: 25px; display: none; font-size: 1rem;
-        }
-
-        /* الفوتر */
-        .footer {
-            position: fixed; bottom: 25px; 
-            color: rgba(255,255,255,0.5); font-size: 0.9rem;
-            letter-spacing: 1px;
-        }
-        .footer span { color: #60a5fa; font-weight: bold; }
+        button:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(37, 99, 235, 0.5); }
+        #statusMessage { color: #f87171; margin-bottom: 15px; display: none; }
+        .footer { margin-top: 30px; color: #94a3b8; font-size: 0.9rem; }
+        .footer span { color: #fbbf24; font-weight: bold; }
     </style>
 </head>
 <body>
-
     <div class="login-card">
-        <div class="avatar-box">
-            <i class="fas fa-graduation-cap"></i>
-        </div>
-        <h2>أكاديمية المستقبل</h2>
-        <p class="subtitle">بوابتك نحو التفوق والنجاح</p>
-        
+        <div class="avatar"><i class="fas fa-graduation-cap"></i></div>
+        <h2>FULL MARK</h2>
+        <p style="color:#cbd5e1; margin-bottom:30px;">بوابتك نحو التفوق</p>
         <div id="statusMessage"></div>
-
         <form id="loginForm">
-            <div class="input-group">
-                <i class="fas fa-key icon"></i>
-                <input type="tel" id="activationCode" placeholder="أدخل كود الطالب" required autocomplete="off">
-            </div>
-            <button type="submit" id="loginBtn" class="login-btn">
-                تسجيل الدخول <i class="fas fa-arrow-left" style="margin-right: 12px;"></i>
-            </button>
+            <input type="tel" id="activationCode" placeholder="أدخل كود الطالب" required>
+            <button type="submit" id="loginBtn">تسجيل الدخول</button>
         </form>
-
-        <div class="typewriter-container">
-            <span id="typewriter-text"></span><span class="cursor">|</span>
-        </div>
     </div>
-
-    <div class="footer">
-        Designed By <span>OMAR & HATEM</span>
-    </div>
+    <div class="footer">Designed By <span>AHMED MOHAMED</span></div>
 
     <script>
-        // 1. الكتابة المتحركة
-        const phrases = ["✨ حلمك يستاهل تعبك", "🚀 اصنع مستقبلك الآن", "💡 النجاح قرار مش صدفة", "🎓 عافر.. هتوصل!"];
-        let i = 0, j = 0, isDeleting = false;
-        
-        function type() {
-            const current = phrases[i];
-            const text = document.getElementById("typewriter-text");
-            if (isDeleting) {
-                text.textContent = current.substring(0, j--);
-                if (j < 0) { isDeleting = false; i = (i + 1) % phrases.length; }
-            } else {
-                text.textContent = current.substring(0, j++);
-                if (j > current.length) { isDeleting = true; setTimeout(type, 2000); return; }
-            }
-            setTimeout(type, isDeleting ? 50 : 100);
-        }
-        document.addEventListener("DOMContentLoaded", type);
-
-        // 2. الفايربيس وكود الدخول
-        const firebaseConfig = {
-            apiKey: "AIzaSyBK6FZF3LW83qaUHBKYTfiVd2Ozrd1Rf2g",
-            authDomain: "thanawy-1383.firebaseapp.com",
-            databaseURL: "https://thanawy-1383-default-rtdb.firebaseio.com",
-            projectId: "thanawy-1383",
-            storageBucket: "thanawy-1383.firebasestorage.app",
-            messagingSenderId: "1026664406457",
-            appId: "1:1026664406457:web:87d71f7e41bef36ba0aa68"
-        };
-        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const code = document.getElementById('activationCode').value.trim();
             const btn = document.getElementById('loginBtn');
             const msg = document.getElementById('statusMessage');
 
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-left: 10px;"></i> جاري التحقق...';
+            btn.innerHTML = 'جاري التحقق...';
             
             let deviceId = localStorage.getItem('localDeviceId');
             if (!deviceId) {
@@ -205,13 +78,11 @@
                 const snapshot = await db.ref('approvedStudents/' + code).once('value');
                 const data = snapshot.val();
 
-                if (!data) throw "⚠️ الكود غير صحيح";
-                if (data.isBlocked) throw "⛔ تم حظر هذا الحساب";
-                if (data.deviceId && data.deviceId !== deviceId) throw "📱 هذا الكود مستخدم على جهاز آخر";
+                if (!data) throw "الكود غير صحيح";
+                if (data.isBlocked) throw "تم حظر هذا الحساب";
+                if (data.deviceId && data.deviceId !== deviceId) throw "هذا الكود مستخدم على جهاز آخر";
 
-                if (!data.deviceId) {
-                    await db.ref('approvedStudents/' + code).update({ deviceId: deviceId });
-                }
+                if (!data.deviceId) await db.ref('approvedStudents/' + code).update({ deviceId: deviceId });
 
                 localStorage.setItem('activeCode', code);
                 window.location.href = "subjects.html"; 
@@ -219,10 +90,9 @@
             } catch (err) {
                 msg.textContent = err;
                 msg.style.display = 'block';
-                btn.innerHTML = 'تسجيل الدخول <i class="fas fa-arrow-left" style="margin-right: 12px;"></i>';
+                btn.innerHTML = 'تسجيل الدخول';
             }
         });
     </script>
 </body>
-        </html>
-    
+</html>
