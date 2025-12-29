@@ -2,72 +2,120 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FULL MARK | تسجيل الدخول</title>
+    
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="auth.js"></script> <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         body {
             background-color: #020617;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
             background-size: 30px 30px;
             color: white; font-family: 'Cairo', sans-serif;
             height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0;
-            flex-direction: column;
+            flex-direction: column; overflow: hidden; /* منع السكرول */
         }
         .login-card {
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px);
+            background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 25px;
-            padding: 40px; width: 90%; max-width: 400px; text-align: center;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            padding: 40px 30px; width: 90%; max-width: 400px; text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
         .avatar {
-            width: 80px; height: 80px; background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            width: 90px; height: 90px; background: linear-gradient(135deg, #1e3a8a, #3b82f6);
             border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
-            font-size: 2.5rem; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+            font-size: 2.5rem; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); border: 3px solid #0f172a;
         }
-        h2 { color: #fbbf24; margin: 10px 0; font-size: 2rem; font-weight: 800; text-shadow: 0 0 10px rgba(251,191,36,0.5); }
+        h2 { color: #fbbf24; margin: 10px 0; font-size: 2.2rem; font-weight: 800; text-shadow: 0 0 15px rgba(251,191,36,0.4); }
+        .subtitle { color: #94a3b8; margin-bottom: 30px; font-size: 0.95rem; }
+        
         input {
-            width: 100%; padding: 15px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(0,0,0,0.3); color: white; text-align: center; font-size: 1.1rem; outline: none; margin-bottom: 20px;
+            width: 100%; padding: 18px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(15, 23, 42, 0.8); color: white; text-align: center; font-size: 1.2rem; outline: none; margin-bottom: 20px;
+            transition: 0.3s;
         }
-        input:focus { border-color: #fbbf24; box-shadow: 0 0 10px rgba(251,191,36,0.3); }
+        input:focus { border-color: #fbbf24; box-shadow: 0 0 15px rgba(251,191,36,0.2); }
+        
         button {
-            width: 100%; padding: 15px; border-radius: 30px; border: none;
+            width: 100%; padding: 18px; border-radius: 15px; border: none;
             background: linear-gradient(90deg, #1e3a8a, #2563eb); color: white;
             font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.3s;
+            box-shadow: 0 10px 20px rgba(30, 58, 138, 0.4);
         }
-        button:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(37, 99, 235, 0.5); }
-        #statusMessage { color: #f87171; margin-bottom: 15px; display: none; }
-        .footer { margin-top: 30px; color: #94a3b8; font-size: 0.9rem; }
-        .footer span { color: #fbbf24; font-weight: bold; }
+        button:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(30, 58, 138, 0.6); }
+        
+        /* تأثير الكتابة للجمل التحفيزية */
+        .typing-container { height: 30px; margin-top: 25px; display: flex; justify-content: center; align-items: center; }
+        .typing-text { color: #fbbf24; font-weight: bold; font-size: 1rem; }
+        .cursor { display: inline-block; width: 2px; height: 18px; background: #fbbf24; margin-right: 2px; animation: blink 0.7s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .footer { position: fixed; bottom: 20px; font-size: 0.8rem; color: #64748b; }
+        .footer span { color: #3b82f6; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="login-card">
         <div class="avatar"><i class="fas fa-graduation-cap"></i></div>
         <h2>FULL MARK</h2>
-        <p style="color:#cbd5e1; margin-bottom:30px;">بوابتك نحو التفوق</p>
-        <div id="statusMessage"></div>
+        <p class="subtitle">منصة المستقبل التعليمية</p>
+        
+        <div id="statusMessage" style="color:#ef4444; display:none; margin-bottom:10px;"></div>
+        
         <form id="loginForm">
-            <input type="tel" id="activationCode" placeholder="أدخل كود الطالب" required>
-            <button type="submit" id="loginBtn">تسجيل الدخول</button>
+            <input type="tel" id="activationCode" placeholder="أدخل كود الطالب" autocomplete="off" required>
+            <button type="submit" id="loginBtn">تسجيل الدخول <i class="fas fa-arrow-left mr-2"></i></button>
         </form>
+
+        <div class="typing-container">
+            <span class="typing-text"></span><span class="cursor"></span>
+        </div>
     </div>
+    
     <div class="footer">Designed By <span>AHMED MOHAMED</span></div>
 
     <script>
+        // تأثير الكتابة
+        const phrases = ["✨ حلمك يستاهل تعبك", "🚀 اصنع مستقبلك الآن", "💡 عافر.. هتوصل!"];
+        let i = 0, j = 0, isDeleting = false;
+        function type() {
+            const current = phrases[i];
+            const el = document.querySelector(".typing-text");
+            if(isDeleting) {
+                el.textContent = current.substring(0, j--);
+                if(j<0) { isDeleting = false; i = (i+1)%phrases.length; }
+            } else {
+                el.textContent = current.substring(0, j++);
+                if(j>current.length) { isDeleting = true; setTimeout(type, 2000); return; }
+            }
+            setTimeout(type, isDeleting ? 50 : 100);
+        }
+        document.addEventListener("DOMContentLoaded", type);
+
+        // الفايربيس (تأكد من وضع الكونفيج الجديد هنا)
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1QB3qaFfkGYq0OWOEAr83V25NAPFwxzs",
+            authDomain: "fullmark-2025.firebaseapp.com",
+            databaseURL: "https://fullmark-2025-default-rtdb.firebaseio.com",
+            projectId: "fullmark-2025",
+            storageBucket: "fullmark-2025.firebasestorage.app",
+            messagingSenderId: "963956202032",
+            appId: "1:963956202032:web:4df914457d79b75dee2bf5"
+        };
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const code = document.getElementById('activationCode').value.trim();
             const btn = document.getElementById('loginBtn');
             const msg = document.getElementById('statusMessage');
 
-            btn.innerHTML = 'جاري التحقق...';
-            
+            btn.innerHTML = '...جاري التحقق';
             let deviceId = localStorage.getItem('localDeviceId');
             if (!deviceId) {
                 deviceId = 'DID-' + Math.random().toString(36).substr(2, 9);
@@ -77,16 +125,13 @@
             try {
                 const snapshot = await db.ref('approvedStudents/' + code).once('value');
                 const data = snapshot.val();
-
-                if (!data) throw "الكود غير صحيح";
-                if (data.isBlocked) throw "تم حظر هذا الحساب";
-                if (data.deviceId && data.deviceId !== deviceId) throw "هذا الكود مستخدم على جهاز آخر";
+                if (!data) throw "الكود غير صحيح ❌";
+                if (data.isBlocked) throw "تم حظر هذا الحساب ⛔";
+                if (data.deviceId && data.deviceId !== deviceId) throw "الكود مستخدم على جهاز آخر 📱";
 
                 if (!data.deviceId) await db.ref('approvedStudents/' + code).update({ deviceId: deviceId });
-
                 localStorage.setItem('activeCode', code);
                 window.location.href = "subjects.html"; 
-
             } catch (err) {
                 msg.textContent = err;
                 msg.style.display = 'block';
