@@ -2,214 +2,43 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Full Mark | لوحة التحكم</title>
-    
+    <title>Admin</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    <script src="auth.js"></script>
     <style>
-        :root {
-            --bg-dark: #020617;
-            --primary-blue: #1e3a8a;
-            --accent-gold: #fbbf24;
-            --glass-border: rgba(59, 130, 246, 0.3);
-            --text-light: #f8fafc;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-image: radial-gradient(#1e293b 1px, transparent 1px);
-            background-size: 30px 30px;
-        }
-
-        .admin-card {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 40px;
-            width: 90%; max-width: 500px;
-            box-shadow: 0 0 50px rgba(30, 58, 138, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* شريط ذهبي علوي */
-        .admin-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
-            background: linear-gradient(90deg, var(--primary-blue), var(--accent-gold));
-        }
-
-        h2 {
-            text-align: center; font-size: 2rem; margin-bottom: 30px;
-            color: var(--accent-gold); text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
-        }
-
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; color: #94a3b8; }
-        
-        input, select {
-            width: 100%; padding: 12px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px; color: white; font-size: 1rem;
-            outline: none; transition: 0.3s;
-        }
-        input:focus, select:focus {
-            border-color: var(--accent-gold);
-            box-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
-        }
-
-        button {
-            width: 100%; padding: 15px; border: none; border-radius: 12px;
-            background: linear-gradient(90deg, #2563eb, #1d4ed8);
-            color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer;
-            transition: 0.3s; margin-top: 10px;
-            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
-        }
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
-        }
-
-        /* منطقة عرض الكود */
-        .result-box {
-            margin-top: 30px; padding: 20px;
-            background: rgba(0, 255, 153, 0.1);
-            border: 1px solid #10b981;
-            border-radius: 12px;
-            text-align: center;
-            display: none; /* مخفي افتراضياً */
-            animation: slideUp 0.5s ease;
-        }
-        @keyframes slideUp { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
-
-        .generated-code {
-            font-family: monospace; font-size: 2rem; font-weight: bold;
-            color: var(--accent-gold); letter-spacing: 5px; margin: 10px 0;
-            display: block; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
-        }
-
-        .copy-btn {
-            background: rgba(255, 255, 255, 0.1); margin-top: 10px; font-size: 0.9rem; padding: 8px;
-        }
+        body { background: #020617; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
+        div { background: #1e293b; padding: 40px; border-radius: 20px; text-align: center; width: 300px; border: 1px solid #334155; }
+        input, select, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
+        button { background: #3b82f6; color: white; cursor: pointer; font-weight: bold; }
+        #res { color: #4ade80; display: none; margin-top: 10px; font-weight: bold; font-size: 1.2rem; }
     </style>
 </head>
 <body>
-
-    <div class="admin-card">
-        <h2><i class="fas fa-user-shield"></i> إنشاء كود طالب</h2>
-
-        <div class="form-group">
-            <label>اسم الطالب</label>
-            <input type="text" id="stdName" placeholder="أحمد محمد">
-        </div>
-
-        <div class="form-group">
-            <label>الشعبة الدراسية</label>
-            <select id="stdSection">
-                <option value="علمي علوم">🧬 علمي علوم</option>
-                <option value="علمي رياضة">📐 علمي رياضة</option>
-                <option value="أدبي">📜 أدبي</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>مدة الاشتراك (بالأيام)</label>
-            <input type="number" id="stdDays" value="30">
-        </div>
-
-        <button onclick="generateCode()" id="genBtn">✨ إنشاء الكود وحفظه</button>
-
-        <div id="resultArea" class="result-box">
-            <p style="color:#10b981; font-weight:bold;">تم الحفظ بنجاح! ✅</p>
-            <span id="codeDisplay" class="generated-code">------</span>
-            <button class="copy-btn" onclick="copyCode()">نسخ الكود</button>
-        </div>
+    <div>
+        <h2 style="color:#fbbf24; margin-bottom:20px;">إنشاء كود</h2>
+        <input id="n" placeholder="اسم الطالب">
+        <select id="s">
+            <option>علمي علوم</option><option>علمي رياضة</option><option>أدبي</option><option>أزهر</option>
+        </select>
+        <button onclick="gen()">إنشاء</button>
+        <div id="res"></div>
     </div>
-
     <script>
-        // 🚨 1. إعدادات الفايربيس (نفس الإعدادات في كل الملفات)
-        const firebaseConfig = {
-            apiKey: "AIzaSyBK6FZF3LW83qaUHBKYTfiVd2Ozrd1Rf2g",
-            authDomain: "thanawy-1383.firebaseapp.com",
-            databaseURL: "https://thanawy-1383-default-rtdb.firebaseio.com",
-            projectId: "thanawy-1383",
-            storageBucket: "thanawy-1383.firebasestorage.app",
-            messagingSenderId: "1026664406457",
-            appId: "1:1026664406457:web:87d71f7e41bef36ba0aa68"
-        };
-
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
         const db = firebase.database();
-
-        // 2. دالة توليد الكود
-        function generateCode() {
-            const name = document.getElementById('stdName').value.trim();
-            const section = document.getElementById('stdSection').value;
-            const days = parseInt(document.getElementById('stdDays').value);
-            const btn = document.getElementById('genBtn');
-
-            if (!name) {
-                alert("يرجى كتابة اسم الطالب!");
-                return;
-            }
-
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإنشاء...';
-            btn.disabled = true;
-
-            // توليد رقم عشوائي من 6 أرقام
-            const code = Math.floor(100000 + Math.random() * 900000).toString();
-            
-            // حساب تاريخ الانتهاء
-            const expiryDate = Date.now() + (days * 24 * 60 * 60 * 1000);
-
-            // الحفظ في قاعدة البيانات
-            db.ref('approvedStudents/' + code).set({
-                studentName: name,
-                section: section,
-                expiry: expiryDate,
-                deviceId: null, // فاضي عشان أول جهاز يدخل يتسجل
-                isBlocked: false,
-                activationDate: Date.now()
+        function gen() {
+            const n = document.getElementById('n').value;
+            const s = document.getElementById('s').value;
+            if(!n) return alert('الاسم مطلوب');
+            const c = Math.floor(100000 + Math.random() * 900000).toString();
+            db.ref('approvedStudents/'+c).set({
+                studentName: n, section: s, expiry: Date.now() + (30*86400000), 
+                deviceId: null, isBlocked: false
             }).then(() => {
-                // عرض النتيجة
-                document.getElementById('resultArea').style.display = 'block';
-                document.getElementById('codeDisplay').innerText = code;
-                btn.innerHTML = '✨ إنشاء كود جديد';
-                btn.disabled = false;
-                
-                // تنظيف الحقل
-                document.getElementById('stdName').value = '';
-            }).catch((error) => {
-                alert("حدث خطأ: " + error.message);
-                btn.innerHTML = '✨ إعادة المحاولة';
-                btn.disabled = false;
-            });
-        }
-
-        // 3. دالة النسخ
-        function copyCode() {
-            const code = document.getElementById('codeDisplay').innerText;
-            navigator.clipboard.writeText(code).then(() => {
-                alert("تم نسخ الكود: " + code);
+                document.getElementById('res').style.display='block';
+                document.getElementById('res').innerText = c;
             });
         }
     </script>
-
 </body>
-        </html>
-        
+</html>
