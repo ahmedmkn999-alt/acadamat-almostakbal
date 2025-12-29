@@ -2,118 +2,173 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الفيديوهات</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>حالة الاشتراك</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="auth.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
     
     <style>
-        body { background: #0f172a; color: white; font-family: sans-serif; padding-bottom: 50px; }
-        
-        .header-box {
-            background: #1e293b; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
-            position: sticky; top: 0; z-index: 50; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        .video-item {
-            background: #1e293b; padding: 20px; margin-bottom: 12px;
-            border-radius: 12px; display: flex; align-items: center; gap: 15px;
-            cursor: pointer; border: 1px solid rgba(255,255,255,0.05);
-            transition: 0.2s;
-        }
-        .video-item:active { background: #334155; transform: scale(0.98); }
-
-        .vid-num {
-            background: #0f172a; color: #94a3b8; width: 35px; height: 35px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: bold; flex-shrink: 0;
+        body { 
+            background-color: #0f172a; 
+            background-image: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white; font-family: 'Tajawal', sans-serif; 
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; position: relative;
         }
         
-        .vid-title { font-weight: bold; color: white; flex: 1; }
-        .play-icon { color: #fbbf24; font-size: 1.5rem; }
+        /* خلفية FULL MARK */
+        body::before {
+            content: 'FULL MARK'; position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            font-size: 18vw; font-weight: 900;
+            color: rgba(251, 191, 36, 0.03); z-index: 0; pointer-events: none; white-space: nowrap;
+        }
+
+        /* الصندوق المضيء */
+        .glow-card {
+            background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(15px);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 50px rgba(59, 130, 246, 0.2);
+            border-radius: 30px; width: 90%; max-width: 400px;
+            padding: 40px 30px; text-align: center; position: relative; z-index: 10;
+        }
+
+        .crown-icon { 
+            font-size: 4rem; color: #fbbf24; 
+            filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.6)); 
+            margin-bottom: 20px; animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        .timer-box {
+            display: flex; justify-content: center; gap: 10px; margin: 30px 0;
+        }
+        .time-unit {
+            background: #0f172a; border: 1px solid #334155; border-radius: 12px;
+            padding: 10px; min-width: 70px;
+        }
+        .time-val { font-size: 2rem; font-weight: bold; color: #3b82f6; font-family: monospace; }
+        .time-label { font-size: 0.8rem; color: #94a3b8; margin-top: 5px; }
+
+        .status-badge {
+            background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #4ade80;
+            padding: 5px 15px; border-radius: 50px; font-weight: bold; font-size: 0.9rem;
+            display: inline-flex; align-items: center; gap: 5px;
+        }
+
+        .back-btn {
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
+            color: white; padding: 15px; width: 100%; border-radius: 15px;
+            font-weight: bold; margin-top: 20px; display: block;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+            transition: 0.3s;
+        }
+        .back-btn:active { transform: scale(0.98); }
     </style>
 </head>
-<body class="p-4 pt-0">
-    <div id="app">
-        <div class="header-box -mx-4 mb-6 flex items-center gap-4">
-            <button onclick="history.back()" class="w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center text-white">➜</button>
-            <h1 class="text-lg font-bold text-yellow-400 truncate">{{ chapterName }}</h1>
+<body>
+
+    <div class="glow-card">
+        <i class="fas fa-crown crown-icon"></i>
+        
+        <h1 class="text-2xl font-bold text-white mb-1">FULL MARK STUDENT</h1>
+        <h2 id="studentName" class="text-lg text-blue-400 font-bold mb-6">...</h2>
+
+        <div class="mb-6">
+            <span class="status-badge"><i class="fas fa-check-circle"></i> اشتراك نشط</span>
         </div>
 
-        <div v-if="videos.length > 0">
-            <div v-for="(vid, index) in videos" :key="index" @click="play(vid)" class="video-item">
-                <div class="vid-num">{{ index + 1 }}</div>
-                <div class="vid-title">{{ vid.video_name || vid.title || vid.name }}</div>
-                <i class="fas fa-play-circle play-icon"></i>
+        <p class="text-gray-400 text-sm">الوقت المتبقي لانتهاء الاشتراك</p>
+        
+        <div class="timer-box">
+            <div class="time-unit">
+                <div class="time-val" id="dDay">00</div>
+                <div class="time-label">يوم</div>
+            </div>
+            <div class="time-unit">
+                <div class="time-val" id="dHour">00</div>
+                <div class="time-label">ساعة</div>
+            </div>
+            <div class="time-unit">
+                <div class="time-val" id="dMin">00</div>
+                <div class="time-label">دقيقة</div>
             </div>
         </div>
 
-        <div v-else class="text-center mt-20 text-gray-500">لا يوجد محتوى هنا</div>
+        <div class="text-gray-500 text-xs mb-4">كود التفعيل: <span id="codeDisplay" class="font-mono text-yellow-500 text-base">------</span></div>
+
+        <a href="subjects.html" class="back-btn">
+            <i class="fas fa-arrow-right ml-2"></i> العودة للمواد
+        </a>
     </div>
 
     <script>
-        const { createApp, ref, onMounted } = Vue;
-        const URLS = {
-            'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
-            'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
-            'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json",
-            'أزهر': "https://plus-teal.vercel.app/organized_output.json"
+        // إعدادات الفايربيس (مدمجة لضمان العمل)
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1QB3qaFfkGYq0OWOEAr83V25NAPFwxzs",
+            authDomain: "fullmark-2025.firebaseapp.com",
+            databaseURL: "https://fullmark-2025-default-rtdb.firebaseio.com",
+            projectId: "fullmark-2025",
+            storageBucket: "fullmark-2025.firebasestorage.app",
+            messagingSenderId: "963956202032",
+            appId: "1:963956202032:web:4df914457d79b75dee2bf5"
         };
+        
+        // منع الخطأ لو الفايربيس شغال بالفعل
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
 
-        createApp({
-            setup() {
-                const videos = ref([]);
-                const chapterName = ref('');
-                
-                const play = (v) => {
-                    localStorage.setItem('currentVideo', JSON.stringify(v));
-                    window.location.href = 'player.html';
-                };
+        // التأكد من تسجيل الدخول
+        const code = localStorage.getItem('activeCode');
+        
+        if (!code) {
+            alert("يرجى تسجيل الدخول أولاً!");
+            window.location.href = 'index.html';
+        } else {
+            document.getElementById('codeDisplay').innerText = code;
+            loadProfile();
+        }
 
-                onMounted(async () => {
-                    const params = new URLSearchParams(window.location.search);
-                    const uid = params.get('uid');
-                    const cid = params.get('cid');
-                    const code = localStorage.getItem('activeCode');
-                    const db = firebase.database();
-                    const snap = await db.ref('approvedStudents/' + code).once('value');
-                    const section = snap.val()?.section?.trim() || 'علمي علوم';
-                    
-                    try {
-                        const res = await fetch(URLS[section]);
-                        const data = await res.json();
-                        
-                        const yid = params.get('yid');
-                        const sid = params.get('sid');
-                        const tid = params.get('tid');
+        function loadProfile() {
+            db.ref('approvedStudents/' + code).once('value').then(snap => {
+                const data = snap.val();
+                if (data) {
+                    document.getElementById('studentName').innerText = data.studentName;
+                    startTimer(data.expiry);
+                }
+            }).catch(err => {
+                console.error(err);
+                document.getElementById('studentName').innerText = "خطأ في الاتصال";
+            });
+        }
 
-                        const year = data.find(y => y.id == yid) || data[0];
-                        const sub = year.subjects.find(s => s.id == sid);
-                        const teacher = sub.teachers.find(t => t.id == tid);
-                        
-                        let targetChapter;
-                        if (teacher.units && teacher.units.length > 0) {
-                            targetChapter = teacher.units[uid].chapters[cid];
-                        } else {
-                            targetChapter = teacher.chapters[cid];
-                        }
-                        
-                        if(targetChapter) {
-                            chapterName.value = targetChapter.chapter_name || targetChapter.name;
-                            let vids = [];
-                            if(targetChapter.videos) vids = [...vids, ...targetChapter.videos];
-                            if(targetChapter.lectures) targetChapter.lectures.forEach(l => { if(l.videos) vids = [...vids, ...l.videos] });
-                            videos.value = vids;
-                        }
-                    } catch(e) {}
-                });
-                return { videos, chapterName, play };
-            }
-        }).mount('#app');
+        function startTimer(expiryTime) {
+            const timerInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = expiryTime - now;
+
+                if (distance < 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('dDay').innerText = "00";
+                    document.getElementById('dHour').innerText = "00";
+                    document.getElementById('dMin').innerText = "00";
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+
+                document.getElementById('dDay').innerText = days < 10 ? "0" + days : days;
+                document.getElementById('dHour').innerText = hours < 10 ? "0" + hours : hours;
+                document.getElementById('dMin').innerText = minutes < 10 ? "0" + minutes : minutes;
+            }, 1000);
+        }
     </script>
 </body>
 </html>
