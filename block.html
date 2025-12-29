@@ -1,1 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⛔ وصول مرفوض | FULL MARK</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #050a10;
+            --neon-red: #ff3333; /* غيرنا للأحمر عشان ده حظر */
+            --neon-green: #00ff88;
+            --text: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(20, 0, 0, 0.5) 0%, #050a10 100%);
+            color: var(--text);
+            overflow: hidden;
+            text-align: center;
+        }
+
+        /* حاوية الحظر */
+        .block-container {
+            width: 90%;
+            max-width: 500px;
+            padding: 40px;
+            border: 2px solid var(--neon-red);
+            border-radius: 20px;
+            background: rgba(10, 0, 0, 0.8);
+            box-shadow: 0 0 30px rgba(255, 51, 51, 0.2);
+            position: relative;
+            backdrop-filter: blur(10px);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        /* اللوجو */
+        .logo {
+            font-size: 2rem;
+            color: var(--neon-green);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        /* الأيقونة */
+        .icon-box {
+            font-size: 80px;
+            color: var(--neon-red);
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        /* النصوص */
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        /* زر التواصل */
+        .contact-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: transparent;
+            border: 2px solid var(--neon-green);
+            color: var(--neon-green);
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 50px;
+            transition: 0.3s;
+            font-size: 1.1rem;
+        }
+
+        .contact-btn:hover {
+            background: var(--neon-green);
+            color: #000;
+            box-shadow: 0 0 20px var(--neon-green);
+            transform: scale(1.05);
+        }
+
+        .contact-btn i { margin-left: 10px; }
+
+        /* الأنيميشن */
+        @keyframes pulse {
+            0% { transform: scale(1); text-shadow: 0 0 0 rgba(255, 51, 51, 0.7); }
+            50% { transform: scale(1.1); text-shadow: 0 0 20px rgba(255, 51, 51, 0.7); }
+            100% { transform: scale(1); text-shadow: 0 0 0 rgba(255, 51, 51, 0.7); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="block-container">
+        <h1 class="logo">FULL MARK</h1>
+
+        <div class="icon-box">
+            <i class="fas fa-user-lock"></i>
+        </div>
+
+        <h2>تم تعليق حسابك مؤقتاً</h2>
+        <p>
+            نأسف، لقد تم حظر الوصول لهذا الحساب بسبب انتهاك شروط الاستخدام أو الدخول من جهاز غير مصرح به.
+            <br>
+            <span style="font-size: 0.9rem; color: #888;">(Error Code: 403 Forbidden)</span>
+        </p>
+
+        <a href="https://t.me/elgizawy9" target="_blank" class="contact-btn">
+            <i class="fab fa-telegram-plane"></i> تواصل مع الدعم الفني
+        </a>
+    </div>
+
+</body>
+</html>
 
