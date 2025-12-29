@@ -1,303 +1,115 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" class="dark">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FULL MARK | المواد الدراسية</title>
-
+    <title>FULL MARK | المواد</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    
-    <script type="module" src="devcheck.js"></script>
-    <script src="auth.js"></script>
-
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
-    <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            primary: '#1e3a8a',      /* أزرق ملكي */
-            secondary: '#3b82f6',    /* أزرق زاهي */
-            gold: '#fbbf24',         /* ذهبي */
-            dark: '#020617',         /* كحلي غامق جداً */
-            card: 'rgba(30, 41, 59, 0.7)', 
-            'card-hover': 'rgba(30, 58, 138, 0.4)'
-          },
-          fontFamily: { sans: ['Tajawal', 'sans-serif'] }
-        }
-      }
-    }
-    </script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <script src="auth.js"></script>
     <style>
-        body { 
-            font-family: 'Tajawal', sans-serif; 
-            background-color: #020617; 
-            color: #f1f5f9; 
-            margin: 0; 
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-                radial-gradient(#1e293b 1px, transparent 1px);
-            background-size: 100% 100%, 30px 30px;
+        body { background: #020617; color: white; font-family: 'Tajawal'; }
+        .subject-card { 
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+            border: 1px solid rgba(255,255,255,0.1); 
+            transition: all 0.3s ease;
         }
-        
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        .subject-card:hover { 
+            transform: translateY(-8px); 
+            border-color: #fbbf24; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         }
-        
-        .glass-card {
-            background: var(--card);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        
-        .glass-card:hover {
-            background: var(--card-hover); 
-            transform: translateY(-5px);
-            border-color: #3b82f6; 
-            box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.3);
-        }
-
-        .animate-fade-in { animation: fadeIn 0.6s ease-out; }
-        @keyframes fadeIn { from {opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
-
-        .loading-overlay {
-            position: fixed; inset: 0; z-index: 100;
-            background: #020617;
-            display: flex; justify-content: center; align-items: center; flex-direction: column;
-        }
-
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #020617; }
-        ::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 4px; }
-        
-        .profile-float-btn {
-            position: fixed; bottom: 30px; left: 30px; width: 60px; height: 60px;
-            border-radius: 50%; background: #1e3a8a; 
-            border: 2px solid #fbbf24;
-            display: flex; justify-content: center; align-items: center; z-index: 50;
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
-            transition: transform 0.3s;
-        }
-        .profile-float-btn:hover { transform: scale(1.1) rotate(10deg); box-shadow: 0 0 30px rgba(251, 191, 36, 0.5); }
     </style>
 </head>
+<body class="p-4 md:p-8">
+    <div id="app">
+        <header class="flex justify-between items-center mb-8 bg-slate-800/80 p-4 rounded-xl border border-white/10">
+            <div class="flex items-center gap-3">
+                <img src="https://cdn-icons-png.flaticon.com/512/3413/3413535.png" class="w-10 h-10">
+                <h1 class="text-xl font-bold text-yellow-400">المواد الدراسية</h1>
+            </div>
+            <button onclick="logout()" class="text-red-400 font-bold hover:text-red-300 transition">خروج</button>
+        </header>
 
-<body class="h-screen overflow-hidden flex flex-col">
-
-<div id="app" class="flex-1 flex flex-col h-full overflow-hidden">
-
-    <header class="glass-panel h-16 flex items-center justify-between px-4 md:px-6 shadow-lg z-20">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-secondary to-primary flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-          <i class="ph ph-books text-2xl font-bold"></i>
+        <div v-if="loading" class="text-center mt-20">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mx-auto mb-4"></div>
+            <p>جاري تحميل المواد...</p>
         </div>
-        <div>
-            <h1 class="text-lg font-bold text-white leading-tight hidden sm:block">المواد الدراسية</h1>
-            <p class="text-xs text-gold font-bold">{{ studentSection }}</p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-3">
-        <div class="text-left hidden sm:block">
-            <span class="block text-sm font-bold text-white">{{ studentName }}</span>
-        </div>
-        <button @click="logout" class="w-9 h-9 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500 flex items-center justify-center transition-all border border-red-500/20">
-            <i class="ph ph-sign-out text-lg"></i>
-        </button>
-      </div>
-    </header>
-
-    <div v-if="loading" class="loading-overlay animate-fade-in">
-        <div class="relative">
-            <div class="w-16 h-16 border-4 border-blue-900 border-t-blue-500 rounded-full animate-spin"></div>
-            <div class="absolute inset-0 flex items-center justify-center">
-                <i class="ph ph-student text-gold text-xl animate-pulse"></i>
+        
+        <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div v-for="sub in subjects" :key="sub.id" @click="openSub(sub)" class="subject-card p-4 rounded-2xl text-center cursor-pointer flex flex-col items-center">
+                <div class="w-full h-32 mb-4 rounded-xl overflow-hidden bg-slate-900">
+                    <img :src="getImg(sub.name)" class="w-full h-full object-cover opacity-90 hover:opacity-100 transition hover:scale-110 duration-500">
+                </div>
+                <h3 class="font-bold text-lg mb-2">{{ sub.name }}</h3>
+                <span class="text-xs text-gray-400 bg-black/30 px-3 py-1 rounded-full">{{ sub.teachers?.length || 0 }} مدرسين</span>
             </div>
         </div>
-        <p class="mt-4 text-lg font-bold text-white tracking-widest">جاري جلب البيانات...</p>
     </div>
 
-    <div v-else-if="subjects.length === 0" class="flex-1 flex flex-col justify-center items-center text-gray-500">
-        <i class="ph ph-empty text-6xl mb-4 opacity-50 text-secondary"></i>
-        <p class="text-xl font-medium">لا توجد مواد متاحة لهذه الشعبة.</p>
-        <button @click="retryLoad" class="mt-4 px-6 py-2 bg-secondary text-white rounded-lg font-bold hover:bg-blue-600 transition shadow-lg">تحديث</button>
-    </div>
-
-    <main v-else class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 custom-scrollbar">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            
-            <div v-for="(subject, index) in subjects" :key="subject.id" @click="openTeachers(subject)"
-                 class="glass-card rounded-2xl p-6 cursor-pointer group flex flex-col items-center text-center animate-fade-in relative overflow-hidden"
-                 :style="{ animationDelay: index * 0.1 + 's' }">
-                
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-secondary to-transparent opacity-50"></div>
-                
-                <div class="w-24 h-24 rounded-full p-1 border-2 border-gold/50 mb-4 group-hover:scale-110 transition-transform duration-300 bg-black/40 shadow-lg">
-                    <img :src="getImage(subject.name)" class="w-full h-full object-cover rounded-full">
-                </div>
-
-                <h3 class="font-bold text-xl text-white mb-2 group-hover:text-gold transition-colors">{{ subject.name }}</h3>
-                
-                <div class="mt-auto pt-4 w-full flex justify-between items-center text-xs text-gray-400 border-t border-white/5">
-                    <span class="bg-blue-900/50 text-blue-200 px-2 py-1 rounded border border-blue-500/20">{{ subject.teachers?.length || 0 }} مدرسين</span>
-                    <i class="ph ph-caret-left text-secondary group-hover:-translate-x-1 transition-transform"></i>
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-    <a href="profile.html" class="profile-float-btn hover:bg-blue-800 transition-all duration-300">
-        <i class="ph ph-user text-2xl text-gold"></i>
-    </a>
-
-</div>
-
-<script>
-const { createApp, ref, onMounted } = Vue;
-
-// 1. روابط البيانات الأصلية (حسب الشعبة)
-const JSON_URLS = {
-    'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
-    'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
-    'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json", 
-    'أزهر': "https://plus-teal.vercel.app/organized_output.json", 
-    'الافتراضي': "https://plus-teal.vercel.app/organized_output.json"
-};
-
-const SUBJECT_IMAGES = {
-    "لغة عربية": "https://img.icons8.com/color/480/books.png",
-    "لغة إنجليزية": "https://img.icons8.com/color/480/abc.png",
-    "لغة فرنسية": "https://img.icons8.com/color/480/eiffel-tower.png",
-    "أحياء": "https://img.icons8.com/color/480/dna-helix.png",
-    "كيمياء": "https://img.icons8.com/color/480/test-tube.png",
-    "فيزياء": "https://img.icons8.com/color/480/physics.png",
-    "جيولوجيا": "https://img.icons8.com/color/480/mountain.png",
-    "الرياضيات": "https://img.icons8.com/color/480/math.png",
-    "الرياضيات البحتة": "https://img.icons8.com/color/480/calculator--v1.png",
-    "الرياضيات التطبيقية": "https://img.icons8.com/color/480/engineering.png",
-    "تاريخ": "https://img.icons8.com/color/480/scroll.png",
-    "جغرافيا": "https://img.icons8.com/color/480/globe--v1.png",
-    "علم نفس": "https://img.icons8.com/color/480/brain--v1.png",
-    "فلسفة": "https://img.icons8.com/color/480/idea.png",
-    "default": "https://img.icons8.com/color/480/learning.png"
-};
-
-createApp({
-  setup() {
-    const loading = ref(true);
-    const subjects = ref([]);
-    const studentName = ref('طالب');
-    const studentSection = ref('عام');
-    const currentYearId = ref(null); 
-
-    const getImage = (subjectName) => {
-        for (const [key, value] of Object.entries(SUBJECT_IMAGES)) {
-            if (subjectName.includes(key)) return value;
-        }
-        return SUBJECT_IMAGES['default'];
-    };
-
-    const logout = () => {
-        if(confirm("تسجيل الخروج؟")) {
-            localStorage.removeItem('activeCode');
-            localStorage.removeItem('localDeviceId');
-            window.location.href = 'index.html';
-        }
-    };
-
-    const retryLoad = () => window.location.reload();
-
-    const openTeachers = (subject) => {
-        if (currentYearId.value && subject.id) {
-            window.location.href = `chapters.html?yid=${currentYearId.value}&sid=${subject.id}`;
-        }
-    };
-
-    onMounted(async () => {
-        const activeCode = localStorage.getItem('activeCode');
-        if (!activeCode) { window.location.href = 'index.html'; return; }
-
-        // تهيئة الفايربيس (تأكد إنها نفس بياناتك)
-        const firebaseConfig = {
-            apiKey: "AIzaSyBK6FZF3LW83qaUHBKYTfiVd2Ozrd1Rf2g",
-            authDomain: "thanawy-1383.firebaseapp.com",
-            databaseURL: "https://thanawy-1383-default-rtdb.firebaseio.com",
-            projectId: "thanawy-1383",
-            storageBucket: "thanawy-1383.firebasestorage.app",
-            messagingSenderId: "1026664406457",
-            appId: "1:1026664406457:web:87d71f7e41bef36ba0aa68"
+    <script>
+        const { createApp, ref, onMounted } = Vue;
+        const URLS = {
+            'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
+            'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
+            'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json",
+            'أزهر': "https://plus-teal.vercel.app/organized_output.json"
         };
         
-        if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const db = firebase.database();
+        // صور جديدة احترافية
+        const IMGS = {
+            "لغة عربية": "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=600&q=80",
+            "لغة إنجليزية": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80",
+            "لغة فرنسية": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80",
+            "أحياء": "https://images.unsplash.com/photo-1530026405124-efe3d232b3d8?w=600&q=80",
+            "كيمياء": "https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?w=600&q=80",
+            "فيزياء": "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=600&q=80",
+            "جيولوجيا": "https://images.unsplash.com/photo-1598281838025-6c930063d2e1?w=600&q=80",
+            "الرياضيات": "https://images.unsplash.com/photo-1635070041043-e3f001e34750?w=600&q=80",
+            "تاريخ": "https://images.unsplash.com/photo-1461360228754-6e81c478b882?w=600&q=80",
+            "جغرافيا": "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=600&q=80",
+            "فلسفة": "https://images.unsplash.com/photo-1604871000398-e4f52071d955?w=600&q=80",
+            "علم نفس": "https://images.unsplash.com/photo-1589519160732-57fc498494f8?w=600&q=80",
+            "default": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&q=80"
+        };
 
-        try {
-            // 1. جلب بيانات الطالب
-            const snapshot = await db.ref('approvedStudents/' + activeCode).once('value');
-            const student = snapshot.val();
+        createApp({
+            setup() {
+                const subjects = ref([]);
+                const loading = ref(true);
+                const yid = ref(null);
 
-            if (student) {
-                studentName.value = student.studentName || 'طالب';
-                studentSection.value = student.section || 'عام';
+                const getImg = (n) => {
+                    for(let k in IMGS) if(n.includes(k)) return IMGS[k];
+                    return IMGS['default'];
+                };
                 
-                // 2. تحديد رابط البيانات
-                const sectionKey = studentSection.value.trim();
-                const jsonUrl = JSON_URLS[sectionKey] || JSON_URLS['الافتراضي'];
-
-                // 3. جلب البيانات من الرابط الخارجي (الأصلي)
-                const res = await fetch(jsonUrl);
-                if (!res.ok) throw new Error("فشل في جلب البيانات");
+                const openSub = (s) => window.location.href = `chapters.html?yid=${yid.value}&sid=${s.id}`;
                 
-                const data = await res.json();
-                
-                // 4. عرض المواد (بافتراض السنة الثالثة)
-                // الكود ده بيدور على أي سنة فيها كلمة "3" أو "ثالث"
-                const yearData = data.find(y => 
-                    y.name.includes('3') || y.name.includes('ثالث') || y.id == 3
-                );
-
-                if (yearData) {
-                    currentYearId.value = yearData.id;
-                    subjects.value = yearData.subjects || [];
-                } else if(data.length > 0) {
-                    // لو ملقاش سنة 3، يعرض أول سنة يلاقيها
-                    currentYearId.value = data[0].id;
-                    subjects.value = data[0].subjects || [];
-                }
+                onMounted(async () => {
+                    const code = localStorage.getItem('activeCode');
+                    const db = firebase.database();
+                    const snap = await db.ref('approvedStudents/' + code).once('value');
+                    const section = snap.val()?.section?.trim() || 'علمي علوم';
+                    
+                    try {
+                        const res = await fetch(URLS[section] || URLS['علمي علوم']);
+                        const data = await res.json();
+                        let year = data.find(y => y.name.includes('3') || y.id == 3) || data[0];
+                        yid.value = year.id;
+                        subjects.value = year.subjects || [];
+                    } catch(e) {}
+                    loading.value = false;
+                });
+                return { subjects, loading, getImg, openSub };
             }
-        } catch (err) {
-            console.error(err);
-            alert("حدث خطأ في تحميل البيانات من السيرفر");
-        } finally {
-            loading.value = false;
-        }
-    });
+        }).mount('#app');
 
-    return { 
-        loading, subjects, studentName, studentSection, 
-        getImage, openTeachers, logout, retryLoad 
-    };
-  }
-}).mount('#app');
-</script>
-
+        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+    </script>
 </body>
     </html>
     
