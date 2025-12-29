@@ -2,79 +2,165 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FULL MARK | المواد</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>المواد الدراسية</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <script src="auth.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        body { background: #020617; color: white; font-family: 'Tajawal'; }
-        .subject-card { 
-            background: linear-gradient(180deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
-            border: 1px solid rgba(255,255,255,0.1); 
-            transition: all 0.3s ease;
+        body { 
+            background-color: #020617; 
+            background-image: radial-gradient(#1e293b 1px, transparent 1px);
+            background-size: 30px 30px;
+            color: white; font-family: 'Tajawal', sans-serif; 
+            padding-bottom: 80px;
         }
-        .subject-card:hover { 
-            transform: translateY(-8px); 
-            border-color: #fbbf24; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+
+        /* تصميم الهيدر البروفايل */
+        .profile-header {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: sticky; top: 0; z-index: 50;
+            padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-radius: 0 0 25px 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
+
+        .user-info { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .user-avatar {
+            width: 50px; height: 50px;
+            background: linear-gradient(135deg, #3b82f6, #fbbf24);
+            border-radius: 50%; padding: 2px;
+        }
+        .user-avatar img {
+            width: 100%; height: 100%; border-radius: 50%;
+            border: 3px solid #0f172a; object-fit: cover;
+        }
+
+        /* الجمل التحفيزية */
+        .typing-container {
+            font-size: 0.85rem; color: #fbbf24; font-weight: bold;
+            margin-top: 2px; display: flex; align-items: center;
+        }
+        .cursor { display: inline-block; width: 2px; height: 14px; background: #fbbf24; margin-right: 2px; animation: blink 0.7s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* كروت المواد */
+        .subject-card {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20px; overflow: hidden;
+            transition: 0.3s; position: relative;
+        }
+        .subject-card:hover {
+            transform: translateY(-5px); border-color: #fbbf24;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+        }
+        .sub-img-box { height: 120px; overflow: hidden; position: relative; }
+        .sub-img-box img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .subject-card:hover img { transform: scale(1.1); }
+        .sub-content { padding: 15px; text-align: center; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body>
+
     <div id="app">
-        <header class="flex justify-between items-center mb-8 bg-slate-800/80 p-4 rounded-xl border border-white/10">
-            <div class="flex items-center gap-3">
-                <img src="https://cdn-icons-png.flaticon.com/512/3413/3413535.png" class="w-10 h-10">
-                <h1 class="text-xl font-bold text-yellow-400">المواد الدراسية</h1>
-            </div>
-            <button onclick="logout()" class="text-red-400 font-bold hover:text-red-300 transition">خروج</button>
+        
+        <header class="profile-header">
+            <a href="timer.html" class="user-info">
+                <div class="user-avatar">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile">
+                </div>
+                <div>
+                    <h2 id="studentName" class="text-lg font-bold text-white leading-tight">...</h2>
+                    <div class="typing-container">
+                        <span class="typing-text"></span><span class="cursor"></span>
+                    </div>
+                </div>
+            </a>
+
+            <button onclick="logout()" class="w-10 h-10 rounded-full bg-slate-700/50 hover:bg-red-500/20 text-gray-300 hover:text-red-500 flex items-center justify-center transition">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
         </header>
 
-        <div v-if="loading" class="text-center mt-20">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mx-auto mb-4"></div>
-            <p>جاري تحميل المواد...</p>
-        </div>
-        
-        <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <div v-for="sub in subjects" :key="sub.id" @click="openSub(sub)" class="subject-card p-4 rounded-2xl text-center cursor-pointer flex flex-col items-center">
-                <div class="w-full h-32 mb-4 rounded-xl overflow-hidden bg-slate-900">
-                    <img :src="getImg(sub.name)" class="w-full h-full object-cover opacity-90 hover:opacity-100 transition hover:scale-110 duration-500">
+
+        <div class="p-6">
+            <h3 class="text-xl font-bold mb-6 border-r-4 border-yellow-500 pr-3">المواد المتاحة</h3>
+
+            <div v-if="loading" class="text-center mt-20">
+                <div class="animate-spin w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p class="text-gray-400">جاري تجهيز مكتبتك...</p>
+            </div>
+            
+            <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                <div v-for="sub in subjects" :key="sub.id" @click="openSub(sub)" class="subject-card cursor-pointer group">
+                    <div class="sub-img-box">
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition z-10"></div>
+                        <img :src="getImg(sub.name)" alt="Subject">
+                    </div>
+                    <div class="sub-content">
+                        <h3 class="font-bold text-lg mb-1">{{ sub.name }}</h3>
+                        <span class="text-xs text-blue-400 bg-blue-900/20 px-3 py-1 rounded-full">
+                            {{ sub.teachers?.length || 0 }} مدرسين
+                        </span>
+                    </div>
                 </div>
-                <h3 class="font-bold text-lg mb-2">{{ sub.name }}</h3>
-                <span class="text-xs text-gray-400 bg-black/30 px-3 py-1 rounded-full">{{ sub.teachers?.length || 0 }} مدرسين</span>
             </div>
         </div>
+
     </div>
 
     <script>
         const { createApp, ref, onMounted } = Vue;
+
+        // روابط صور المواد (Unsplash)
+        const IMGS = {
+            "عربية": "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=400",
+            "إنجليزية": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400",
+            "فرنسية": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400",
+            "فيزياء": "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=400",
+            "كيمياء": "https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?w=400",
+            "أحياء": "https://images.unsplash.com/photo-1530026405124-efe3d232b3d8?w=400",
+            "رياضيات": "https://images.unsplash.com/photo-1635070041043-e3f001e34750?w=400",
+            "جيولوجيا": "https://images.unsplash.com/photo-1598281838025-6c930063d2e1?w=400",
+            "تاريخ": "https://images.unsplash.com/photo-1461360228754-6e81c478b882?w=400",
+            "جغرافيا": "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=400",
+            "default": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400"
+        };
+
         const URLS = {
             'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
             'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
             'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json",
             'أزهر': "https://plus-teal.vercel.app/organized_output.json"
         };
+
+        // 🔥 كود الكتابة المتحركة (Typing Effect)
+        const phrases = ["✨ حلمك يستاهل!", "💪 عافر هتوصل", "🚀 اصنع مستقبلك", "🎓 دكتور المستقبل"];
+        let phraseIdx = 0, charIdx = 0, isDeleting = false;
         
-        // صور جديدة احترافية
-        const IMGS = {
-            "لغة عربية": "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=600&q=80",
-            "لغة إنجليزية": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80",
-            "لغة فرنسية": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80",
-            "أحياء": "https://images.unsplash.com/photo-1530026405124-efe3d232b3d8?w=600&q=80",
-            "كيمياء": "https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?w=600&q=80",
-            "فيزياء": "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=600&q=80",
-            "جيولوجيا": "https://images.unsplash.com/photo-1598281838025-6c930063d2e1?w=600&q=80",
-            "الرياضيات": "https://images.unsplash.com/photo-1635070041043-e3f001e34750?w=600&q=80",
-            "تاريخ": "https://images.unsplash.com/photo-1461360228754-6e81c478b882?w=600&q=80",
-            "جغرافيا": "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=600&q=80",
-            "فلسفة": "https://images.unsplash.com/photo-1604871000398-e4f52071d955?w=600&q=80",
-            "علم نفس": "https://images.unsplash.com/photo-1589519160732-57fc498494f8?w=600&q=80",
-            "default": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&q=80"
-        };
+        function typeEffect() {
+            const currentPhrase = phrases[phraseIdx];
+            const textElement = document.querySelector(".typing-text");
+            
+            if (!textElement) return;
+
+            if (isDeleting) {
+                textElement.textContent = currentPhrase.substring(0, charIdx--);
+                if (charIdx < 0) { isDeleting = false; phraseIdx = (phraseIdx + 1) % phrases.length; }
+            } else {
+                textElement.textContent = currentPhrase.substring(0, charIdx++);
+                if (charIdx > currentPhrase.length) { isDeleting = true; setTimeout(typeEffect, 2000); return; }
+            }
+            setTimeout(typeEffect, isDeleting ? 50 : 100);
+        }
 
         createApp({
             setup() {
@@ -83,7 +169,7 @@
                 const yid = ref(null);
 
                 const getImg = (n) => {
-                    for(let k in IMGS) if(n.includes(k)) return IMGS[k];
+                    for (const [key, url] of Object.entries(IMGS)) { if (n.includes(key)) return url; }
                     return IMGS['default'];
                 };
                 
@@ -93,7 +179,14 @@
                     const code = localStorage.getItem('activeCode');
                     const db = firebase.database();
                     const snap = await db.ref('approvedStudents/' + code).once('value');
-                    const section = snap.val()?.section?.trim() || 'علمي علوم';
+                    const student = snap.val();
+                    
+                    if(student) {
+                        document.getElementById('studentName').innerText = student.studentName;
+                        typeEffect(); // تشغيل الأنيميشن بعد تحميل الاسم
+                    }
+
+                    const section = student?.section?.trim() || 'علمي علوم';
                     
                     try {
                         const res = await fetch(URLS[section] || URLS['علمي علوم']);
@@ -108,8 +201,10 @@
             }
         }).mount('#app');
 
-        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+        function logout() {
+            if(confirm("تسجيل خروج؟")) { localStorage.clear(); window.location.href='index.html'; }
+        }
     </script>
 </body>
-    </html>
+            </html>
     
