@@ -4,129 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>المكتبة الدراسية | FULL MARK</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-    
     <style>
-        body { 
-            background-color: #020617; 
-            min-height: 100vh; color: white; font-family: 'Cairo', sans-serif; 
-            padding-bottom: 80px; position: relative; overflow-x: hidden;
-        }
-
-        /* 🌌 تأثير النجوم المتلألئة */
-        .stars-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0; pointer-events: none;
-            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #020617 100%);
-        }
-        .star {
-            position: absolute; background: white; border-radius: 50%; opacity: 0;
-            animation: twinkle var(--duration) infinite ease-in-out;
-        }
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.2; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.5); box-shadow: 0 0 10px white; }
-        }
-
-        /* الهيدر الزجاجي */
-        .profile-header {
-            background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
-            position: sticky; top: 0; z-index: 50; padding: 12px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-radius: 0 0 25px 25px;
-        }
-
-        .user-avatar {
-            width: 50px; height: 50px; 
-            background: linear-gradient(135deg, #6366f1, #d946ef);
-            border-radius: 15px; padding: 2px; transform: rotate(-5deg);
-        }
+        body { background: #020617; color: white; font-family: 'Cairo', sans-serif; padding-bottom: 50px; overflow-x: hidden; }
+        .stars-container { position: fixed; inset: 0; z-index: 0; background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #020617 100%); }
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0; animation: twinkle var(--duration) infinite ease-in-out; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.2; transform: scale(1); } 50% { opacity: 1; transform: scale(1.5); } }
+        .profile-header { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(99, 102, 241, 0.2); position: sticky; top: 0; z-index: 50; padding: 12px 20px; border-radius: 0 0 25px 25px; display: flex; justify-content: space-between; align-items: center; }
+        .user-avatar { width: 50px; height: 50px; background: linear-gradient(135deg, #6366f1, #d946ef); border-radius: 15px; padding: 2px; transform: rotate(-5deg); transition: 0.3s; cursor: pointer; }
+        .user-avatar:active { transform: scale(0.9); }
         .user-avatar img { width: 100%; height: 100%; border-radius: 13px; object-fit: cover; background: #0f172a; }
-
-        /* كروت المواد النيون */
-        .subject-card {
-            background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative; z-index: 10; text-align: center; padding: 25px 15px;
-        }
-        .subject-card:hover {
-            transform: translateY(-10px); border-color: #d946ef;
-            box-shadow: 0 15px 35px rgba(217, 70, 239, 0.2);
-        }
-        
-        .sub-img-box { width: 90px; height: 90px; margin: 0 auto 15px; position: relative; }
+        .subject-card { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 25px 15px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-align: center; }
+        .subject-card:hover { transform: translateY(-10px); border-color: #d946ef; box-shadow: 0 15px 35px rgba(217, 70, 239, 0.2); }
+        .sub-img-box { width: 85px; height: 85px; margin: 0 auto 15px; }
         .sub-img-box img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); transition: 0.4s; }
-        .subject-card:hover img { transform: scale(1.2) rotate(5deg); }
-        
-        .teacher-count { font-size: 0.75rem; color: #94a3b8; background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 50px; display: inline-block; margin-top: 8px; border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
-
     <div id="stars" class="stars-container"></div>
-
     <div id="app">
         <header class="profile-header">
-            <div class="flex items-center gap-3">
-                <div class="user-avatar shadow-lg">
-                    <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" alt="Profile">
-                </div>
+            <div class="flex items-center gap-3" @click="window.location.href='timer.html'">
+                <div class="user-avatar shadow-lg"><img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png"></div>
                 <div>
-                    <h2 id="studentName" class="text-md font-bold text-white">{{ studentName }}</h2>
-                    <div class="flex items-center text-indigo-400 text-[10px] font-bold">
-                        <i class="fas fa-graduation-cap ml-1"></i> {{ studentSection }}
-                    </div>
+                    <h2 class="text-md font-bold text-white">{{ studentName }}</h2>
+                    <div class="text-indigo-400 text-[10px] font-bold"><i class="fas fa-rocket ml-1"></i> عرض البروفايل</div>
                 </div>
             </div>
-            <button onclick="logout()" class="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 flex items-center justify-center transition active:scale-90">
-                <i class="fas fa-power-off text-sm"></i>
-            </button>
+            <button onclick="logout()" class="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500"><i class="fas fa-power-off"></i></button>
         </header>
 
         <div class="p-6 relative z-10">
-            <div class="flex items-center gap-3 mb-8">
-                <div class="h-6 w-1.5 bg-gradient-to-b from-indigo-500 to-fuchsia-500 rounded-full"></div>
-                <h3 class="text-xl font-black text-white tracking-tight">المكتبة الدراسية</h3>
-            </div>
-
-            <div v-if="loading" class="flex flex-col items-center justify-center mt-32">
-                <div class="w-10 h-10 border-2 border-fuchsia-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                <p class="text-indigo-300 text-[10px] uppercase tracking-[3px]">جاري مزامنة بياناتك...</p>
-            </div>
-            
+            <h3 class="text-xl font-black text-white mb-8 border-r-4 border-fuchsia-500 pr-3">المكتبة الدراسية</h3>
+            <div v-if="loading" class="flex flex-col items-center justify-center mt-32 text-indigo-300 animate-pulse text-xs uppercase tracking-widest">Loading Library...</div>
             <div v-else class="grid grid-cols-2 gap-4">
                 <div v-for="sub in subjects" :key="sub.id" @click="openSub(sub)" class="subject-card group cursor-pointer">
-                    <div class="sub-img-box">
-                        <img :src="getImgUrl(sub.name)" :alt="sub.name">
-                    </div>
+                    <div class="sub-img-box"><img :src="getImgUrl(sub.name)"></div>
                     <h3 class="font-bold text-sm text-gray-100 group-hover:text-fuchsia-400 transition">{{ sub.name }}</h3>
-                    <div class="teacher-count">
-                        <i class="fas fa-user-tie ml-1 text-[10px]"></i> {{ sub.teachers?.length || 0 }} مدرسين
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // دالة توليد النجوم
         function createStars() {
             const container = document.getElementById('stars');
             for (let i = 0; i < 100; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                const size = Math.random() * 2 + 1 + 'px';
-                star.style.width = size; star.style.height = size;
+                star.style.left = Math.random() * 100 + '%'; star.style.top = Math.random() * 100 + '%';
+                star.style.width = star.style.height = Math.random() * 2 + 1 + 'px';
                 star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
                 container.appendChild(star);
             }
@@ -134,81 +66,40 @@
         createStars();
 
         const { createApp, ref, onMounted } = Vue;
-
         createApp({
             setup() {
-                const subjects = ref([]);
-                const loading = ref(true);
-                const studentName = ref('جاري التحميل...');
-                const studentSection = ref('');
-                const yid = ref(null);
-
-                // مكتبة الصور 3D - تأكد من مطابقة الكلمات المفتاحية
-                const IMAGES_3D = {
+                const subjects = ref([]); const loading = ref(true); const studentName = ref('جاري التحميل...'); const yid = ref(null);
+                const IMGS = {
                     "فيزيا": "https://cdn3d.iconscout.com/3d/premium/thumb/physics-7265691-5840333.png",
-                    "كيمياء": "https://cdn3d.iconscout.com/3d/premium/thumb/chemistry-atoms-5691557-4740112.png",
-                    "أحياء": "https://cdn3d.iconscout.com/3d/premium/thumb/dna-5256241-4385108.png",
-                    "عربية": "https://cdn3d.iconscout.com/3d/premium/thumb/ramadan-quran-5136006-4286786.png",
+                    "كيميا": "https://cdn3d.iconscout.com/3d/premium/thumb/chemistry-atoms-5691557-4740112.png",
+                    "أحيا": "https://cdn3d.iconscout.com/3d/premium/thumb/dna-5256241-4385108.png",
+                    "عرب": "https://cdn3d.iconscout.com/3d/premium/thumb/ramadan-quran-5136006-4286786.png",
                     "English": "https://cdn3d.iconscout.com/3d/premium/thumb/english-book-10041135-8135359.png",
                     "رياض": "https://cdn3d.iconscout.com/3d/premium/thumb/mathematics-9173295-7489437.png",
                     "تاريخ": "https://cdn3d.iconscout.com/3d/premium/thumb/pharaoh-6450376-5310636.png",
-                    "جغرافيا": "https://cdn3d.iconscout.com/3d/premium/thumb/earth-5134701-4282715.png",
-                    "فرنساوي": "https://cdn3d.iconscout.com/3d/premium/thumb/eiffel-tower-5374026-4491752.png",
-                    "فلسفة": "https://cdn3d.iconscout.com/3d/premium/thumb/thought-5285141-4414349.png",
-                    "نفس": "https://cdn3d.iconscout.com/3d/premium/thumb/psychology-9860472-8012170.png"
+                    "جغراف": "https://cdn3d.iconscout.com/3d/premium/thumb/earth-5134701-4282715.png"
                 };
-
-                const getImgUrl = (name) => {
-                    for (const key in IMAGES_3D) {
-                        if (name.includes(key)) return IMAGES_3D[key];
-                    }
-                    return "https://cdn3d.iconscout.com/3d/premium/thumb/book-5110435-4256920.png"; // صورة افتراضية
-                };
-
+                const getImgUrl = (n) => { for (let k in IMGS) if (n.includes(k)) return IMGS[k]; return "https://cdn3d.iconscout.com/3d/premium/thumb/book-5110435-4256920.png"; };
                 const openSub = (s) => window.location.href = `chapters.html?yid=${yid.value}&sid=${s.id}`;
 
                 onMounted(async () => {
-                    // إعدادات Firebase
-                    const firebaseConfig = {
-                        databaseURL: "https://fullmark-2025-default-rtdb.firebaseio.com"
-                    };
-                    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-                    const db = firebase.database();
-
-                    const code = localStorage.getItem('activeCode');
-                    if (!code) { window.location.href = 'index.html'; return; }
-
-                    try {
-                        const snap = await db.ref('approvedStudents/' + code).once('value');
-                        const student = snap.val();
-                        if (student) {
-                            studentName.value = student.studentName;
-                            studentSection.value = student.section;
-                            
-                            const URLS = {
-                                'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
-                                'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
-                                'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json"
-                            };
-
-                            const res = await fetch(URLS[student.section.trim()] || URLS['علمي علوم']);
-                            const data = await res.json();
-                            let year = data.find(y => y.id == 3) || data[0];
-                            yid.value = year.id;
-                            subjects.value = year.subjects;
-                        }
-                    } catch (e) { console.error(e); } 
-                    finally { loading.value = false; }
+                    const db = firebase.database(); const code = localStorage.getItem('activeCode');
+                    if (!code) return window.location.href = 'index.html';
+                    const snap = await db.ref('approvedStudents/' + code).once('value');
+                    const student = snap.val();
+                    if (student) {
+                        studentName.value = student.studentName;
+                        const res = await fetch("https://plus-teal.vercel.app/organized_output.json");
+                        const data = await res.json();
+                        let year = data.find(y => y.id == 3) || data[0];
+                        yid.value = year.id; subjects.value = year.subjects;
+                    }
+                    loading.value = false;
                 });
-
-                return { subjects, loading, studentName, studentSection, getImgUrl, openSub };
+                return { subjects, loading, studentName, getImgUrl, openSub };
             }
         }).mount('#app');
-
-        function logout() {
-            if(confirm("هل تريد تسجيل الخروج؟")) { localStorage.clear(); window.location.href='index.html'; }
-        }
+        function logout() { if(confirm("خروج؟")) { localStorage.clear(); location.href='index.html'; } }
     </script>
 </body>
-    </html>
-    
+</html>
