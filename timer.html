@@ -3,117 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حالة الاشتراك</title>
+    <title>الملف الشخصي | FULL MARK</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="auth.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #000; color: white; font-family: 'Tajawal', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
-        
-        /* تأثير التوهج */
-        .glow-box {
-            box-shadow: 0 0 50px rgba(59, 130, 246, 0.3);
-            border: 2px solid #3b82f6;
-            background: rgba(10, 20, 40, 0.9);
-        }
-        
-        .crown-icon { font-size: 3rem; color: #fbbf24; filter: drop-shadow(0 0 10px #fbbf24); animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-        .digit-box {
-            background: #111; border: 1px solid #333; padding: 10px; border-radius: 10px;
-            min-width: 60px; text-align: center;
-        }
-        .digit-val { font-size: 2rem; font-weight: bold; color: #3b82f6; text-shadow: 0 0 10px #3b82f6; font-family: monospace; }
-        .digit-label { color: #aaa; font-size: 0.8rem; margin-top: 5px; }
-
-        .active-badge {
-            background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #4ade80;
-            padding: 5px 15px; border-radius: 50px; font-weight: bold; display: inline-flex; align-items: center; gap: 5px;
-        }
-        
-        .code-display {
-            font-family: monospace; letter-spacing: 5px; font-size: 2rem;
-            color: #fbbf24; text-shadow: 0 0 15px #fbbf24; font-weight: bold; margin-top: 10px;
-        }
+        body { background: #020617; color: white; font-family: 'Cairo', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        .stars-container { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #020617 100%); }
+        .glass-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 30px; width: 90%; max-width: 400px; padding: 40px; text-align: center; box-shadow: 0 0 30px rgba(99, 102, 241, 0.2); }
+        .clock { font-size: 3rem; font-weight: 900; color: #6366f1; text-shadow: 0 0 20px rgba(99, 102, 241, 0.5); margin: 20px 0; }
+        .btn-back { background: linear-gradient(135deg, #6366f1, #d946ef); width: 100%; padding: 15px; border-radius: 15px; font-weight: bold; margin-top: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <div class="w-full max-w-md p-6">
+    <div class="stars-container" id="starsBox"></div>
+    <div class="glass-card">
+        <div class="w-24 h-24 bg-indigo-500 rounded-full mx-auto mb-4 border-4 border-fuchsia-500 p-1">
+            <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="rounded-full">
+        </div>
+        <h2 id="name" class="text-2xl font-black mb-1 text-white">جاري التحميل...</h2>
+        <p id="section" class="text-indigo-400 text-sm mb-6 uppercase tracking-widest">الشعبة الدراسية</p>
         
-        <div class="text-center mb-8">
-            <i class="fas fa-crown crown-icon mb-4"></i>
-            <h1 class="text-3xl font-bold uppercase tracking-widest text-white mb-2" style="text-shadow: 0 0 20px rgba(255,255,255,0.5);">
-                FULL MARK STUDENT
-            </h1>
-            <h2 id="studentNameDisplay" class="text-xl text-blue-400 font-bold">...</h2>
-        </div>
-
-        <div class="glow-box rounded-3xl p-8 text-center relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-yellow-400 to-blue-500"></div>
-
-            <div class="flex justify-between items-center mb-8">
-                <span class="active-badge"><i class="fas fa-check-circle"></i> نشط</span>
-                <span class="text-gray-400 text-sm">الحالة: بريميوم</span>
-            </div>
-
-            <div class="text-2xl font-bold text-white mb-6">الوقت المتبقي</div>
-
-            <div class="flex justify-center gap-3 mb-8">
-                <div class="digit-box"><div class="digit-val" id="dDays">00</div><div class="digit-label">أيام</div></div>
-                <div class="text-2xl text-gray-600 self-center">:</div>
-                <div class="digit-box"><div class="digit-val" id="dHours">00</div><div class="digit-label">ساعات</div></div>
-                <div class="text-2xl text-gray-600 self-center">:</div>
-                <div class="digit-box"><div class="digit-val" id="dMins">00</div><div class="digit-label">دقائق</div></div>
-            </div>
-
-            <a href="subjects.html" class="block w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white font-bold py-4 rounded-xl transition shadow-lg transform hover:scale-105">
-                <i class="fas fa-door-open ml-2"></i> العودة إلى المواد
-            </a>
-        </div>
-
-        <div class="text-center mt-8">
-            <p class="text-gray-500 text-sm">كود التفعيل الخاص بك</p>
-            <div id="codeShow" class="code-display">------</div>
-        </div>
-
+        <div class="text-xs text-gray-500 uppercase tracking-widest">التوقيت الحالي</div>
+        <div id="clock" class="clock">00:00:00</div>
+        
+        <button onclick="history.back()" class="btn-back">العودة للدراسة 🚀</button>
     </div>
 
     <script>
-        const db = firebase.database();
-        const code = localStorage.getItem('activeCode');
-        document.getElementById('codeShow').innerText = code;
-
-        db.ref('approvedStudents/' + code).once('value').then(snap => {
-            const data = snap.val();
-            if(data) {
-                document.getElementById('studentNameDisplay').innerText = data.studentName;
-                startTimer(data.expiry);
-            }
-        });
-
-        function startTimer(expiry) {
-            setInterval(() => {
-                const now = new Date().getTime();
-                const distance = expiry - now;
-
-                if (distance < 0) {
-                    document.getElementById('dDays').innerText = "00";
-                    return;
-                }
-
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-
-                document.getElementById('dDays').innerText = days < 10 ? "0"+days : days;
-                document.getElementById('dHours').innerText = hours < 10 ? "0"+hours : hours;
-                document.getElementById('dMins').innerText = minutes < 10 ? "0"+minutes : minutes;
-            }, 1000);
+        // ساعة رقمية
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('ar-EG');
         }
+        setInterval(updateClock, 1000);
+
+        // جلب البيانات
+        async function loadProfile() {
+            const firebaseConfig = { databaseURL: "https://fullmark-2025-default-rtdb.firebaseio.com" };
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.database();
+            const code = localStorage.getItem('activeCode');
+            const snap = await db.ref('approvedStudents/' + code).once('value');
+            if(snap.exists()){
+                document.getElementById('name').innerText = snap.val().studentName;
+                document.getElementById('section').innerText = snap.val().section;
+            }
+        }
+        loadProfile();
     </script>
 </body>
 </html>
