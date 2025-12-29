@@ -12,15 +12,9 @@
     <style>
         body { background: #020617; color: white; font-family: sans-serif; }
         .part-item {
-            background: rgba(30, 41, 59, 0.4);
-            border-left: 4px solid #3b82f6;
-            transition: all 0.3s;
+            background: rgba(30, 41, 59, 0.4); border-left: 4px solid #3b82f6; transition: 0.3s;
         }
-        .part-item:hover {
-            background: rgba(30, 41, 59, 0.8);
-            border-left-color: #fbbf24;
-            transform: translateX(-5px);
-        }
+        .part-item:hover { background: rgba(30, 41, 59, 0.8); border-left-color: #fbbf24; padding-right: 1.5rem; }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -61,7 +55,8 @@
                 const yid = params.get('yid');
                 const sid = params.get('sid');
                 const tid = params.get('tid');
-                const lid = params.get('lid');
+                const uid = params.get('uid');
+                const cid = params.get('cid');
 
                 const play = (v) => {
                     localStorage.setItem('currentVideo', JSON.stringify(v));
@@ -74,25 +69,37 @@
                     const snap = await db.ref('approvedStudents/' + code).once('value');
                     const section = snap.val()?.section?.trim() || 'علمي علوم';
                     
-                    const res = await fetch(URLS[section] || URLS['علمي علوم']);
-                    const data = await res.json();
-                    
-                    const year = data.find(y => y.id == yid) || data[0];
-                    const sub = year.subjects.find(s => s.id == sid);
-                    const teacher = sub.teachers.find(t => t.id == tid);
-                    
-                    const targetChapter = teacher.chapters[lid];
-                    if(targetChapter) {
-                        chapterName.value = targetChapter.chapter_name || targetChapter.name;
-                        let vids = [];
-                        if(targetChapter.videos) vids = [...vids, ...targetChapter.videos];
-                        if(targetChapter.lectures) targetChapter.lectures.forEach(l => { if(l.videos) vids = [...vids, ...l.videos] });
-                        videos.value = vids;
-                    }
+                    try {
+                        const res = await fetch(URLS[section] || URLS['علمي علوم']);
+                        const data = await res.json();
+                        
+                        const year = data.find(y => y.id == yid) || data[0];
+                        const sub = year.subjects.find(s => s.id == sid);
+                        const teacher = sub.teachers.find(t => t.id == tid);
+                        
+                        let targetChapter;
+
+                        // التوافق مع القديم والجديد
+                        if (teacher.units) {
+                            targetChapter = teacher.units[uid].chapters[cid];
+                        } else {
+                            // لو قديم، uid هيكون 0 دايماً
+                            targetChapter = teacher.chapters[cid];
+                        }
+                        
+                        if(targetChapter) {
+                            chapterName.value = targetChapter.chapter_name || targetChapter.name;
+                            let vids = [];
+                            if(targetChapter.videos) vids = [...vids, ...targetChapter.videos];
+                            if(targetChapter.lectures) targetChapter.lectures.forEach(l => { if(l.videos) vids = [...vids, ...l.videos] });
+                            videos.value = vids;
+                        }
+                    } catch(e) { console.error(e); }
                 });
                 return { videos, chapterName, play };
             }
         }).mount('#app');
     </script>
 </body>
-</html>
+    </html>
+    
