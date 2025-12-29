@@ -3,20 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Full Mark | المواد الدراسية</title>
+    <title>FULL MARK | المواد الدراسية</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
     
     <script type="module" src="devcheck.js"></script>
     <script src="auth.js"></script>
 
-    <script src="1_science.js"></script>
-    <script src="2_math.js"></script>
-    <script src="3_lit.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <script>
     tailwind.config = {
@@ -38,8 +36,6 @@
     </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
     <style>
         body { 
@@ -47,14 +43,12 @@
             background-color: #020617; 
             color: #f1f5f9; 
             margin: 0; 
-            /* خلفية شبكية زرقاء خفيفة */
             background-image: 
                 radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
                 radial-gradient(#1e293b 1px, transparent 1px);
             background-size: 100% 100%, 30px 30px;
         }
         
-        /* الهيدر الزجاجي */
         .glass-panel {
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(12px);
@@ -62,7 +56,6 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
         
-        /* الكروت */
         .glass-card {
             background: var(--card);
             backdrop-filter: blur(8px);
@@ -87,17 +80,14 @@
             display: flex; justify-content: center; align-items: center; flex-direction: column;
         }
 
-        /* شريط التمرير */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #020617; }
         ::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
         
-        /* زر البروفايل العائم */
         .profile-float-btn {
             position: fixed; bottom: 30px; left: 30px; width: 60px; height: 60px;
             border-radius: 50%; background: #1e3a8a; 
-            border: 2px solid #fbbf24; /* إطار ذهبي */
+            border: 2px solid #fbbf24;
             display: flex; justify-content: center; align-items: center; z-index: 50;
             box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
             transition: transform 0.3s;
@@ -138,13 +128,13 @@
                 <i class="ph ph-student text-gold text-xl animate-pulse"></i>
             </div>
         </div>
-        <p class="mt-4 text-lg font-bold text-white tracking-widest">جاري جلب المواد...</p>
+        <p class="mt-4 text-lg font-bold text-white tracking-widest">جاري جلب البيانات...</p>
     </div>
 
     <div v-else-if="subjects.length === 0" class="flex-1 flex flex-col justify-center items-center text-gray-500">
         <i class="ph ph-empty text-6xl mb-4 opacity-50 text-secondary"></i>
-        <p class="text-xl font-medium">لا توجد مواد متاحة لشعبتك حالياً.</p>
-        <button @click="retryLoad" class="mt-4 px-6 py-2 bg-secondary text-white rounded-lg font-bold hover:bg-blue-600 transition shadow-lg shadow-blue-500/30">تحديث</button>
+        <p class="text-xl font-medium">لا توجد مواد متاحة لهذه الشعبة.</p>
+        <button @click="retryLoad" class="mt-4 px-6 py-2 bg-secondary text-white rounded-lg font-bold hover:bg-blue-600 transition shadow-lg">تحديث</button>
     </div>
 
     <main v-else class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 custom-scrollbar">
@@ -156,7 +146,7 @@
                 
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-secondary to-transparent opacity-50"></div>
                 
-                <div class="w-24 h-24 rounded-full p-1 border-2 border-gold/50 mb-4 group-hover:scale-110 transition-transform duration-300 bg-black/40 shadow-lg shadow-gold/10">
+                <div class="w-24 h-24 rounded-full p-1 border-2 border-gold/50 mb-4 group-hover:scale-110 transition-transform duration-300 bg-black/40 shadow-lg">
                     <img :src="getImage(subject.name)" class="w-full h-full object-cover rounded-full">
                 </div>
 
@@ -180,7 +170,15 @@
 <script>
 const { createApp, ref, onMounted } = Vue;
 
-// قاموس صور المواد
+// 1. روابط البيانات الأصلية (حسب الشعبة)
+const JSON_URLS = {
+    'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
+    'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
+    'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json", 
+    'أزهر': "https://plus-teal.vercel.app/organized_output.json", 
+    'الافتراضي': "https://plus-teal.vercel.app/organized_output.json"
+};
+
 const SUBJECT_IMAGES = {
     "لغة عربية": "https://img.icons8.com/color/480/books.png",
     "لغة إنجليزية": "https://img.icons8.com/color/480/abc.png",
@@ -234,32 +232,59 @@ createApp({
         const activeCode = localStorage.getItem('activeCode');
         if (!activeCode) { window.location.href = 'index.html'; return; }
 
+        // تهيئة الفايربيس (تأكد إنها نفس بياناتك)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBK6FZF3LW83qaUHBKYTfiVd2Ozrd1Rf2g",
+            authDomain: "thanawy-1383.firebaseapp.com",
+            databaseURL: "https://thanawy-1383-default-rtdb.firebaseio.com",
+            projectId: "thanawy-1383",
+            storageBucket: "thanawy-1383.firebasestorage.app",
+            messagingSenderId: "1026664406457",
+            appId: "1:1026664406457:web:87d71f7e41bef36ba0aa68"
+        };
+        
+        if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const db = firebase.database();
+
         try {
+            // 1. جلب بيانات الطالب
             const snapshot = await db.ref('approvedStudents/' + activeCode).once('value');
             const student = snapshot.val();
 
             if (student) {
                 studentName.value = student.studentName || 'طالب';
                 studentSection.value = student.section || 'عام';
-                const section = studentSection.value.trim();
+                
+                // 2. تحديد رابط البيانات
+                const sectionKey = studentSection.value.trim();
+                const jsonUrl = JSON_URLS[sectionKey] || JSON_URLS['الافتراضي'];
 
-                let rawData = [];
-                // تحديد ملف الداتا حسب الشعبة
-                if (section === 'علمي علوم' && typeof SCIENCE_RAW !== 'undefined') rawData = SCIENCE_RAW;
-                else if (section === 'علمي رياضة' && typeof MATH_RAW !== 'undefined') rawData = MATH_RAW;
-                else if (section === 'أدبي' && typeof LIT_RAW !== 'undefined') rawData = LIT_RAW;
-                else if (typeof SCIENCE_RAW !== 'undefined') rawData = SCIENCE_RAW;
+                // 3. جلب البيانات من الرابط الخارجي (الأصلي)
+                const res = await fetch(jsonUrl);
+                if (!res.ok) throw new Error("فشل في جلب البيانات");
+                
+                const data = await res.json();
+                
+                // 4. عرض المواد (بافتراض السنة الثالثة)
+                // الكود ده بيدور على أي سنة فيها كلمة "3" أو "ثالث"
+                const yearData = data.find(y => 
+                    y.name.includes('3') || y.name.includes('ثالث') || y.id == 3
+                );
 
-                if (rawData.length > 0) {
-                    const yearData = rawData[0]; 
+                if (yearData) {
                     currentYearId.value = yearData.id;
                     subjects.value = yearData.subjects || [];
+                } else if(data.length > 0) {
+                    // لو ملقاش سنة 3، يعرض أول سنة يلاقيها
+                    currentYearId.value = data[0].id;
+                    subjects.value = data[0].subjects || [];
                 }
             }
         } catch (err) {
             console.error(err);
-            alert("حدث خطأ في الاتصال");
+            alert("حدث خطأ في تحميل البيانات من السيرفر");
         } finally {
             loading.value = false;
         }
@@ -274,4 +299,5 @@ createApp({
 </script>
 
 </body>
-</html>
+    </html>
+    
