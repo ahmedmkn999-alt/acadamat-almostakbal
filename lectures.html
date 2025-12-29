@@ -2,27 +2,42 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>المحتوى</title>
+    <title>المحاضرات</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="auth.js"></script>
-    <style>body { background: #020617; color: white; font-family: sans-serif; }</style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #020617; color: white; font-family: sans-serif; }
+        .lecture-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .lecture-card:hover { border-color: #fbbf24; transform: scale(1.02); }
+    </style>
 </head>
-<body class="p-4">
+<body class="p-4 md:p-8">
     <div id="app">
-        <div class="flex items-center gap-2 mb-6">
-            <button onclick="history.back()" class="bg-blue-900 w-10 h-10 rounded-full text-white">➜</button>
-            <h1 class="text-xl font-bold text-yellow-400">المحتوى</h1>
+        <div class="flex items-center gap-4 mb-8">
+            <button onclick="history.back()" class="bg-slate-800 hover:bg-slate-700 w-12 h-12 rounded-full text-white flex items-center justify-center transition">➜</button>
+            <div>
+                <h1 class="text-2xl font-bold text-yellow-400">المحاضرات</h1>
+                <p class="text-gray-400 text-sm">{{ teacherName }}</p>
+            </div>
         </div>
 
-        <div v-for="ch in chapters" :key="ch.id" class="mb-4 bg-slate-800 rounded-xl overflow-hidden border border-slate-700">
-            <div class="p-4 bg-slate-700 font-bold text-blue-200">{{ ch.chapter_name || ch.name }}</div>
-            
-            <div v-for="vid in getAllVideos(ch)" :key="vid.name" @click="play(vid)" class="p-3 border-b border-slate-600 flex items-center gap-3 cursor-pointer hover:bg-slate-600">
-                <span class="bg-blue-600 w-8 h-8 rounded-full flex items-center justify-center">▶</span>
-                {{ vid.video_name || vid.title || vid.name }}
+        <div class="grid grid-cols-2 gap-4">
+            <div v-for="(ch, index) in chapters" :key="index" @click="openParts(index)" class="lecture-card p-5 rounded-2xl cursor-pointer transition-all flex flex-col justify-between min-h-[140px] relative overflow-hidden shadow-lg">
+                <div class="absolute top-0 right-0 bg-yellow-500 text-black font-bold text-xs px-3 py-1 rounded-bl-lg">
+                    <i class="fas fa-book-open ml-1"></i> وحدة {{ index + 1 }}
+                </div>
+                <h3 class="text-lg font-bold mt-6 mb-2 leading-relaxed">{{ ch.chapter_name || ch.name }}</h3>
+                <div class="flex justify-between items-center text-xs text-blue-200 mt-auto pt-4 border-t border-white/10">
+                    <span>عرض المحتوى</span>
+                    <i class="fas fa-arrow-left"></i>
+                </div>
             </div>
         </div>
     </div>
@@ -39,22 +54,13 @@
         createApp({
             setup() {
                 const chapters = ref([]);
+                const teacherName = ref('');
                 const params = new URLSearchParams(window.location.search);
                 const yid = params.get('yid');
                 const sid = params.get('sid');
                 const tid = params.get('tid');
 
-                const play = (v) => {
-                    localStorage.setItem('currentVideo', JSON.stringify(v));
-                    window.location.href = 'player.html';
-                };
-
-                const getAllVideos = (ch) => {
-                    let vids = [];
-                    if(ch.videos) vids = [...vids, ...ch.videos];
-                    if(ch.lectures) ch.lectures.forEach(l => { if(l.videos) vids = [...vids, ...l.videos] });
-                    return vids;
-                };
+                const openParts = (idx) => window.location.href = `parts.html?yid=${yid}&sid=${sid}&tid=${tid}&lid=${idx}`;
 
                 onMounted(async () => {
                     const code = localStorage.getItem('activeCode');
@@ -68,9 +74,10 @@
                     const year = data.find(y => y.id == yid) || data[0];
                     const sub = year.subjects.find(s => s.id == sid);
                     const teacher = sub.teachers.find(t => t.id == tid);
+                    teacherName.value = teacher.name;
                     chapters.value = teacher.chapters || [];
                 });
-                return { chapters, play, getAllVideos };
+                return { chapters, teacherName, openParts };
             }
         }).mount('#app');
     </script>
