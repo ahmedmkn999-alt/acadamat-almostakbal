@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Mark | Elgizawy - تسجيل الدخول</title>
+    
+    <meta name="description" content="منصة Full Mark التعليمية.">
+    <link rel="canonical" href="https://fulll-mark.vercel.app">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <script type="module" src="devcheck.js"></script>
+
+    <style>
+        :root {
+            --light-text: #FFFFFF;
+            --green-active: #00F5C4;
+            --red-error: #FF4F4F;
+            --pending: #ffb347;
+            --main-light-green: #08402C;
+            --main-dark-green: #042016;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', 'Tajawal', sans-serif; }
+
+        body {
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(180deg, var(--main-light-green) 0%, var(--main-dark-green) 100%);
+            overflow: hidden; position: relative; color: var(--light-text); padding: 20px; padding-bottom: 100px;
+        }
+
+        /* Waves Background */
+        body::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600"><rect fill="%2308402C" width="1000" height="600"/><g fill="%230C241C"><path d="M0 450c100-50 200-50 300 0s200 50 300 0 200-50 400 0v150H0z"/><path d="M0 480c100-30 200-30 300 0s200 30 300 0 200-30 400 0v120H0z"/></g><g fill="%23020A07"><path d="M0 500c100-20 200-20 300 0s200 20 300 0 200-20 400 0v90H0z"/><path d="M0 540c100-10 200-10 300 0s200 10 300 0 200-10 400 0v60H0z"/></g></svg>');
+            background-repeat: no-repeat; background-size: cover; background-position: bottom center;
+            z-index: -1; filter: brightness(0.9);
+        }
+
+        /* Stars Effect */
+        .stars {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(circle at 10% 20%, rgba(255,255,255,0.8) 1px, transparent 1%),
+                              radial-gradient(circle at 70% 80%, rgba(255,255,255,0.7) 1px, transparent 1%);
+            background-size: 100px 100px, 120px 120px; opacity: 0.8; z-index: -1;
+            animation: star-move 60s linear infinite alternate;
+        }
+        @keyframes star-move { from { background-position: 0% 0%; } to { background-position: 10% 10%; } }
+
+        /* Login Card */
+        .login-card {
+            background: rgba(255, 255, 255, 0.08); border-radius: 15px; padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px); width: 90%; max-width: 420px; text-align: center;
+            animation: fadeIn 1s ease-out; color: #ffffff; z-index: 10;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { margin-bottom: 30px; font-size: 2.2em; font-weight: 700; text-shadow: 0 0 8px rgba(255, 255, 255, 0.4); }
+
+        .input-group { position: relative; margin-bottom: 25px; }
+        .input-group input {
+            width: 100%; padding: 15px 45px 15px 15px; background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 10px; color: #ffffff;
+            font-size: 1em; outline: none; transition: all 0.3s ease; text-align: right; font-family: 'Tajawal';
+        }
+        .input-group input:focus { background: rgba(255, 255, 255, 0.2); border-color: var(--green-active); }
+        .input-group .icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: rgba(255, 255, 255, 0.7); }
+
+        /* Buttons */
+        .login-btn {
+            width: 100%; padding: 15px; border: none; border-radius: 10px; color: #ffffff;
+            font-size: 1.1em; font-weight: 700; cursor: pointer; transition: 0.3s ease; margin-top: 15px;
+            background: linear-gradient(90deg, var(--main-light-green), var(--main-dark-green));
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+        }
+        .login-btn:hover { background: linear-gradient(90deg, #1A6041, var(--main-dark-green)); transform: translateY(-2px); }
+        .login-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        /* Status Bar */
+        .top-status-bar {
+            padding: 15px; border-radius: 10px; margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05);
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+        }
+        .code-display { color: var(--green-active); font-weight: 700; font-family: monospace; font-size: 1.2em; margin-bottom: 10px;}
+        
+        .clear-btn {
+            background: var(--red-error); color: white; padding: 8px 15px; border-radius: 8px;
+            font-size: 0.85em; font-weight: 600; cursor: pointer; border: none; transition: 0.3s;
+        }
+
+        #statusMessage { margin-bottom: 20px; padding: 10px; border-radius: 8px; display: none; font-size: 0.9em; font-weight: bold; }
+
+        /* Footer */
+        .developer-footer {
+            position: fixed; bottom: 10px; width: 100%; z-index: 5; padding: 10px;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .developer-info { display: flex; align-items: center; gap: 10px; flex-direction: row-reverse; }
+        .developer-name { color: var(--green-active); font-size: 1.3em; font-weight: 700; text-shadow: 0 0 15px var(--green-active); }
+        .developed-text { color: rgba(255,255,255,0.7); font-size: 0.9em; }
+    </style>
+</head>
+<body>
+
+    <div class="stars"></div>
+
+    <div class="login-card">
+        <div id="topCodeStatus" class="top-status-bar" style="display: none;"></div>
+
+        <h2>FULL MARK Platform</h2>
+        
+        <div id="statusMessage"></div>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <i class="fas fa-lock icon"></i>
+                <input type="tel" id="activationCode" placeholder="أدخل كود الاشتراك" pattern="\d*" maxlength="8" required>
+            </div>
+
+            <button type="submit" id="loginBtn" class="login-btn">
+                 تفعيل ودخول 🚀
+            </button>
+        </form>
+    </div>
+    
+    <footer class="developer-footer">
+        <div class="developer-info">
+            <span class="developer-name">ELGIZAWY</span>
+            <span class="developed-text">Developed By</span>
+        </div>
+    </footer>
+
+    <script>
+        // 🚨 1. إعدادات Firebase
+        const firebaseConfig = {
+          apiKey: "AIzaSyBK6FZF3LW83qaUHBKYTfiVd2Ozrd1Rf2g",
+          authDomain: "thanawy-1383.firebaseapp.com",
+          databaseURL: "https://thanawy-1383-default-rtdb.firebaseio.com",
+          projectId: "thanawy-1383",
+          storageBucket: "thanawy-1383.firebasestorage.app",
+          messagingSenderId: "1026664406457",
+          appId: "1:1026664406457:web:87d71f7e41bef36ba0aa68",
+          measurementId: "G-J5R2EFM2D0"
+        };
+        
+        // تهيئة Firebase مرة واحدة
+        if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+
+        // 🚨 2. المتغيرات والعناصر
+        const LOGIN_FORM = document.getElementById('loginForm');
+        const LOGIN_BTN = document.getElementById('loginBtn');
+        const CODE_INPUT = document.getElementById('activationCode');
+        const STATUS_MSG = document.getElementById('statusMessage');
+        const TOP_STATUS = document.getElementById('topCodeStatus');
+
+        // الحصول على ID الجهاز
+        let localDeviceId = localStorage.getItem('localDeviceId');
+        if (!localDeviceId) {
+            localDeviceId = 'DID-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            localStorage.setItem('localDeviceId', localDeviceId);
+        }
+
+        // دالة عرض الرسائل
+        function showMessage(text, type) {
+            STATUS_MSG.textContent = text;
+            STATUS_MSG.style.display = 'block';
+            STATUS_MSG.style.background = type === 'error' ? 'rgba(255, 79, 79, 0.2)' : 'rgba(0, 245, 196, 0.2)';
+            STATUS_MSG.style.color = type === 'error' ? 'var(--red-error)' : 'var(--green-active)';
+            STATUS_MSG.style.border = `1px solid ${type === 'error' ? 'var(--red-error)' : 'var(--green-active)'}`;
+        }
+
+        // 🚨 3. الدخول التلقائي (لو الكود موجود)
+        const storedCode = localStorage.getItem('activeCode');
+        if (storedCode) {
+            TOP_STATUS.style.display = 'flex';
+            TOP_STATUS.innerHTML = `
+                <div class="code-display">${storedCode}</div>
+                <div style="font-size:0.9em; margin-bottom:10px; color:#ccc;">أنت مسجل دخول بالفعل</div>
+                <div style="display:flex; gap:10px;">
+                    <button onclick="window.location.href='chapters.html'" class="login-btn" style="margin:0; padding:8px 20px; font-size:0.9em; width:auto;">استكمال</button>
+                    <button onclick="logout()" class="clear-btn">خروج</button>
+                </div>
+            `;
+            // إخفاء الفورم عشان الشكل يبقى أحلى
+            LOGIN_FORM.style.display = 'none';
+        }
+
+        // دالة الخروج
+        window.logout = function() {
+            localStorage.removeItem('activeCode');
+            window.location.reload();
+        };
+
+        // 🚨 4. معالجة تسجيل الدخول (الفورم)
+        LOGIN_FORM.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const code = CODE_INPUT.value.trim();
+            
+            if (!code) return;
+
+            LOGIN_BTN.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
+            LOGIN_BTN.disabled = true;
+
+            try {
+                // البحث عن الكود في قاعدة البيانات
+                const snapshot = await db.ref('approvedStudents/' + code).once('value');
+                const data = snapshot.val();
+
+                if (!data) {
+                    throw new Error("الكود غير صحيح أو غير مفعل");
+                }
+
+                if (data.isBlocked) {
+                    throw new Error("تم حظر هذا الكود من قبل الإدارة");
+                }
+
+                // التحقق من الجهاز (Device Binding)
+                if (data.deviceId && data.deviceId !== localDeviceId) {
+                    throw new Error("عفواً، هذا الكود مفعل على جهاز آخر");
+                }
+
+                // ربط الجهاز لأول مرة
+                if (!data.deviceId) {
+                    await db.ref('approvedStudents/' + code).update({ deviceId: localDeviceId });
+                }
+
+                // ✅ نجاح الدخول
+                localStorage.setItem('activeCode', code);
+                showMessage("تم التفعيل بنجاح! جاري الدخول...", "success");
+                
+                setTimeout(() => {
+                    window.location.href = 'chapters.html'; // التوجيه لصفحة الفصول
+                }, 1000);
+
+            } catch (error) {
+                showMessage(error.message, "error");
+                LOGIN_BTN.innerHTML = 'تفعيل ودخول 🚀';
+                LOGIN_BTN.disabled = false;
+            }
+        });
+    </script>
+
+</body>
+</html>
