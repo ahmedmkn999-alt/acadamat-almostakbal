@@ -3,149 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Full Mark | تسجيل الدخول</title>
+    <title>Full Mark | لوحة التحكم</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script type="module" src="devcheck.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
-        /* 🔵 الثيم الجديد: أزرق ملكي وذهبي */
         :root {
-            --bg-dark: #020617;       /* كحلي غامق جداً */
-            --primary-blue: #1e3a8a;  /* أزرق ملكي */
-            --accent-gold: #fbbf24;   /* ذهبي */
-            --text-light: #f8fafc;
-            --glass-bg: rgba(30, 58, 138, 0.15);
+            --bg-dark: #020617;
+            --primary-blue: #1e3a8a;
+            --accent-gold: #fbbf24;
             --glass-border: rgba(59, 130, 246, 0.3);
+            --text-light: #f8fafc;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
 
         body {
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, var(--bg-dark) 0%, #000000 100%);
+            background-color: var(--bg-dark);
             color: var(--text-light);
-            overflow: hidden;
-            background-image: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: radial-gradient(#1e293b 1px, transparent 1px);
+            background-size: 30px 30px;
         }
 
-        /* الكارد الزجاجي */
-        .login-card {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(12px);
+        .admin-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
             border-radius: 20px;
             padding: 40px;
-            width: 90%; max-width: 400px;
-            text-align: center;
-            box-shadow: 0 0 40px rgba(30, 58, 138, 0.2);
-            animation: float 6s ease-in-out infinite;
+            width: 90%; max-width: 500px;
+            box-shadow: 0 0 50px rgba(30, 58, 138, 0.2);
+            position: relative;
+            overflow: hidden;
         }
 
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-        h2 { 
-            font-size: 2.2rem; margin-bottom: 30px; font-weight: 900; 
-            background: linear-gradient(to right, #fff, var(--accent-gold));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        /* شريط ذهبي علوي */
+        .admin-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--accent-gold));
         }
 
-        .input-group { position: relative; margin-bottom: 20px; }
-        .input-group input {
-            width: 100%; padding: 15px 45px 15px 15px;
+        h2 {
+            text-align: center; font-size: 2rem; margin-bottom: 30px;
+            color: var(--accent-gold); text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+        }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #94a3b8; }
+        
+        input, select {
+            width: 100%; padding: 12px;
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px; color: #fff; font-size: 1.1rem;
+            border-radius: 10px; color: white; font-size: 1rem;
             outline: none; transition: 0.3s;
         }
-        .input-group input:focus { border-color: var(--accent-gold); box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
-        .input-group .icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--accent-gold); }
+        input:focus, select:focus {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
+        }
 
-        /* الزرار الأزرق */
-        .login-btn {
+        button {
             width: 100%; padding: 15px; border: none; border-radius: 12px;
             background: linear-gradient(90deg, #2563eb, #1d4ed8);
-            color: white; font-size: 1.2rem; font-weight: bold; cursor: pointer;
-            transition: 0.3s; box-shadow: 0 5px 20px rgba(37, 99, 235, 0.3);
+            color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer;
+            transition: 0.3s; margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
         }
-        .login-btn:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5); }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
+        }
 
-        /* 🔥 الكلمات المحفزة */
-        .typewriter-container {
-            margin-top: 25px; height: 30px;
-            display: flex; justify-content: center; align-items: center;
+        /* منطقة عرض الكود */
+        .result-box {
+            margin-top: 30px; padding: 20px;
+            background: rgba(0, 255, 153, 0.1);
+            border: 1px solid #10b981;
+            border-radius: 12px;
+            text-align: center;
+            display: none; /* مخفي افتراضياً */
+            animation: slideUp 0.5s ease;
         }
-        #typewriter-text {
-            color: var(--accent-gold); font-size: 1.1rem; font-weight: 700;
-            text-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
-        }
-        .cursor { animation: blink 1s infinite; color: var(--accent-gold); margin-right: 2px; }
-        @keyframes blink { 50% { opacity: 0; } }
+        @keyframes slideUp { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
 
-        /* الفوتر */
-        .footer {
-            position: fixed; bottom: 20px; font-size: 0.9rem; color: rgba(255,255,255,0.6);
+        .generated-code {
+            font-family: monospace; font-size: 2rem; font-weight: bold;
+            color: var(--accent-gold); letter-spacing: 5px; margin: 10px 0;
+            display: block; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
         }
-        .dev-name { color: var(--accent-gold); font-weight: bold; letter-spacing: 1px; }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.1); margin-top: 10px; font-size: 0.9rem; padding: 8px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="login-card">
-        <h2>منصة العباقرة</h2>
-        
-        <div id="statusMessage" style="display:none; margin-bottom:15px; color:#ef4444;"></div>
+    <div class="admin-card">
+        <h2><i class="fas fa-user-shield"></i> إنشاء كود طالب</h2>
 
-        <form id="loginForm">
-            <div class="input-group">
-                <i class="fas fa-key icon"></i>
-                <input type="tel" id="activationCode" placeholder="كود الاشتراك" required>
-            </div>
-            <button type="submit" id="loginBtn" class="login-btn">دخول</button>
-        </form>
+        <div class="form-group">
+            <label>اسم الطالب</label>
+            <input type="text" id="stdName" placeholder="أحمد محمد">
+        </div>
 
-        <div class="typewriter-container">
-            <span id="typewriter-text"></span><span class="cursor">|</span>
+        <div class="form-group">
+            <label>الشعبة الدراسية</label>
+            <select id="stdSection">
+                <option value="علمي علوم">🧬 علمي علوم</option>
+                <option value="علمي رياضة">📐 علمي رياضة</option>
+                <option value="أدبي">📜 أدبي</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>مدة الاشتراك (بالأيام)</label>
+            <input type="number" id="stdDays" value="30">
+        </div>
+
+        <button onclick="generateCode()" id="genBtn">✨ إنشاء الكود وحفظه</button>
+
+        <div id="resultArea" class="result-box">
+            <p style="color:#10b981; font-weight:bold;">تم الحفظ بنجاح! ✅</p>
+            <span id="codeDisplay" class="generated-code">------</span>
+            <button class="copy-btn" onclick="copyCode()">نسخ الكود</button>
         </div>
     </div>
 
-    <div class="footer">
-        Developed By <span class="dev-name">OMAR & HATEM</span>
-    </div>
-
     <script>
-        // 1. إعدادات الكتابة التلقائية
-        const phrases = [
-            "حلمك يستاهل تعبك.. كمل! 💪",
-            "اصنع مستقبلك الآن.. 🚀",
-            "النجاح قرار مش صدفة ✨",
-            "عافر.. هتوصل! 🎓"
-        ];
-        let i = 0, j = 0, isDeleting = false;
-        const speed = 100, wait = 2000;
-        
-        function type() {
-            const current = phrases[i];
-            const text = document.getElementById("typewriter-text");
-            
-            if (isDeleting) {
-                text.textContent = current.substring(0, j--);
-                if (j < 0) { isDeleting = false; i = (i + 1) % phrases.length; }
-            } else {
-                text.textContent = current.substring(0, j++);
-                if (j > current.length) { isDeleting = true; setTimeout(type, wait); return; }
-            }
-            setTimeout(type, isDeleting ? 50 : speed);
-        }
-        document.addEventListener("DOMContentLoaded", type);
-
-        // 2. كود الفايربيس (حط إعداداتك هنا)
+        // 🚨 1. إعدادات الفايربيس (نفس الإعدادات في كل الملفات)
         const firebaseConfig = {
             apiKey: "AIzaSyBK6FZF3LW83qaUHBKYTfiVd2Ozrd1Rf2g",
             authDomain: "thanawy-1383.firebaseapp.com",
@@ -155,46 +150,66 @@
             messagingSenderId: "1026664406457",
             appId: "1:1026664406457:web:87d71f7e41bef36ba0aa68"
         };
-        firebase.initializeApp(firebaseConfig);
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const db = firebase.database();
 
-        // 3. كود الدخول
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const code = document.getElementById('activationCode').value.trim();
-            const btn = document.getElementById('loginBtn');
-            const msg = document.getElementById('statusMessage');
+        // 2. دالة توليد الكود
+        function generateCode() {
+            const name = document.getElementById('stdName').value.trim();
+            const section = document.getElementById('stdSection').value;
+            const days = parseInt(document.getElementById('stdDays').value);
+            const btn = document.getElementById('genBtn');
 
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            if (!name) {
+                alert("يرجى كتابة اسم الطالب!");
+                return;
+            }
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإنشاء...';
+            btn.disabled = true;
+
+            // توليد رقم عشوائي من 6 أرقام
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
             
-            // توليد معرف جهاز
-            let deviceId = localStorage.getItem('localDeviceId');
-            if (!deviceId) {
-                deviceId = 'DID-' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('localDeviceId', deviceId);
-            }
+            // حساب تاريخ الانتهاء
+            const expiryDate = Date.now() + (days * 24 * 60 * 60 * 1000);
 
-            try {
-                const snapshot = await db.ref('approvedStudents/' + code).once('value');
-                const data = snapshot.val();
+            // الحفظ في قاعدة البيانات
+            db.ref('approvedStudents/' + code).set({
+                studentName: name,
+                section: section,
+                expiry: expiryDate,
+                deviceId: null, // فاضي عشان أول جهاز يدخل يتسجل
+                isBlocked: false,
+                activationDate: Date.now()
+            }).then(() => {
+                // عرض النتيجة
+                document.getElementById('resultArea').style.display = 'block';
+                document.getElementById('codeDisplay').innerText = code;
+                btn.innerHTML = '✨ إنشاء كود جديد';
+                btn.disabled = false;
+                
+                // تنظيف الحقل
+                document.getElementById('stdName').value = '';
+            }).catch((error) => {
+                alert("حدث خطأ: " + error.message);
+                btn.innerHTML = '✨ إعادة المحاولة';
+                btn.disabled = false;
+            });
+        }
 
-                if (!data) throw "الكود غير صحيح";
-                if (data.isBlocked) throw "تم حظر هذا الحساب";
-                if (data.deviceId && data.deviceId !== deviceId) throw "هذا الكود مستخدم على جهاز آخر";
-
-                if (!data.deviceId) {
-                    await db.ref('approvedStudents/' + code).update({ deviceId: deviceId });
-                }
-
-                localStorage.setItem('activeCode', code);
-                window.location.href = "subjects.html"; // توجيه لصفحة المواد
-
-            } catch (err) {
-                msg.textContent = err;
-                msg.style.display = 'block';
-                btn.textContent = 'دخول';
-            }
-        });
+        // 3. دالة النسخ
+        function copyCode() {
+            const code = document.getElementById('codeDisplay').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                alert("تم نسخ الكود: " + code);
+            });
+        }
     </script>
+
 </body>
-</html>
+        </html>
+        
