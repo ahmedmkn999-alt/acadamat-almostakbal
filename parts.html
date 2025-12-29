@@ -9,66 +9,90 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="auth.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        body { background: #0f172a; color: white; font-family: sans-serif; padding-bottom: 50px; }
+        body { 
+            background-color: #0f172a; 
+            background-image: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white; font-family: 'Tajawal', sans-serif; 
+            min-height: 100vh; position: relative; overflow-x: hidden;
+            padding-bottom: 60px;
+        }
 
-        /* تصميم الكارت الجديد - واسع وواضح */
+        /* --- خلفية FULL MARK --- */
+        body::before {
+            content: 'FULL MARK';
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            font-size: 18vw; font-weight: 900;
+            color: rgba(251, 191, 36, 0.03);
+            z-index: 0; pointer-events: none; white-space: nowrap;
+        }
+        #app { position: relative; z-index: 10; }
+        /* ----------------------- */
+
+        .header-sticky {
+            position: sticky; top: 0; z-index: 50;
+            background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 15px; margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
         .video-card {
-            background: #1e293b;
-            margin-bottom: 15px; /* مسافة كبيرة بين الكروت */
-            padding: 20px;
-            border-radius: 15px;
-            border-right: 5px solid #3b82f6; /* خط أزرق مميز */
+            background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(5px);
+            padding: 20px; margin-bottom: 15px; /* مسافة كبيرة */
+            border-radius: 16px; 
+            border: 1px solid rgba(255,255,255,0.05);
+            border-right: 5px solid #3b82f6; /* خط جانبي أزرق */
             display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            transition: 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); cursor: pointer; transition: 0.2s;
         }
+        .video-card:active { transform: scale(0.98); background: #334155; }
         
-        .video-card:active { background: #334155; transform: scale(0.98); }
-
-        .vid-info { display: flex; align-items: center; gap: 15px; }
-        
-        .vid-number {
-            background: #0f172a; color: #94a3b8; width: 40px; height: 40px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 1.1rem; border: 1px solid #334155;
+        .play-btn {
+            width: 45px; height: 45px; border-radius: 50%; 
+            background: linear-gradient(135deg, #3b82f6, #2563eb); color: white;
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
         }
-
-        .vid-title { font-size: 1.1rem; font-weight: bold; color: white; line-height: 1.6; }
-
-        .play-icon { font-size: 1.5rem; color: #fbbf24; }
+        .vid-num {
+            font-size: 1.2rem; font-weight: bold; color: #64748b; margin-left: 15px;
+            min-width: 30px; text-align: center;
+        }
     </style>
 </head>
 <body>
-
-    <div id="app" class="p-4">
-        <div class="flex items-center gap-4 mb-6 bg-slate-800 p-4 rounded-xl sticky top-0 z-50 shadow-lg border-b border-white/10">
-            <button onclick="history.back()" class="w-10 h-10 bg-slate-700 rounded-full text-white flex items-center justify-center">
+    <div id="app">
+        <div class="header-sticky flex items-center gap-4">
+            <button onclick="history.back()" class="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-full text-white transition flex items-center justify-center">
                 <i class="fas fa-arrow-right"></i>
             </button>
             <h1 class="text-lg font-bold text-yellow-400 truncate">{{ chapterName }}</h1>
         </div>
 
-        <div v-if="videos.length > 0">
-            <div v-for="(vid, index) in videos" :key="index" @click="play(vid)" class="video-card">
-                <div class="vid-info">
-                    <div class="vid-number">{{ index + 1 }}</div>
-                    <div class="vid-title">{{ vid.video_name || vid.title || vid.name }}</div>
+        <div class="p-4 pt-0">
+            <div v-if="videos.length > 0">
+                <div v-for="(vid, index) in videos" :key="index" @click="play(vid)" class="video-card">
+                    <div class="flex items-center gap-2">
+                        <span class="vid-num">{{ index + 1 }}</span>
+                        <h3 class="font-bold text-white text-lg leading-relaxed">{{ vid.video_name || vid.title || vid.name }}</h3>
+                    </div>
+                    <div class="play-btn"><i class="fas fa-play ml-1"></i></div>
                 </div>
-                <i class="fas fa-play-circle play-icon"></i>
             </div>
-        </div>
-        
-        <div v-else class="text-center mt-20 text-gray-500">
-            <p>جاري التحميل أو لا يوجد محتوى...</p>
+
+            <div v-else class="text-center mt-20 text-gray-500 opacity-60">
+                <i class="fas fa-video-slash text-5xl mb-4"></i>
+                <p>لا يوجد محتوى في هذه الحصة</p>
+            </div>
         </div>
     </div>
 
     <script>
         const { createApp, ref, onMounted } = Vue;
-        
         const URLS = {
             'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
             'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
@@ -79,7 +103,7 @@
         createApp({
             setup() {
                 const videos = ref([]);
-                const chapterName = ref('قائمة الفيديوهات');
+                const chapterName = ref('جاري التحميل...');
                 
                 const play = (v) => {
                     localStorage.setItem('currentVideo', JSON.stringify(v));
@@ -88,12 +112,8 @@
 
                 onMounted(async () => {
                     const params = new URLSearchParams(window.location.search);
-                    const yid = params.get('yid');
-                    const sid = params.get('sid');
-                    const tid = params.get('tid');
                     const uid = params.get('uid');
                     const cid = params.get('cid');
-
                     const code = localStorage.getItem('activeCode');
                     const db = firebase.database();
                     const snap = await db.ref('approvedStudents/' + code).once('value');
@@ -103,11 +123,16 @@
                         const res = await fetch(URLS[section] || URLS['علمي علوم']);
                         const data = await res.json();
                         
+                        const yid = params.get('yid');
+                        const sid = params.get('sid');
+                        const tid = params.get('tid');
+
                         const year = data.find(y => y.id == yid) || data[0];
                         const sub = year.subjects.find(s => s.id == sid);
                         const teacher = sub.teachers.find(t => t.id == tid);
                         
                         let targetChapter;
+                        // المنطق الذكي: فصل المحتوى بدقة
                         if (teacher.units && teacher.units.length > 0) {
                             targetChapter = teacher.units[uid].chapters[cid];
                         } else {
@@ -121,6 +146,7 @@
                             if(targetChapter.lectures) targetChapter.lectures.forEach(l => { if(l.videos) vids = [...vids, ...l.videos] });
                             videos.value = vids;
                         }
+
                     } catch(e) {}
                 });
                 return { videos, chapterName, play };
