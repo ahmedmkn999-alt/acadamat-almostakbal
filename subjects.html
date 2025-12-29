@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>المواد الدراسية</title>
+    <title>المواد الدراسية | FULL MARK</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -11,77 +11,67 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="auth.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
         body { 
-            background-color: #0f172a; 
-            background-image: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            min-height: 100vh; color: white; font-family: 'Tajawal', sans-serif; 
+            background-color: #020617; 
+            min-height: 100vh; color: white; font-family: 'Cairo', sans-serif; 
             padding-bottom: 80px; position: relative; overflow-x: hidden;
         }
 
-        /* ✨✨✨ كود النجوم اللامعة ✨✨✨ */
+        /* 🌌 كود النجوم اللامعة المطور 🌌 */
         .stars-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0; pointer-events: none; overflow: hidden;
+            z-index: 0; pointer-events: none;
+            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #020617 100%);
         }
         .star {
-            position: absolute; width: 2px; height: 2px; background: white;
-            border-radius: 50%; opacity: 0;
-            animation: twinkle var(--duration) ease-in-out infinite;
-            animation-delay: var(--delay);
+            position: absolute; background: white; border-radius: 50%; opacity: 0;
+            animation: twinkle var(--duration) infinite ease-in-out;
         }
         @keyframes twinkle {
-            0% { opacity: 0; transform: scale(0.5); }
-            50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 10px white; }
-            100% { opacity: 0; transform: scale(0.5); }
-        }
-        /* --------------------------------- */
-
-        /* خلفية FULL MARK */
-        body::before {
-            content: 'FULL MARK'; position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%) rotate(-15deg);
-            font-size: 18vw; font-weight: 900;
-            color: rgba(251, 191, 36, 0.03); z-index: -1; pointer-events: none;
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); box-shadow: 0 0 10px white; }
         }
 
-        /* الهيدر */
+        /* الهيدر الزجاجي */
         .profile-header {
-            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            position: sticky; top: 0; z-index: 50; padding: 15px 20px;
+            background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+            position: sticky; top: 0; z-index: 50; padding: 12px 20px;
             display: flex; justify-content: space-between; align-items: center;
             border-radius: 0 0 25px 25px;
         }
 
         .user-avatar {
-            width: 55px; height: 55px; background: linear-gradient(135deg, #3b82f6, #fbbf24);
-            border-radius: 50%; padding: 2px; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+            width: 50px; height: 50px; 
+            background: linear-gradient(135deg, #6366f1, #d946ef);
+            border-radius: 15px; padding: 2px; transform: rotate(-5deg);
         }
-        .user-avatar img { width: 100%; height: 100%; border-radius: 50%; border: 3px solid #0f172a; object-fit: cover; }
+        .user-avatar img { width: 100%; height: 100%; border-radius: 13px; object-fit: cover; background: #0f172a; }
 
-        .typing-container { font-size: 0.85rem; color: #fbbf24; font-weight: bold; margin-top: 4px; display: flex; align-items: center; }
-        .cursor { display: inline-block; width: 2px; height: 14px; background: #fbbf24; margin-right: 2px; animation: blink 0.7s infinite; }
+        .typing-text { color: #818cf8; font-weight: bold; font-size: 0.8rem; }
+        .cursor { display: inline-block; width: 2px; height: 12px; background: #d946ef; margin-right: 2px; animation: blink 0.7s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
 
-        /* كروت المواد */
+        /* كروت المواد النيون */
         .subject-card {
-            background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; overflow: hidden;
-            transition: all 0.3s ease; position: relative; z-index: 10;
+            background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 24px; overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative; z-index: 10; text-align: center; padding: 20px;
         }
         .subject-card:hover {
-            transform: translateY(-8px); border-color: #fbbf24;
-            box-shadow: 0 15px 30px rgba(251, 191, 36, 0.1);
+            transform: translateY(-10px); border-color: #d946ef;
+            box-shadow: 0 15px 35px rgba(217, 70, 239, 0.2);
         }
-        .sub-img-box { height: 130px; overflow: hidden; position: relative; }
-        .sub-img-box img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; filter: brightness(0.8); }
-        .subject-card:hover img { transform: scale(1.1); filter: brightness(1); }
         
-        .sub-content { padding: 15px; text-align: center; }
-        .teacher-count { font-size: 0.75rem; color: #60a5fa; background: rgba(59, 130, 246, 0.15); padding: 4px 12px; border-radius: 50px; display: inline-block; margin-top: 5px; }
+        .sub-img-box { width: 80px; height: 80px; margin: 0 auto 15px; position: relative; }
+        .sub-img-box img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); transition: 0.4s; }
+        .subject-card:hover img { transform: scale(1.2) rotate(5deg); }
+        
+        .teacher-count { font-size: 0.7rem; color: #94a3b8; background: rgba(255,255,255,0.05); padding: 3px 10px; border-radius: 50px; display: inline-block; margin-top: 8px; border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
@@ -90,44 +80,41 @@
 
     <div id="app">
         <header class="profile-header">
-            <a href="timer.html" class="flex items-center gap-3 cursor-pointer">
-                <div class="user-avatar">
-                    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile">
+            <div class="flex items-center gap-3">
+                <div class="user-avatar shadow-lg">
+                    <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" alt="Profile">
                 </div>
                 <div>
-                    <h2 id="studentName" class="text-lg font-bold text-white leading-tight">جاري التحميل...</h2>
-                    <div class="typing-container">
+                    <h2 id="studentName" class="text-md font-bold text-white">جاري التحميل...</h2>
+                    <div class="flex items-center">
                         <span class="typing-text"></span><span class="cursor"></span>
                     </div>
                 </div>
-            </a>
-            <button onclick="logout()" class="w-10 h-10 rounded-full bg-slate-800/80 border border-slate-700 text-gray-400 hover:text-red-500 hover:border-red-500 flex items-center justify-center transition shadow-lg">
-                <i class="fas fa-power-off"></i>
+            </div>
+            <button onclick="logout()" class="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 flex items-center justify-center transition active:scale-90">
+                <i class="fas fa-power-off text-sm"></i>
             </button>
         </header>
 
         <div class="p-6 relative z-10">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="h-8 w-2 bg-yellow-500 rounded-full"></div>
-                <h3 class="text-xl font-bold text-white">المواد الدراسية</h3>
+            <div class="flex items-center gap-3 mb-8">
+                <div class="h-6 w-1.5 bg-gradient-to-b from-indigo-500 to-fuchsia-500 rounded-full"></div>
+                <h3 class="text-xl font-black text-white tracking-tight">المكتبة الدراسية</h3>
             </div>
 
-            <div v-if="loading" class="flex flex-col items-center justify-center mt-20">
-                <div class="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full mb-4"></div>
-                <p class="text-gray-400 animate-pulse">جاري تجهيز مكتبتك...</p>
+            <div v-if="loading" class="flex flex-col items-center justify-center mt-32">
+                <i class="fas fa-rocket text-fuchsia-500 text-4xl animate-bounce"></i>
+                <p class="text-indigo-300 text-xs mt-4 tracking-widest uppercase">Initializing Library...</p>
             </div>
             
-            <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-                <div v-for="sub in subjects" :key="sub.id" @click="openSub(sub)" class="subject-card cursor-pointer group">
+            <div v-else class="grid grid-cols-2 gap-5">
+                <div v-for="sub in subjects" :key="sub.id" @click="openSub(sub)" class="subject-card group cursor-pointer">
                     <div class="sub-img-box">
-                        <div class="absolute inset-0 bg-gradient-to-t from-[#1e293b] via-transparent to-transparent z-10"></div>
-                        <img :src="getImg(sub.name)" alt="Subject" onerror="this.src='https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=500'">
+                        <img :src="getImg(sub.name)" alt="Subject" onerror="this.src='https://cdn3d.iconscout.com/3d/premium/thumb/book-5110435-4256920.png'">
                     </div>
-                    <div class="sub-content">
-                        <h3 class="font-bold text-lg mb-1 text-white group-hover:text-yellow-400 transition">{{ sub.name }}</h3>
-                        <span class="teacher-count">
-                            <i class="fas fa-chalkboard-teacher"></i> {{ sub.teachers?.length || 0 }} مدرسين
-                        </span>
+                    <h3 class="font-bold text-sm text-gray-100 group-hover:text-fuchsia-400 transition">{{ sub.name }}</h3>
+                    <div class="teacher-count">
+                        <i class="fas fa-user-tie text-[10px] mr-1"></i> {{ sub.teachers?.length || 0 }} مدرسين
                     </div>
                 </div>
             </div>
@@ -135,47 +122,38 @@
     </div>
 
     <script>
-        // ✨ كود توليد النجوم ✨
+        // ✨ توليد النجوم الفضائية ✨
         function createStars() {
             const container = document.getElementById('stars');
-            const starCount = 50; // عدد النجوم
-            for (let i = 0; i < starCount; i++) {
+            for (let i = 0; i < 100; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
-                // مكان عشوائي
                 star.style.left = Math.random() * 100 + '%';
                 star.style.top = Math.random() * 100 + '%';
-                // تأخير عشوائي لللمعان
+                const size = Math.random() * 2 + 1 + 'px';
+                star.style.width = size; star.style.height = size;
                 star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
-                star.style.setProperty('--delay', (Math.random() * 5) + 's');
                 container.appendChild(star);
             }
         }
-        createStars(); // تشغيل النجوم
+        createStars();
 
         const { createApp, ref, onMounted } = Vue;
 
-        const IMGS = {
-            "عرب": "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=600&q=80",
-            "نحو": "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&q=80",
-            "بلاغ": "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?w=600&q=80",
-            "نجليز": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80",
-            "English": "https://images.unsplash.com/photo-1526470608268-f6c482036101?w=600&q=80",
-            "فرنس": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80",
-            "French": "https://images.unsplash.com/photo-1503917988258-f87a78e3c995?w=600&q=80",
-            "فيزيا": "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=600&q=80",
-            "كيميا": "https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?w=600&q=80",
-            "أحيا": "https://images.unsplash.com/photo-1530026405124-efe3d232b3d8?w=600&q=80",
-            "بيولوج": "https://images.unsplash.com/photo-1576086213369-97a306d36557?w=600&q=80",
-            "رياض": "https://images.unsplash.com/photo-1635070041043-e3f001e34750?w=600&q=80",
-            "جبر": "https://images.unsplash.com/photo-1596495577886-d920f1fb7238?w=600&q=80",
-            "هندس": "https://images.unsplash.com/photo-1581094794329-c621221092a4?w=600&q=80",
-            "جيولوج": "https://images.unsplash.com/photo-1598281838025-6c930063d2e1?w=600&q=80",
-            "تاريخ": "https://images.unsplash.com/photo-1461360228754-6e81c478b882?w=600&q=80",
-            "جغرافي": "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=600&q=80",
-            "فلسف": "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=600&q=80",
-            "نفس": "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=600&q=80",
-            "default": "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&q=80"
+        // 🖼️ روابط الصور الـ 3D الاحترافية
+        const IMAGES_3D = {
+            "فيزيا": "https://cdn3d.iconscout.com/3d/premium/thumb/physics-7265691-5840333.png",
+            "كيميا": "https://cdn3d.iconscout.com/3d/premium/thumb/chemistry-atoms-5691557-4740112.png",
+            "أحيا": "https://cdn3d.iconscout.com/3d/premium/thumb/dna-5256241-4385108.png",
+            "عرب": "https://cdn3d.iconscout.com/3d/premium/thumb/ramadan-quran-5136006-4286786.png",
+            "نجليز": "https://cdn3d.iconscout.com/3d/premium/thumb/english-book-10041135-8135359.png",
+            "رياض": "https://cdn3d.iconscout.com/3d/premium/thumb/mathematics-9173295-7489437.png",
+            "تاريخ": "https://cdn3d.iconscout.com/3d/premium/thumb/pharaoh-6450376-5310636.png",
+            "جغرافي": "https://cdn3d.iconscout.com/3d/premium/thumb/earth-5134701-4282715.png",
+            "فرنس": "https://cdn3d.iconscout.com/3d/premium/thumb/eiffel-tower-5374026-4491752.png",
+            "فلسف": "https://cdn3d.iconscout.com/3d/premium/thumb/thought-5285141-4414349.png",
+            "نفس": "https://cdn3d.iconscout.com/3d/premium/thumb/psychology-9860472-8012170.png",
+            "default": "https://cdn3d.iconscout.com/3d/premium/thumb/education-4940505-4116480.png"
         };
 
         const URLS = {
@@ -185,21 +163,21 @@
             'أزهر': "https://plus-teal.vercel.app/organized_output.json"
         };
 
-        const phrases = ["✨ حلمك يستاهل!", "💪 عافر هتوصل", "🚀 اصنع مستقبلك", "🎓 دكتور المستقبل", "💡 الأفضل لك"];
-        let phraseIdx = 0, charIdx = 0, isDeleting = false;
+        const phrases = ["🚀 حلمك يستاهل!", "✨ دكتور المستقبل", "💡 عافر هتوصل", "🎓 كن الأول دائماً"];
+        let pIdx = 0, cIdx = 0, isDel = false;
         
         function typeEffect() {
-            const currentPhrase = phrases[phraseIdx];
-            const textElement = document.querySelector(".typing-text");
-            if (!textElement) return;
-            if (isDeleting) {
-                textElement.textContent = currentPhrase.substring(0, charIdx--);
-                if (charIdx < 0) { isDeleting = false; phraseIdx = (phraseIdx + 1) % phrases.length; }
+            const el = document.querySelector(".typing-text");
+            if (!el) return;
+            const current = phrases[pIdx];
+            if (isDel) {
+                el.textContent = current.substring(0, cIdx--);
+                if (cIdx < 0) { isDel = false; pIdx = (pIdx + 1) % phrases.length; }
             } else {
-                textElement.textContent = currentPhrase.substring(0, charIdx++);
-                if (charIdx > currentPhrase.length) { isDeleting = true; setTimeout(typeEffect, 2000); return; }
+                el.textContent = current.substring(0, cIdx++);
+                if (cIdx > current.length) { isDel = true; setTimeout(typeEffect, 2000); return; }
             }
-            setTimeout(typeEffect, isDeleting ? 50 : 100);
+            setTimeout(typeEffect, isDel ? 50 : 100);
         }
 
         createApp({
@@ -209,18 +187,15 @@
                 const yid = ref(null);
 
                 const getImg = (n) => {
-                    if(!n) return IMGS['default'];
-                    for (const [key, url] of Object.entries(IMGS)) {
-                        if (n.includes(key)) return url;
-                    }
-                    return IMGS['default'];
+                    for (const key in IMAGES_3D) { if (n.includes(key)) return IMAGES_3D[key]; }
+                    return IMAGES_3D['default'];
                 };
                 
                 const openSub = (s) => window.location.href = `chapters.html?yid=${yid.value}&sid=${s.id}`;
                 
                 onMounted(async () => {
                     const code = localStorage.getItem('activeCode');
-                    if(!code) return;
+                    if(!code) return window.location.href = 'index.html';
 
                     const db = firebase.database();
                     try {
@@ -233,7 +208,7 @@
                         const section = student?.section?.trim() || 'علمي علوم';
                         const res = await fetch(URLS[section] || URLS['علمي علوم']);
                         const data = await res.json();
-                        let year = data.find(y => y.name.includes('3') || y.id == 3) || data[0];
+                        let year = data.find(y => y.id == 3) || data[0];
                         yid.value = year.id;
                         subjects.value = year.subjects || [];
                     } catch(e) { console.error(e); } 
@@ -244,8 +219,9 @@
         }).mount('#app');
 
         function logout() {
-            if(confirm("هل أنت متأكد من تسجيل الخروج؟")) { localStorage.clear(); window.location.href='index.html'; }
+            if(confirm("هل تريد تسجيل الخروج؟")) { localStorage.clear(); window.location.href='index.html'; }
         }
     </script>
 </body>
-</html>
+    </html>
+    
