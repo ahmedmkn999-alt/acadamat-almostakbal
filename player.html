@@ -2,108 +2,166 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مشاهدة الفيديو</title>
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مشاهدة</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #000; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        .video-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; }
+        body { background: black; margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; user-select: none; }
+        #videoContainer { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #000; }
+        video { width: 100%; max-height: 100%; }
         
-        /* تأثير الضغطتين (Animate) */
-        .tap-indicator {
-            position: absolute; top: 50%; transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.2); border-radius: 50%;
-            width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 20px; opacity: 0; pointer-events: none; transition: 0.2s;
-        }
-        .tap-left { left: 10%; }
-        .tap-right { right: 10%; }
-        .show-tap { opacity: 1; transform: translateY(-50%) scale(1.2); }
+        /* مناطق اللمس */
+        .touch-layer { position: absolute; top: 0; bottom: 0; width: 33%; z-index: 10; }
+        .touch-left { left: 0; }
+        .touch-right { right: 0; }
+        .touch-center { left: 33%; width: 34%; }
 
-        /* زر الإغلاق */
-        .close-btn {
-            position: absolute; top: 20px; right: 20px; z-index: 50;
-            background: rgba(0,0,0,0.5); color: white; width: 40px; height: 40px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 20px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);
+        /* تأثير التقديم والترجيع */
+        .seek-overlay {
+            position: absolute; top: 0; bottom: 0; width: 50%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: rgba(255, 255, 255, 0.1); color: white;
+            font-weight: bold; font-size: 1.2rem; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 20;
+        }
+        .seek-left { left: 0; border-radius: 0 100% 100% 0; }
+        .seek-right { right: 0; border-radius: 100% 0 0 100%; }
+        .seek-icon { font-size: 2rem; margin-bottom: 5px; }
+
+        /* أزرار التحكم */
+        .controls {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px;
+            opacity: 1; transition: opacity 0.3s; z-index: 30;
+        }
+        .hide-controls { opacity: 0; pointer-events: none; }
+        
+        input[type=range] { width: 100%; accent-color: #fbbf24; cursor: pointer; }
+        
+        .top-bar {
+            position: absolute; top: 0; left: 0; width: 100%; padding: 15px;
+            display: flex; justify-content: space-between; z-index: 30;
+            background: linear-gradient(rgba(0,0,0,0.6), transparent);
         }
     </style>
 </head>
 <body>
-    <div onclick="history.back()" class="close-btn">✕</div>
 
-    <div class="video-container" id="videoWrapper">
-        <video id="player" playsinline controls data-poster="https://via.placeholder.com/1920x1080?text=FullMark+Player"></video>
-        
-        <div id="tapLeft" class="tap-indicator tap-left">10s ⏪</div>
-        <div id="tapRight" class="tap-indicator tap-right">⏩ 10s</div>
+    <div id="videoContainer">
+        <video id="vid" playsinline poster="https://via.placeholder.com/1280x720/000000/FFFFFF?text=FullMark"></video>
+
+        <div class="touch-layer touch-left" id="zoneLeft"></div>
+        <div class="touch-layer touch-center" id="zoneCenter"></div>
+        <div class="touch-layer touch-right" id="zoneRight"></div>
+
+        <div class="seek-overlay seek-left" id="overlayLeft"><i class="fas fa-backward seek-icon"></i><span>10- ثواني</span></div>
+        <div class="seek-overlay seek-right" id="overlayRight"><i class="fas fa-forward seek-icon"></i><span>10+ ثواني</span></div>
+
+        <div class="top-bar">
+            <button onclick="history.back()" class="text-white text-xl px-4"><i class="fas fa-arrow-right"></i></button>
+            <div class="text-white font-bold" id="vidTitle"></div>
+            <div class="w-8"></div>
+        </div>
+
+        <div class="controls" id="controls">
+            <input type="range" id="progressBar" value="0" min="0" max="100">
+            <div class="flex justify-between text-white items-center">
+                <div class="flex gap-4">
+                    <button onclick="togglePlay()"><i id="playIcon" class="fas fa-play"></i></button>
+                    <span id="timeDisplay">00:00 / 00:00</span>
+                </div>
+                <div class="flex gap-4">
+                    <select id="speedSel" onchange="changeSpeed(this.value)" class="bg-black/50 border border-white/20 rounded px-2 text-xs">
+                        <option value="1">1x</option>
+                        <option value="1.25">1.25x</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="2">2x</option>
+                    </select>
+                    <button onclick="toggleFullScreen()"><i class="fas fa-expand"></i></button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
     <script>
-        const videoData = JSON.parse(localStorage.getItem('currentVideo'));
-        const videoElement = document.getElementById('player');
-        
-        if (videoData) {
-            let url = videoData.stream_url || videoData.link || videoData.url || videoData.video_url;
+        const video = document.getElementById('vid');
+        const vData = JSON.parse(localStorage.getItem('currentVideo'));
 
-            // لو الفيديو يوتيوب
-            if (url.includes('youtube') || url.includes('youtu.be')) {
-                // استبدال المشغل بـ Iframe لليوتيوب عشان يدعم مميزات Plyr
-                document.getElementById('videoWrapper').innerHTML = `
-                    <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="${url}"></div>
-                    <div id="tapLeft" class="tap-indicator tap-left">10s ⏪</div>
-                    <div id="tapRight" class="tap-indicator tap-right">⏩ 10s</div>
-                `;
+        if(vData) {
+            let src = vData.stream_url || vData.link || vData.url || vData.video_url;
+            // لو يوتيوب، هنعرضه في iframe (لأن فيديو تاج لا يدعم يوتيوب مباشرة)
+            if(src.includes('youtube') || src.includes('youtu.be')) {
+                 if(src.includes('watch?v=')) src = src.replace('watch?v=', 'embed/');
+                 else if(src.includes('youtu.be/')) src = src.replace('youtu.be/', 'youtube.com/embed/');
+                 document.getElementById('videoContainer').innerHTML = `<iframe src="${src}" class="w-full h-full border-0" allowfullscreen></iframe>`;
             } else {
-                // لو فيديو مباشر (MP4)
-                videoElement.src = url;
+                video.src = src;
+                document.getElementById('vidTitle').innerText = vData.name || "مشاهدة الفيديو";
             }
+        }
 
-            // تشغيل المشغل الاحترافي
-            const player = new Plyr('#player', {
-                controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
-                settings: ['captions', 'quality', 'speed'],
-                speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] }
-            });
+        // منطق اللمس المزدوج (Double Tap)
+        let lastTap = 0;
+        
+        // المنطقة اليسرى (ترجيع)
+        document.getElementById('zoneLeft').addEventListener('click', (e) => handleTap(e, 'left'));
+        // المنطقة اليمنى (تقديم)
+        document.getElementById('zoneRight').addEventListener('click', (e) => handleTap(e, 'right'));
+        // المنطقة الوسطى (إيقاف/تشغيل)
+        document.getElementById('zoneCenter').addEventListener('click', togglePlay);
 
-            // ⚡ كود اللمس المزدوج (Double Tap)
-            let lastTapTime = 0;
-            const wrapper = document.getElementById('videoWrapper');
-
-            wrapper.addEventListener('click', (e) => {
-                const currentTime = new Date().getTime();
-                const tapLength = currentTime - lastTapTime;
-                
-                // لو الفرق بين الضغطتين أقل من 300 ملي ثانية (يعني ضغطتين ورا بعض)
-                if (tapLength < 300 && tapLength > 0) {
-                    const screenWidth = wrapper.offsetWidth;
-                    const tapX = e.clientX;
-
-                    if (tapX > screenWidth / 2) {
-                        // يمين الشاشة -> تقديم
-                        player.forward(10);
-                        showTapEffect('tapRight');
-                    } else {
-                        // يسار الشاشة -> ترجيع
-                        player.rewind(10);
-                        showTapEffect('tapLeft');
-                    }
-                    e.preventDefault(); // منع الإيقاف المؤقت عند الدبل كليك
+        function handleTap(e, dir) {
+            const now = new Date().getTime();
+            if (now - lastTap < 300) {
+                // Double Tap Detected
+                e.preventDefault(); // منع التكبير
+                if(dir === 'left') {
+                    video.currentTime -= 10;
+                    showEffect('overlayLeft');
+                } else {
+                    video.currentTime += 10;
+                    showEffect('overlayRight');
                 }
-                lastTapTime = currentTime;
-            });
-
-            function showTapEffect(id) {
-                const el = document.getElementById(id);
-                el.classList.add('show-tap');
-                setTimeout(() => el.classList.remove('show-tap'), 500);
             }
+            lastTap = now;
+        }
 
-        } else {
-            alert('لا يوجد فيديو لعرضه!');
-            history.back();
+        function showEffect(id) {
+            const el = document.getElementById(id);
+            el.style.opacity = '1';
+            setTimeout(() => el.style.opacity = '0', 600);
+        }
+
+        function togglePlay() {
+            if(video.paused) { video.play(); document.getElementById('playIcon').className = 'fas fa-pause'; }
+            else { video.pause(); document.getElementById('playIcon').className = 'fas fa-play'; }
+        }
+
+        function changeSpeed(s) { video.playbackRate = s; }
+        
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) document.getElementById('videoContainer').requestFullscreen();
+            else document.exitFullscreen();
+        }
+
+        // تحديث شريط الوقت
+        video.addEventListener('timeupdate', () => {
+            const pct = (video.currentTime / video.duration) * 100;
+            document.getElementById('progressBar').value = pct;
+            document.getElementById('timeDisplay').innerText = formatTime(video.currentTime) + ' / ' + formatTime(video.duration);
+        });
+
+        document.getElementById('progressBar').addEventListener('input', (e) => {
+            const time = (e.target.value / 100) * video.duration;
+            video.currentTime = time;
+        });
+
+        function formatTime(s) {
+            if(isNaN(s)) return "00:00";
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return `${m}:${sec < 10 ? '0' : ''}${sec}`;
         }
     </script>
 </body>
