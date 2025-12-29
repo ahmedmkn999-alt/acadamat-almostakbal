@@ -1,18 +1,19 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="ar" dir="rtl" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Full Mark Chapters</title>
+    <title>FULL MARK | المدرسين</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
-    
     <script type="module" src="devcheck.js"></script>
     <script src="auth.js"></script>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <script>
     tailwind.config = {
@@ -20,308 +21,151 @@
       theme: {
         extend: {
           colors: {
-            'bg-main': '#020A07',     
-            'bg-card': '#0C241C',     
-            'accent': '#08402C',      
-            'glass-border': 'rgba(8, 64, 44, 0.4)', 
-            'text-primary': '#E6F0E8', 
+            primary: '#1e3a8a', secondary: '#3b82f6', gold: '#fbbf24',
+            dark: '#020617', card: 'rgba(30, 41, 59, 0.7)', 'card-hover': 'rgba(30, 58, 138, 0.4)'
           },
-          fontFamily: { sans: ['Inter', 'sans-serif'] }
+          fontFamily: { sans: ['Tajawal', 'sans-serif'] }
         }
       }
     }
     </script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
-    /* Global Styles & Glassmorphism */
-    body { 
-        font-family: 'Inter', sans-serif; 
-        background-color: #020A07; 
-        color: #E6F0E8; 
-        margin: 0; 
-    }
-    .glass-panel {
-      background: rgba(12, 36, 28, 0.7); 
-      backdrop-filter: blur(15px);
-      border: 1px solid #08402C; 
-    }
-    .glass-card {
-      background: rgba(12, 36, 28, 0.5); 
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(8, 64, 44, 0.3); 
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
-    }
-    .glass-card:hover {
-      background: rgba(8, 64, 44, 0.7); 
-      transform: translateY(-2px);
-      border-color: #08402C;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-    }
-    .accent-text { color: #08402C; }
-    .accent-bg { background-color: #08402C; }
-    
-    /* Toast Notifications */
-    .toast {
-      min-width: 200px; max-width: 300px; padding: 0.75rem 1rem; border-radius: 0.5rem; color: white; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-    .toast.info { background-color: #08402C; } 
-    .toast.success { background-color: #10b981; }
-    .toast.error { background-color: #ef4444; }
-    .toast-enter-active, .toast-leave-active { transition: all 0.3s ease; }
-    .toast-enter-from, .toast-leave-to { opacity: 0; transform: translateY(20px); }
-    
-    /* Loading Overlay */
-    .loading-dialog {
-      position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; flex-direction: column; color: white;
-    }
+        body { 
+            font-family: 'Tajawal', sans-serif; background-color: #020617; color: #f1f5f9; 
+            background-image: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%), radial-gradient(#1e293b 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px;
+        }
+        .glass-panel { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(59, 130, 246, 0.2); }
+        .glass-card { background: var(--card); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.05); transition: 0.3s; }
+        .glass-card:hover { background: var(--card-hover); transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.3); }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from {opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
     </style>
 </head>
 
 <body class="h-screen overflow-hidden flex flex-col">
 
-<div id="app" class="flex-1 flex flex-col h-full overflow-hidden p-4 md:p-6 lg:p-8">
+<div id="app" class="flex-1 flex flex-col h-full overflow-hidden">
 
-    <header class="glass-panel h-16 flex items-center justify-between px-4 md:px-6 mb-4 shadow-lg rounded-xl">
-        <div class="flex items-center gap-3">
-            <div class="accent-bg/20 p-2 rounded-lg text-emerald-500 flex items-center justify-center">
-                <i class="ph ph-chalkboard-teacher text-2xl"></i>
-            </div>
-            <h1 class="text-xl font-bold bg-gradient-to-r from-emerald-400 to-text-primary bg-clip-text text-transparent">
-                 Teacher Chapters
-            </h1>
+    <header class="glass-panel h-16 flex items-center justify-between px-4 md:px-6 shadow-lg z-20">
+      <div class="flex items-center gap-3">
+        <button @click="goBack" class="w-9 h-9 rounded-full bg-blue-900/50 text-white hover:bg-blue-600 flex items-center justify-center transition">
+            <i class="ph ph-arrow-right text-lg"></i>
+        </button>
+        <div>
+            <h1 class="text-lg font-bold text-white leading-tight">اختر المدرس</h1>
+            <p class="text-xs text-gold font-bold">{{ subjectName }}</p>
         </div>
-
-        <div class="flex items-center gap-4">
-             <span class="text-sm font-medium text-gray-400 hidden md:block">
-                {{ teacherData.name }} - {{ subjectData.name }}
-            </span>
-             <a :href="`teachers.html?yid=${params.yid}&sid=${subjectData.id}`" 
-               class="w-8 h-8 rounded-full bg-accent/30 flex items-center justify-center text-text-primary hover:bg-accent transition-colors"
-               title="Back to Teachers">
-                <i class="ph ph-arrow-left text-lg"></i>
-            </a>
-        </div>
+      </div>
     </header>
 
-    <div v-if="loading" class="loading-dialog">
-        <i class="ph ph-spinner-gap animate-spin text-5xl mb-4 text-emerald-500"></i>
-        <p class="text-lg font-medium">Preparing the lessons...</p>
+    <div v-if="loading" class="flex-1 flex flex-col justify-center items-center">
+        <div class="w-12 h-12 border-4 border-blue-900 border-t-blue-500 rounded-full animate-spin"></div>
     </div>
 
-    <main v-else class="flex-1 overflow-y-auto pt-4 custom-scrollbar">
-        <div class="max-w-5xl mx-auto mb-6 text-emerald-400 font-semibold text-2xl px-2">
-            {{ teacherData.name }}'s Lectures
+    <main v-else class="flex-1 overflow-y-auto p-4 md:p-8 pb-24">
+        <div v-if="teachers.length === 0" class="text-center text-gray-500 mt-20">
+            <i class="ph ph-users-three text-6xl mb-4 opacity-50"></i>
+            <p>لا يوجد مدرسين متاحين لهذه المادة حالياً.</p>
         </div>
 
-        <div class="max-w-5xl mx-auto space-y-4 pb-20">
-            
-            <div v-for="chapter in chapters" :key="chapter.id"
-                class="glass-card rounded-xl overflow-hidden border border-accent/30">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div v-for="(teacher, index) in teachers" :key="teacher.id" @click="openChapters(teacher)"
+                 class="glass-card rounded-2xl p-4 cursor-pointer group flex items-center gap-4 animate-fade-in"
+                 :style="{ animationDelay: index * 0.1 + 's' }">
                 
-                <button @click="toggleChapter(chapter.id)"
-                    class="w-full px-6 py-4 flex items-center justify-between hover:bg-accent/10 transition-colors">
-                    <span class="font-semibold text-lg text-text-primary">{{ chapter.name }}</span>
-                    <div class="flex items-center gap-3">
-                        <span class="text-xs text-gray-400 font-medium px-2 py-1 bg-accent/30 rounded-md">
-                            {{ chapter.lectures?.length || 0 }} Lectures
-                        </span>
-                        <i class="ph ph-caret-down transition-transform duration-300 text-emerald-500" :class="{'rotate-180': expandedChapters.includes(chapter.id)}"></i>
-                    </div>
-                </button>
-
-                <div v-show="expandedChapters.includes(chapter.id)" class="border-t border-accent/30 bg-accent/5">
-                    <div v-if="!chapter.lectures?.length" class="p-6 text-center text-gray-500">No lectures found.</div>
-                    <div v-else class="divide-y divide-accent/20">
-                        <div v-for="lecture in chapter.lectures" :key="lecture.id" class="p-4 md:pl-8 group hover:bg-accent/10 transition-colors">
-                            <h4 class="font-medium text-text-primary mb-2 flex items-center gap-2">
-                                <i class="ph ph-book-open text-emerald-500"></i>
-                                {{ lecture.name }}
-                            </h4>
-                            
-                            <div class="flex gap-2 text-xs text-gray-500 mb-3 ml-6">
-                                <span>{{ lecture.video_count }} Videos</span>
-                                <span>&bull;</span>
-                                <span>{{ lecture.pdf_count }} PDFs</span>
-                            </div>
-
-                            <div class="grid gap-2 ml-6">
-                                <div v-for="video in lecture.videos" :key="video.id" @click="playVideo(video)"
-                                    class="flex items-center gap-3 p-3 rounded-lg bg-black/20 hover:bg-accent/30 cursor-pointer transition-all border border-transparent hover:border-accent/40 group/video">
-                                    <div class="w-8 h-8 rounded-full bg-emerald-900/50 flex items-center justify-center text-emerald-400 group-hover/video:bg-emerald-600 group-hover/video:text-white transition-colors">
-                                        <i class="ph ph-play-circle text-xl"></i>
-                                    </div>
-                                    <span class="text-sm font-medium text-text-primary/90 flex-1">{{ video.title }}</span>
-                                    <span v-if="video.stream_url" class="text-[10px] text-emerald-300 font-bold px-2 py-0.5 bg-emerald-900/50 rounded border border-emerald-500/30">READY</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="w-16 h-16 rounded-full border-2 border-gold/50 overflow-hidden bg-black/40 shadow-lg">
+                    <img :src="teacher.image_url || 'https://img.icons8.com/color/480/teacher.png'" class="w-full h-full object-cover">
                 </div>
 
-            </div>
-            
-            <div v-if="!chapters.length && !loading" class="text-center text-gray-500 p-10 glass-card mx-auto max-w-lg rounded-xl">
-                <i class="ph ph-info text-4xl mb-3 text-emerald-500"></i>
-                <p>No chapters loaded for this teacher yet.</p>
-            </div>
+                <div>
+                    <h3 class="font-bold text-lg text-white group-hover:text-gold transition-colors">{{ teacher.name }}</h3>
+                    <p class="text-xs text-gray-400">{{ teacher.chapters?.length || 0 }} فصول</p>
+                </div>
 
+                <i class="ph ph-caret-left mr-auto text-secondary group-hover:-translate-x-1 transition-transform"></i>
+            </div>
         </div>
-
     </main>
-
-    <div class="fixed bottom-4 right-4 flex flex-col gap-2 z-50 pointer-events-none">
-        <transition-group name="toast" tag="div">
-        <div v-for="toast in toasts" :key="toast.id" :class="['toast', toast.type]">{{ toast.message }}</div>
-        </transition-group>
-    </div>
 
 </div>
 
 <script>
-const { createApp, ref, reactive, onMounted } = Vue; 
+const { createApp, ref, onMounted } = Vue;
 
-// Data Sources Mapping based on Division (Section)
+// نفس الروابط اللي في subjects.html
 const JSON_URLS = {
     'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
     'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
     'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json", 
     'أزهر': "https://plus-teal.vercel.app/organized_output.json", 
-    'DEFAULT': "https://plus-teal.vercel.app/organized_output.json"
+    'الافتراضي': "https://plus-teal.vercel.app/organized_output.json"
 };
 
-// Helper: Get URL Parameters
-function getUrlParams() {
-    const params = {};
-    window.location.search.substring(1).split('&').forEach(pair => {
-        const [key, value] = pair.split('=');
-        if (key && value) params[key] = decodeURIComponent(value);
-    });
-    return params;
-}
-
 createApp({
-    setup() {
-        const loading = ref(true);
-        const chapters = ref([]);
-        const expandedChapters = ref([]);
-        const params = getUrlParams();
-        
-        const teacherData = reactive({ name: 'Loading Teacher', id: params.tid || null });
-        const subjectData = reactive({ name: 'Loading Subject', id: params.sid || null });
-
-        // Firebase Configuration
-        const STUDENT_CODE_KEY = "activeCode"; 
-        const db = firebase.database(); 
-
-        // Toast Logic
-        const toasts = ref([]);
-        const showToast = (message, type='info', duration=3000) => {
-            const id = Date.now() + Math.random();
-            toasts.value.push({ id, message, type });
-            setTimeout(() => {
-                const index = toasts.value.findIndex(t => t.id === id);
-                if(index !== -1) toasts.value.splice(index,1);
-            }, duration);
-        };
-        
-        // Accordion Toggle
-        const toggleChapter = (id) => {
-            const idx = expandedChapters.value.indexOf(id);
-            if(idx === -1) expandedChapters.value.push(id);
-            else expandedChapters.value.splice(idx,1);
-        }
-
-        // Play Video Navigation
-        const playVideo = (video) => {
-            if (!video.stream_url) {
-                showToast("Stream not available. Contact the admin.", "error");
-                return;
-            }
+  setup() {
+    const loading = ref(true);
+    const teachers = ref([]);
+    const subjectName = ref('');
     
-            localStorage.setItem("video_sources", JSON.stringify(video.sources || [video.stream_url]));
-            localStorage.setItem("video_title", video.title || 'Lecture Video');
-    
-            window.location.href = 'player.html';
-        }
+    // قراءة البارامترات من الرابط
+    const urlParams = new URLSearchParams(window.location.search);
+    const yid = urlParams.get('yid');
+    const sid = urlParams.get('sid');
 
-        // Fetch Data Logic
-        const fetchData = async () => {
-            // Check Required Params
-            if (!params.yid || !params.sid || !params.tid) {
-                loading.value = false;
-                showToast("Error: Missing required IDs in URL.", "error");
-                return;
-            }
+    const goBack = () => window.location.href = 'subjects.html';
 
-            // Get Student Code
-            const activeCode = localStorage.getItem(STUDENT_CODE_KEY);
-            if (!activeCode) {
-                loading.value = false;
-                showToast("Error: Active code not found. Cannot determine division.", "error");
-                return;
-            }
+    const openChapters = (teacher) => {
+        // بنبعت رقم السنة والمادة والمدرس للصفحة اللي بعدها (lectures.html أو videos.html)
+        // هنفترض إن الصفحة الجاية اسمها lectures.html بتعرض الفصول
+        window.location.href = `lectures.html?yid=${yid}&sid=${sid}&tid=${teacher.id}`;
+    };
 
-            try {
-                // 1. Check Student Division from Firebase
-                showToast("Checking student division...", "info");
-                const snapshot = await db.ref(`approvedStudents/${activeCode}`).once('value');
-                const studentData = snapshot.val();
-                
-                let studentDivision = 'DEFAULT'; 
-                if (studentData && studentData.section) {
-                    studentDivision = studentData.section.trim();
-                } else {
-                    showToast("Division not found. Using default.", "warning");
+    onMounted(async () => {
+        const activeCode = localStorage.getItem('activeCode');
+        if (!activeCode) { window.location.href = 'index.html'; return; }
+
+        const db = firebase.database();
+        try {
+            // 1. معرفة الشعبة
+            const snapshot = await db.ref('approvedStudents/' + activeCode).once('value');
+            const student = snapshot.val();
+            const section = student?.section?.trim() || 'الافتراضي';
+            const jsonUrl = JSON_URLS[section] || JSON_URLS['الافتراضي'];
+
+            // 2. جلب الداتا
+            const res = await fetch(jsonUrl);
+            const data = await res.json();
+
+            // 3. الوصول للمادة المطلوبة
+            // بندور في كل السنين عن السنة اللي الـ ID بتاعها yid
+            let foundYear = data.find(y => y.id == yid);
+            // لو ملقاش بالـ ID، يدور بأي سنة فيها مواد (Fallback)
+            if (!foundYear) foundYear = data.find(y => y.subjects && y.subjects.length > 0);
+
+            if (foundYear) {
+                const subject = foundYear.subjects.find(s => s.id == sid);
+                if (subject) {
+                    subjectName.value = subject.name;
+                    teachers.value = subject.teachers || [];
                 }
-
-                // 2. Determine Data Source
-                const dynamicDataUrl = JSON_URLS[studentDivision] || JSON_URLS['DEFAULT'];
-
-                // 3. Fetch JSON Data
-                showToast(`Fetching data for: ${studentDivision}`, "info");
-                const res = await fetch(dynamicDataUrl); 
-                
-                if (!res.ok) throw new Error(`Failed to fetch data source for ${studentDivision}`);
-                const fullData = await res.json();
-
-                // 4. Filter Data (Year -> Subject -> Teacher)
-                const year = fullData.find(y => y.id == params.yid);
-                if (!year) throw new Error("Year not found");
-
-                const subject = year.subjects.find(s => s.id == params.sid);
-                if (!subject) throw new Error("Subject not found");
-                subjectData.name = subject.name; 
-                subjectData.id = subject.id;
-
-                const teacher = subject.teachers.find(t => t.id == params.tid);
-                if (!teacher) throw new Error("Teacher not found");
-                teacherData.name = teacher.name; 
-                
-                // 5. Set Chapters
-                chapters.value = teacher.chapters || [];
-                
-                showToast(`Loaded ${chapters.value.length} chapters successfully.`, "success");
-
-            } catch (err) {
-                console.error("Data fetching error:", err);
-                showToast(`Failed to load data: ${err.message}`, "error");
-            } finally {
-                loading.value = false;
             }
+
+        } catch (err) {
+            console.error(err);
+            alert("حدث خطأ أثناء تحميل المدرسين");
+        } finally {
+            loading.value = false;
         }
+    });
 
-        onMounted(fetchData);
-
-        return { loading, chapters, expandedChapters, teacherData, subjectData, toasts, toggleChapter, playVideo, params };
-    }
+    return { loading, teachers, subjectName, goBack, openChapters };
+  }
 }).mount('#app');
 </script>
 
 </body>
-</html>
+                </html>
+                
