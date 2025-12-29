@@ -11,10 +11,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background: #020617; color: white; font-family: sans-serif; }
-        .part-item {
+        .video-item {
             background: rgba(30, 41, 59, 0.4); border-left: 4px solid #3b82f6; transition: 0.3s;
         }
-        .part-item:hover { background: rgba(30, 41, 59, 0.8); border-left-color: #fbbf24; padding-right: 1.5rem; }
+        .video-item:hover { background: rgba(30, 41, 59, 0.8); border-left-color: #fbbf24; padding-right: 1.5rem; }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -28,7 +28,7 @@
         </div>
 
         <div class="flex flex-col gap-3">
-            <div v-for="(vid, index) in videos" :key="index" @click="play(vid)" class="part-item p-4 rounded-r-xl cursor-pointer flex items-center justify-between group">
+            <div v-for="(vid, index) in videos" :key="index" @click="play(vid)" class="video-item p-4 rounded-r-xl cursor-pointer flex items-center justify-between group">
                 <div class="flex items-center gap-4">
                     <span class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:bg-yellow-500 group-hover:text-black transition">{{ index + 1 }}</span>
                     <h3 class="font-medium text-lg">{{ vid.video_name || vid.title || vid.name }}</h3>
@@ -79,11 +79,11 @@
                         
                         let targetChapter;
 
-                        // التوافق مع القديم والجديد
+                        // التوافق الذكي
                         if (teacher.units) {
                             targetChapter = teacher.units[uid].chapters[cid];
                         } else {
-                            // لو قديم، uid هيكون 0 دايماً
+                            // لو نظام قديم، هات الدرس مباشرة من chapters
                             targetChapter = teacher.chapters[cid];
                         }
                         
@@ -101,5 +101,4 @@
         }).mount('#app');
     </script>
 </body>
-    </html>
-    
+</html>
