@@ -12,95 +12,63 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        body { 
-            background: #0f172a; 
-            color: white; 
-            font-family: 'Tajawal', sans-serif; 
-            padding-bottom: 50px;
-        }
+        body { background: #0f172a; color: white; font-family: sans-serif; padding-bottom: 50px; }
 
-        .header-bg {
-            background: rgba(30, 41, 59, 0.95);
-            backdrop-filter: blur(10px);
-            position: sticky; top: 0; z-index: 50;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-        }
-
-        /* تصميم كارت الفيديو الجديد */
+        /* تصميم الكارت الجديد - واسع وواضح */
         .video-card {
             background: #1e293b;
-            margin-bottom: 12px;
-            padding: 20px; /* مساحة داخلية كبيرة */
-            border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.05);
-            display: flex; align-items: center; gap: 15px;
-            transition: all 0.2s ease;
-            cursor: pointer;
+            margin-bottom: 15px; /* مسافة كبيرة بين الكروت */
+            padding: 20px;
+            border-radius: 15px;
+            border-right: 5px solid #3b82f6; /* خط أزرق مميز */
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: 0.2s;
         }
         
-        .video-card:active { transform: scale(0.98); background: #334155; }
+        .video-card:active { background: #334155; transform: scale(0.98); }
+
+        .vid-info { display: flex; align-items: center; gap: 15px; }
         
-        /* رقم الفيديو */
         .vid-number {
-            font-size: 1.2rem; font-weight: bold; color: #64748b;
-            min-width: 30px; text-align: center;
-        }
-        
-        /* عنوان الفيديو */
-        .vid-title {
-            font-size: 1.1rem; /* خط كبير */
-            font-weight: 700; color: white;
-            flex: 1; line-height: 1.5;
+            background: #0f172a; color: #94a3b8; width: 40px; height: 40px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1rem; border: 1px solid #334155;
         }
 
-        /* زر التشغيل */
-        .play-btn {
-            width: 45px; height: 45px;
-            background: #3b82f6; color: white;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem;
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
-        }
+        .vid-title { font-size: 1.1rem; font-weight: bold; color: white; line-height: 1.6; }
+
+        .play-icon { font-size: 1.5rem; color: #fbbf24; }
     </style>
 </head>
 <body>
 
-    <div id="app">
-        <div class="header-bg flex items-center gap-4">
+    <div id="app" class="p-4">
+        <div class="flex items-center gap-4 mb-6 bg-slate-800 p-4 rounded-xl sticky top-0 z-50 shadow-lg border-b border-white/10">
             <button onclick="history.back()" class="w-10 h-10 bg-slate-700 rounded-full text-white flex items-center justify-center">
                 <i class="fas fa-arrow-right"></i>
             </button>
-            <div class="flex-1">
-                <h1 class="text-lg font-bold text-yellow-400 truncate">{{ chapterName }}</h1>
-                <p class="text-xs text-gray-400">اختر الدرس للمشاهدة</p>
-            </div>
+            <h1 class="text-lg font-bold text-yellow-400 truncate">{{ chapterName }}</h1>
         </div>
 
-        <div class="p-4">
+        <div v-if="videos.length > 0">
             <div v-for="(vid, index) in videos" :key="index" @click="play(vid)" class="video-card">
-                <div class="vid-number">{{ index + 1 }}</div>
-                
-                <div class="vid-title">{{ vid.video_name || vid.title || vid.name }}</div>
-                
-                <div class="play-btn">
-                    <i class="fas fa-play ml-1"></i>
+                <div class="vid-info">
+                    <div class="vid-number">{{ index + 1 }}</div>
+                    <div class="vid-title">{{ vid.video_name || vid.title || vid.name }}</div>
                 </div>
+                <i class="fas fa-play-circle play-icon"></i>
             </div>
         </div>
         
-        <div v-if="videos.length === 0" class="text-center mt-20 text-gray-500">
-            <i class="fas fa-video-slash text-4xl mb-4"></i>
-            <p>لا توجد فيديوهات في هذا القسم</p>
+        <div v-else class="text-center mt-20 text-gray-500">
+            <p>جاري التحميل أو لا يوجد محتوى...</p>
         </div>
     </div>
 
     <script>
         const { createApp, ref, onMounted } = Vue;
         
-        // الروابط القديمة
         const URLS = {
             'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
             'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
@@ -111,22 +79,21 @@
         createApp({
             setup() {
                 const videos = ref([]);
-                const chapterName = ref('جاري التحميل...');
-                const params = new URLSearchParams(window.location.search);
+                const chapterName = ref('قائمة الفيديوهات');
                 
-                // قراءة البارامترات
-                const yid = params.get('yid');
-                const sid = params.get('sid');
-                const tid = params.get('tid');
-                const uid = params.get('uid');
-                const cid = params.get('cid');
-
                 const play = (v) => {
                     localStorage.setItem('currentVideo', JSON.stringify(v));
                     window.location.href = 'player.html';
                 };
 
                 onMounted(async () => {
+                    const params = new URLSearchParams(window.location.search);
+                    const yid = params.get('yid');
+                    const sid = params.get('sid');
+                    const tid = params.get('tid');
+                    const uid = params.get('uid');
+                    const cid = params.get('cid');
+
                     const code = localStorage.getItem('activeCode');
                     const db = firebase.database();
                     const snap = await db.ref('approvedStudents/' + code).once('value');
@@ -141,8 +108,6 @@
                         const teacher = sub.teachers.find(t => t.id == tid);
                         
                         let targetChapter;
-
-                        // المنطق الذكي: قديم ولا جديد؟
                         if (teacher.units && teacher.units.length > 0) {
                             targetChapter = teacher.units[uid].chapters[cid];
                         } else {
@@ -151,18 +116,16 @@
                         
                         if(targetChapter) {
                             chapterName.value = targetChapter.chapter_name || targetChapter.name;
-                            // تجميع الفيديوهات
                             let vids = [];
                             if(targetChapter.videos) vids = [...vids, ...targetChapter.videos];
                             if(targetChapter.lectures) targetChapter.lectures.forEach(l => { if(l.videos) vids = [...vids, ...l.videos] });
                             videos.value = vids;
                         }
-                    } catch(e) { console.error(e); }
+                    } catch(e) {}
                 });
                 return { videos, chapterName, play };
             }
         }).mount('#app');
     </script>
 </body>
-    </html>
-    
+</html>
