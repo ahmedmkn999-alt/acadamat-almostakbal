@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Mark | المواد الدراسية</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
+    
+    <script type="module" src="devcheck.js"></script>
+    <script src="auth.js"></script>
+
+    <script src="1_science.js"></script>
+    <script src="2_math.js"></script>
+    <script src="3_lit.js"></script>
+
+    <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#08402C',      // أخضر غامق
+            secondary: '#00F5C4',    // نيون أخضر
+            dark: '#020A07',         // أسود مخضر
+            card: '#0C241C',         // لون الكارت
+            'card-hover': '#1A3C30'
+          },
+          fontFamily: { sans: ['Tajawal', 'sans-serif'] }
+        }
+      }
+    }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <style>
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background-color: #020A07; 
+            color: #E6F0E8; 
+            margin: 0; 
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 245, 196, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(8, 64, 44, 0.1) 0%, transparent 20%);
+        }
+        
+        /* Glass Effect */
+        .glass-panel {
+            background: rgba(12, 36, 28, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 245, 196, 0.15);
+        }
+        
+        .glass-card {
+            background: rgba(12, 36, 28, 0.4); 
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .glass-card:hover {
+            background: rgba(12, 36, 28, 0.8); 
+            transform: translateY(-5px);
+            border-color: #00F5C4; 
+            box-shadow: 0 10px 30px -10px rgba(0, 245, 196, 0.15);
+        }
+
+        .animate-fade-in { animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from {opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
+
+        .loading-overlay {
+            position: fixed; inset: 0; z-index: 100;
+            background: #020A07;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #020A07; }
+        ::-webkit-scrollbar-thumb { background: #08402C; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00F5C4; }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden flex flex-col">
+
+<div id="app" class="flex-1 flex flex-col h-full overflow-hidden">
+
+    <header class="glass-panel h-16 flex items-center justify-between px-4 md:px-6 shadow-lg z-20">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-secondary to-primary flex items-center justify-center text-black shadow-lg shadow-secondary/20">
+          <i class="ph ph-student text-2xl font-bold"></i>
+        </div>
+        <h1 class="text-xl font-bold text-white tracking-wide hidden sm:block">
+         منصة <span class="text-secondary">العباقرة</span>
+        </h1>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="text-left hidden sm:block">
+            <span class="block text-sm font-bold text-white">{{ userData.name }}</span>
+            <span class="block text-xs text-secondary font-medium">{{ userData.section }}</span>
+        </div>
+        <div class="w-10 h-10 rounded-full border-2 border-secondary/30 p-0.5">
+            <div class="w-full h-full rounded-full bg-card flex items-center justify-center text-secondary font-bold">
+                {{ userData.name ? userData.name.substring(0, 1).toUpperCase() : 'U' }}
+            </div>
+        </div>
+        <button @click="logout" class="w-10 h-10 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 flex items-center justify-center transition-all" title="تسجيل خروج">
+            <i class="ph ph-sign-out text-xl"></i>
+        </button>
+      </div>
+    </header>
+
+    <div v-if="stage > 0" class="px-6 pt-4 pb-2">
+        <div class="flex items-center gap-2 text-gray-400 text-sm bg-card/50 p-2 px-4 rounded-full w-fit border border-white/5">
+            <span @click="resetToHome" class="hover:text-secondary cursor-pointer flex items-center gap-1 transition-colors">
+                <i class="ph ph-house"></i> الرئيسية
+            </span>
+            
+            <template v-if="stage>=1">
+                <i class="ph ph-caret-left text-xs text-gray-600"></i>
+                <span @click="stage=1" class="hover:text-secondary cursor-pointer transition-colors">{{ selectedYear.name }}</span>
+            </template>
+            
+            <template v-if="stage>=2">
+                <i class="ph ph-caret-left text-xs text-gray-600"></i>
+                <span @click="stage=2" class="hover:text-secondary cursor-pointer transition-colors">{{ selectedSubject.name }}</span>
+            </template>
+            
+            <template v-if="stage===3">
+                <i class="ph ph-caret-left text-xs text-gray-600"></i>
+                <span class="text-secondary font-bold">{{ selectedTeacher.name }}</span>
+            </template>
+        </div>
+    </div>
+
+    <div v-if="loading" class="loading-overlay animate-fade-in">
+        <div class="relative">
+            <div class="w-16 h-16 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <i class="ph ph-lightning text-secondary text-xl animate-pulse"></i>
+            </div>
+        </div>
+        <p class="mt-4 text-lg font-bold text-white tracking-widest">جاري التحميل...</p>
+    </div>
+
+    <main class="flex-1 overflow-y-auto p-4 md:p-6 pb-24 custom-scrollbar">
+        
+        <div v-if="stage===0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            <div v-for="year in data" :key="year.id" @click="selectYear(year)"
+                class="glass-card rounded-2xl p-1 cursor-pointer group relative overflow-hidden animate-fade-in h-48">
+                <img v-if="year.image_url" :src="year.image_url" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-40">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+                <div class="absolute bottom-0 w-full p-5">
+                    <h3 class="font-bold text-2xl text-white mb-1 group-hover:text-secondary transition-colors">{{ year.name }}</h3>
+                    <div class="flex items-center gap-2 text-xs text-gray-300">
+                        <span class="bg-secondary/20 px-2 py-1 rounded text-secondary font-bold">{{ year.subjects?.length || 0 }} مواد</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="stage===1" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            <div v-for="subject in selectedYear.subjects" :key="subject.id" @click="selectSubject(subject)"
+                class="glass-card rounded-2xl p-0 cursor-pointer group relative overflow-hidden animate-fade-in">
+                <div class="h-40 overflow-hidden relative">
+                    <div class="absolute inset-0 bg-gradient-to-t from-card to-transparent z-10"></div>
+                    <img v-if="subject.image_url" :src="subject.image_url" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                </div>
+                <div class="p-5 relative z-20 -mt-12">
+                    <h3 class="font-bold text-xl text-white mb-2 group-hover:text-secondary transition-colors">{{ subject.name }}</h3>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-400">{{ subject.teachers?.length || 0 }} مدرسين</span>
+                        <i class="ph ph-arrow-left text-secondary -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="stage===2" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div v-for="teacher in selectedSubject.teachers" :key="teacher.id" @click="selectTeacher(teacher)"
+                class="glass-card rounded-2xl p-4 cursor-pointer group relative overflow-hidden animate-fade-in flex flex-col items-center text-center hover:bg-card-hover border-t-4 border-t-transparent hover:border-t-secondary transition-all">
+                <div class="w-20 h-20 rounded-full p-1 border border-secondary/30 mb-3 group-hover:scale-110 transition-transform duration-300">
+                    <img v-if="teacher.image_url" :src="teacher.image_url" class="w-full h-full object-cover rounded-full">
+                    <div v-else class="w-full h-full rounded-full bg-gray-800 flex items-center justify-center"><i class="ph ph-user text-2xl"></i></div>
+                </div>
+                <h3 class="font-bold text-base text-white line-clamp-1">{{ teacher.name }}</h3>
+                <span class="text-[10px] text-gray-400 mt-1 bg-black/40 px-2 py-0.5 rounded-full border border-white/5">
+                    {{ teacher.chapters?.length || 0 }} فصول
+                </span>
+            </div>
+        </div>
+
+        <div v-if="stage===3" class="max-w-4xl mx-auto space-y-6 animate-fade-in">
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary to-card p-6 border border-secondary/20 shadow-2xl">
+                <div class="absolute top-0 left-0 w-32 h-32 bg-secondary/10 rounded-full blur-3xl -translate-x-10 -translate-y-10"></div>
+                <div class="relative flex items-center gap-5 z-10">
+                    <div class="w-20 h-20 rounded-full border-2 border-secondary p-1 shadow-lg shadow-secondary/20">
+                        <img :src="selectedTeacher.image_url" class="w-full h-full object-cover rounded-full">
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-bold text-white mb-1">{{ selectedTeacher.name }}</h2>
+                        <div class="flex items-center gap-2 text-secondary/80 font-medium">
+                            <i class="ph ph-book-open"></i>
+                            {{ selectedSubject.name }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-for="chapter in selectedTeacher.chapters" :key="chapter.id"
+                class="glass-card rounded-xl overflow-hidden border border-white/5 hover:border-secondary/30 transition-colors">
+                
+                <button @click="toggleChapter(chapter.id)"
+                    class="w-full px-6 py-5 flex items-center justify-between bg-card/50 hover:bg-card/80 transition-colors">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-secondary border border-secondary/10">
+                            <i class="ph ph-folder-notch-open text-xl"></i>
+                        </div>
+                        <span class="font-bold text-lg text-white">{{ chapter.name }}</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-gray-400 font-medium px-3 py-1 bg-black/40 rounded-full border border-white/5">
+                            {{ chapter.lectures?.length || 0 }}
+                        </span>
+                        <i class="ph ph-caret-down transition-transform duration-300 text-secondary" 
+                           :class="{'rotate-180': expandedChapters.includes(
