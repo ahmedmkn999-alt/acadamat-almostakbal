@@ -1,51 +1,277 @@
-<style>
-    /* 🔵 الثيم الأزرق الموحد لجميع الصفحات */
-    :root {
-        --bg-dark: #020617;
-        --card-bg: rgba(30, 41, 59, 0.7);
-        --accent-blue: #3b82f6;
-        --accent-glow: rgba(59, 130, 246, 0.5);
-        --text-main: #f1f5f9;
-        --text-sec: #94a3b8;
-    }
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Mark | المواد الدراسية</title>
 
-    body {
-        background-color: var(--bg-dark);
-        color: var(--text-main);
-        /* خلفية شبكية خفيفة */
-        background-image: radial-gradient(#1e293b 1px, transparent 1px);
-        background-size: 30px 30px;
-    }
-
-    /* الهيدر */
-    .glass-panel {
-        background: rgba(15, 23, 42, 0.8);
-        border-bottom: 1px solid rgba(59, 130, 246, 0.2);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    /* الكروت */
-    .glass-card {
-        background: var(--card-bg);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
+    <script src="https://cdn.tailwindcss.com"></script>
     
-    .glass-card:hover {
-        background: rgba(30, 41, 59, 0.9);
-        border-color: var(--accent-blue);
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px -5px var(--accent-glow);
-    }
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
+    
+    <script type="module" src="devcheck.js"></script>
+    <script src="auth.js"></script>
 
-    /* النصوص المميزة */
-    .text-secondary { color: var(--accent-blue) !important; }
-    
-    /* الأيقونات والخلفيات */
-    .bg-primary\/30 { background-color: rgba(59, 130, 246, 0.2) !important; }
-    .bg-secondary { background-color: var(--accent-blue) !important; }
-    
-    /* شريط التمرير */
-    ::-webkit-scrollbar-thumb { background: var(--accent-blue); border-radius: 4px; }
-    ::-webkit-scrollbar-track { background: var(--bg-dark); }
-</style>
+    <script src="1_science.js"></script>
+    <script src="2_math.js"></script>
+    <script src="3_lit.js"></script>
+
+    <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1e3a8a',      /* أزرق ملكي */
+            secondary: '#3b82f6',    /* أزرق زاهي */
+            gold: '#fbbf24',         /* ذهبي */
+            dark: '#020617',         /* كحلي غامق جداً */
+            card: 'rgba(30, 41, 59, 0.7)', 
+            'card-hover': 'rgba(30, 58, 138, 0.4)'
+          },
+          fontFamily: { sans: ['Tajawal', 'sans-serif'] }
+        }
+      }
+    }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <style>
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background-color: #020617; 
+            color: #f1f5f9; 
+            margin: 0; 
+            /* خلفية شبكية زرقاء خفيفة */
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(#1e293b 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px;
+        }
+        
+        /* الهيدر الزجاجي */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* الكروت */
+        .glass-card {
+            background: var(--card);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .glass-card:hover {
+            background: var(--card-hover); 
+            transform: translateY(-5px);
+            border-color: #3b82f6; 
+            box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.3);
+        }
+
+        .animate-fade-in { animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from {opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
+
+        .loading-overlay {
+            position: fixed; inset: 0; z-index: 100;
+            background: #020617;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+        }
+
+        /* شريط التمرير */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+        
+        /* زر البروفايل العائم */
+        .profile-float-btn {
+            position: fixed; bottom: 30px; left: 30px; width: 60px; height: 60px;
+            border-radius: 50%; background: #1e3a8a; 
+            border: 2px solid #fbbf24; /* إطار ذهبي */
+            display: flex; justify-content: center; align-items: center; z-index: 50;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+            transition: transform 0.3s;
+        }
+        .profile-float-btn:hover { transform: scale(1.1) rotate(10deg); box-shadow: 0 0 30px rgba(251, 191, 36, 0.5); }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden flex flex-col">
+
+<div id="app" class="flex-1 flex flex-col h-full overflow-hidden">
+
+    <header class="glass-panel h-16 flex items-center justify-between px-4 md:px-6 shadow-lg z-20">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-secondary to-primary flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+          <i class="ph ph-books text-2xl font-bold"></i>
+        </div>
+        <div>
+            <h1 class="text-lg font-bold text-white leading-tight hidden sm:block">المواد الدراسية</h1>
+            <p class="text-xs text-gold font-bold">{{ studentSection }}</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="text-left hidden sm:block">
+            <span class="block text-sm font-bold text-white">{{ studentName }}</span>
+        </div>
+        <button @click="logout" class="w-9 h-9 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500 flex items-center justify-center transition-all border border-red-500/20">
+            <i class="ph ph-sign-out text-lg"></i>
+        </button>
+      </div>
+    </header>
+
+    <div v-if="loading" class="loading-overlay animate-fade-in">
+        <div class="relative">
+            <div class="w-16 h-16 border-4 border-blue-900 border-t-blue-500 rounded-full animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <i class="ph ph-student text-gold text-xl animate-pulse"></i>
+            </div>
+        </div>
+        <p class="mt-4 text-lg font-bold text-white tracking-widest">جاري جلب المواد...</p>
+    </div>
+
+    <div v-else-if="subjects.length === 0" class="flex-1 flex flex-col justify-center items-center text-gray-500">
+        <i class="ph ph-empty text-6xl mb-4 opacity-50 text-secondary"></i>
+        <p class="text-xl font-medium">لا توجد مواد متاحة لشعبتك حالياً.</p>
+        <button @click="retryLoad" class="mt-4 px-6 py-2 bg-secondary text-white rounded-lg font-bold hover:bg-blue-600 transition shadow-lg shadow-blue-500/30">تحديث</button>
+    </div>
+
+    <main v-else class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 custom-scrollbar">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            
+            <div v-for="(subject, index) in subjects" :key="subject.id" @click="openTeachers(subject)"
+                 class="glass-card rounded-2xl p-6 cursor-pointer group flex flex-col items-center text-center animate-fade-in relative overflow-hidden"
+                 :style="{ animationDelay: index * 0.1 + 's' }">
+                
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-secondary to-transparent opacity-50"></div>
+                
+                <div class="w-24 h-24 rounded-full p-1 border-2 border-gold/50 mb-4 group-hover:scale-110 transition-transform duration-300 bg-black/40 shadow-lg shadow-gold/10">
+                    <img :src="getImage(subject.name)" class="w-full h-full object-cover rounded-full">
+                </div>
+
+                <h3 class="font-bold text-xl text-white mb-2 group-hover:text-gold transition-colors">{{ subject.name }}</h3>
+                
+                <div class="mt-auto pt-4 w-full flex justify-between items-center text-xs text-gray-400 border-t border-white/5">
+                    <span class="bg-blue-900/50 text-blue-200 px-2 py-1 rounded border border-blue-500/20">{{ subject.teachers?.length || 0 }} مدرسين</span>
+                    <i class="ph ph-caret-left text-secondary group-hover:-translate-x-1 transition-transform"></i>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <a href="profile.html" class="profile-float-btn hover:bg-blue-800 transition-all duration-300">
+        <i class="ph ph-user text-2xl text-gold"></i>
+    </a>
+
+</div>
+
+<script>
+const { createApp, ref, onMounted } = Vue;
+
+// قاموس صور المواد
+const SUBJECT_IMAGES = {
+    "لغة عربية": "https://img.icons8.com/color/480/books.png",
+    "لغة إنجليزية": "https://img.icons8.com/color/480/abc.png",
+    "لغة فرنسية": "https://img.icons8.com/color/480/eiffel-tower.png",
+    "أحياء": "https://img.icons8.com/color/480/dna-helix.png",
+    "كيمياء": "https://img.icons8.com/color/480/test-tube.png",
+    "فيزياء": "https://img.icons8.com/color/480/physics.png",
+    "جيولوجيا": "https://img.icons8.com/color/480/mountain.png",
+    "الرياضيات": "https://img.icons8.com/color/480/math.png",
+    "الرياضيات البحتة": "https://img.icons8.com/color/480/calculator--v1.png",
+    "الرياضيات التطبيقية": "https://img.icons8.com/color/480/engineering.png",
+    "تاريخ": "https://img.icons8.com/color/480/scroll.png",
+    "جغرافيا": "https://img.icons8.com/color/480/globe--v1.png",
+    "علم نفس": "https://img.icons8.com/color/480/brain--v1.png",
+    "فلسفة": "https://img.icons8.com/color/480/idea.png",
+    "default": "https://img.icons8.com/color/480/learning.png"
+};
+
+createApp({
+  setup() {
+    const loading = ref(true);
+    const subjects = ref([]);
+    const studentName = ref('طالب');
+    const studentSection = ref('عام');
+    const currentYearId = ref(null); 
+
+    const getImage = (subjectName) => {
+        for (const [key, value] of Object.entries(SUBJECT_IMAGES)) {
+            if (subjectName.includes(key)) return value;
+        }
+        return SUBJECT_IMAGES['default'];
+    };
+
+    const logout = () => {
+        if(confirm("تسجيل الخروج؟")) {
+            localStorage.removeItem('activeCode');
+            localStorage.removeItem('localDeviceId');
+            window.location.href = 'index.html';
+        }
+    };
+
+    const retryLoad = () => window.location.reload();
+
+    const openTeachers = (subject) => {
+        if (currentYearId.value && subject.id) {
+            window.location.href = `chapters.html?yid=${currentYearId.value}&sid=${subject.id}`;
+        }
+    };
+
+    onMounted(async () => {
+        const activeCode = localStorage.getItem('activeCode');
+        if (!activeCode) { window.location.href = 'index.html'; return; }
+
+        const db = firebase.database();
+        try {
+            const snapshot = await db.ref('approvedStudents/' + activeCode).once('value');
+            const student = snapshot.val();
+
+            if (student) {
+                studentName.value = student.studentName || 'طالب';
+                studentSection.value = student.section || 'عام';
+                const section = studentSection.value.trim();
+
+                let rawData = [];
+                // تحديد ملف الداتا حسب الشعبة
+                if (section === 'علمي علوم' && typeof SCIENCE_RAW !== 'undefined') rawData = SCIENCE_RAW;
+                else if (section === 'علمي رياضة' && typeof MATH_RAW !== 'undefined') rawData = MATH_RAW;
+                else if (section === 'أدبي' && typeof LIT_RAW !== 'undefined') rawData = LIT_RAW;
+                else if (typeof SCIENCE_RAW !== 'undefined') rawData = SCIENCE_RAW;
+
+                if (rawData.length > 0) {
+                    const yearData = rawData[0]; 
+                    currentYearId.value = yearData.id;
+                    subjects.value = yearData.subjects || [];
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            alert("حدث خطأ في الاتصال");
+        } finally {
+            loading.value = false;
+        }
+    });
+
+    return { 
+        loading, subjects, studentName, studentSection, 
+        getImage, openTeachers, logout, retryLoad 
+    };
+  }
+}).mount('#app');
+</script>
+
+</body>
+</html>
