@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>المحتوى</title>
+    <title>المحتوى الدراسي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -11,67 +11,70 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background: #020617; color: white; font-family: sans-serif; }
+        
+        .unit-block { margin-bottom: 50px; }
         .unit-title {
-            font-size: 1.5rem; font-weight: bold; margin: 30px 0 20px;
-            display: flex; align-items: center; gap: 10px; color: #fbbf24;
+            background: #334155; color: #fbbf24; padding: 10px 30px; border-radius: 50px;
+            display: inline-block; font-weight: bold; font-size: 1.2rem; margin-bottom: 20px;
+            border: 1px solid #fbbf24;
         }
-        .unit-line { flex: 1; height: 1px; background: #334155; }
-        .lecture-card {
+        
+        .lesson-card {
             background: #1e293b; border: 1px solid rgba(255,255,255,0.05);
-            padding: 20px; rounded-2xl; display: flex; align-items: center; justify-content: space-between;
-            transition: 0.3s; cursor: pointer;
+            padding: 25px; rounded-2xl;
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; transition: 0.3s;
         }
-        .lecture-card:hover { background: #0f172a; border-color: #fbbf24; transform: scale(1.02); }
-        .lec-icon {
-            width: 50px; height: 50px; background: rgba(59, 130, 246, 0.1); color: #3b82f6;
-            border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+        .lesson-card:hover { background: #0f172a; border-color: #3b82f6; transform: scale(1.02); }
+        
+        .lesson-number {
+            width: 50px; height: 50px; background: #3b82f6; color: white;
+            border-radius: 12px; font-weight: bold; font-size: 1.5rem;
+            display: flex; align-items: center; justify-content: center;
         }
     </style>
 </head>
-<body class="p-4 md:p-8 pb-24">
+<body class="p-4 md:p-8 pb-20">
     <div id="app">
         <header class="flex items-center justify-between mb-8">
             <div class="flex items-center gap-4">
                 <button onclick="history.back()" class="bg-slate-800 w-12 h-12 rounded-full text-white text-xl">➜</button>
                 <div>
-                    <h1 class="text-2xl font-bold text-white">المحتوى الدراسي</h1>
+                    <h1 class="text-2xl font-bold text-white">المحتوى</h1>
                     <p class="text-gray-400 text-sm">{{ teacherName }}</p>
                 </div>
             </div>
-            <a href="profile.html" class="bg-blue-600/10 text-blue-400 px-4 py-2 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition">
-                <i class="fas fa-user"></i> حسابي
-            </a>
+            <a href="profile.html" class="bg-slate-800 px-4 py-2 rounded-xl text-blue-400 font-bold">حسابي</a>
         </header>
 
-        <div v-if="loading" class="text-center mt-20 text-xl">جاري تنظيم المحتوى...</div>
+        <div v-if="loading" class="text-center mt-20 text-xl">جاري التجهيز...</div>
 
         <div v-else>
-            <div v-for="(unit, uIndex) in units" :key="uIndex">
-                <div class="unit-title">
-                    <i class="fas fa-folder-open"></i> {{ unit.unit_name }}
-                    <div class="unit-line"></div>
+            <div v-for="(unit, uIndex) in units" :key="uIndex" class="unit-block">
+                <div class="border-b border-gray-700 pb-4 mb-4">
+                    <div class="unit-title">{{ unit.unit_name }}</div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div v-for="(ch, cIndex) in unit.chapters" :key="cIndex" @click="openParts(uIndex, cIndex)" class="lecture-card group">
+                    <div v-for="(ch, cIndex) in unit.chapters" :key="cIndex" @click="openParts(uIndex, cIndex)" class="lesson-card group">
                         <div class="flex items-center gap-4">
-                            <div class="lec-icon group-hover:bg-yellow-500 group-hover:text-black transition">{{ cIndex + 1 }}</div>
+                            <div class="lesson-number group-hover:bg-yellow-500 group-hover:text-black transition">{{ cIndex + 1 }}</div>
                             <div>
-                                <h3 class="font-bold text-lg text-white group-hover:text-yellow-400 transition">{{ ch.chapter_name || ch.name }}</h3>
-                                <p class="text-xs text-gray-400 mt-1">{{ getVideoCount(ch) }} فيديو</p>
+                                <h3 class="text-lg font-bold text-white mb-1 group-hover:text-yellow-400">{{ ch.chapter_name || ch.name }}</h3>
+                                <div class="flex items-center gap-2 text-xs text-gray-400">
+                                    <span><i class="fas fa-video"></i> {{ getVideoCount(ch) }} فيديو</span>
+                                </div>
                             </div>
                         </div>
                         <i class="fas fa-chevron-left text-gray-600 group-hover:text-white"></i>
                     </div>
                 </div>
             </div>
-            <p v-if="units.length === 0" class="text-center text-gray-500 mt-10">لا يوجد محتوى متاح.</p>
         </div>
     </div>
 
     <script>
         const { createApp, ref, onMounted } = Vue;
-        // الروابط القديمة
         const URLS = {
             'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
             'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
@@ -113,12 +116,13 @@
                         
                         teacherName.value = teacher.name;
 
-                        // 🔥 التعديل الذكي: لو داتا قديمة حطها في "شهر" افتراضي
+                        // التوافق مع القديم والجديد
                         if (teacher.units) {
                             units.value = teacher.units;
                         } else if (teacher.chapters) {
+                            // تجميع الدروس القديمة في وحدة واحدة اسمها "المحاضرات"
                             units.value = [{
-                                unit_name: "جميع المحاضرات والمراجعات",
+                                unit_name: "المحاضرات والمراجعات",
                                 chapters: teacher.chapters
                             }];
                         }
