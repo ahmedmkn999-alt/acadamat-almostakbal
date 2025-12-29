@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>المحاضرات</title>
+    <title>المحتوى</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -11,39 +11,65 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background: #020617; color: white; font-family: sans-serif; }
+        .unit-header {
+            display: flex; align-items: center; margin: 30px 0 15px;
+        }
+        .unit-header span {
+            background: #fbbf24; color: black; padding: 5px 20px;
+            border-radius: 20px; font-weight: bold; font-size: 1.1rem;
+        }
+        .unit-line { flex: 1; height: 1px; background: #fbbf24; margin-right: 15px; opacity: 0.3; }
         .lecture-card {
-            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: linear-gradient(135deg, #1e3a8a, #0f172a);
+            border: 1px solid rgba(255,255,255,0.1); transition: 0.3s;
         }
         .lecture-card:hover { border-color: #fbbf24; transform: scale(1.02); }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-8 pb-24">
     <div id="app">
-        <div class="flex items-center gap-4 mb-8">
-            <button onclick="history.back()" class="bg-slate-800 hover:bg-slate-700 w-12 h-12 rounded-full text-white flex items-center justify-center transition">➜</button>
-            <div>
-                <h1 class="text-2xl font-bold text-yellow-400">المحاضرات</h1>
-                <p class="text-gray-400 text-sm">{{ teacherName }}</p>
+        <header class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <button onclick="history.back()" class="bg-slate-800 hover:bg-slate-700 w-12 h-12 rounded-full text-white flex items-center justify-center transition">➜</button>
+                <div>
+                    <h1 class="text-2xl font-bold text-yellow-400">المحتوى الدراسي</h1>
+                    <p class="text-gray-400 text-sm">{{ teacherName }}</p>
+                </div>
             </div>
-        </div>
+            <a href="profile.html" class="bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-xl font-bold transition flex items-center gap-2">
+                <i class="fas fa-user-circle"></i> حسابي
+            </a>
+        </header>
 
-        <div class="grid grid-cols-2 gap-4">
-            <div v-for="(ch, index) in chapters" :key="index" @click="openParts(index)" class="lecture-card p-5 rounded-2xl cursor-pointer transition-all flex flex-col justify-between min-h-[140px] relative overflow-hidden shadow-lg">
-                <div class="absolute top-0 right-0 bg-yellow-500 text-black font-bold text-xs px-3 py-1 rounded-bl-lg">
-                    <i class="fas fa-book-open ml-1"></i> وحدة {{ index + 1 }}
+        <div v-if="loading" class="text-center mt-20 text-xl">جاري تنظيم المحتوى...</div>
+
+        <div v-else>
+            <div v-for="(unit, uIndex) in units" :key="uIndex">
+                <div class="unit-header">
+                    <span>{{ unit.unit_name }}</span>
+                    <div class="unit-line"></div>
                 </div>
-                <h3 class="text-lg font-bold mt-6 mb-2 leading-relaxed">{{ ch.chapter_name || ch.name }}</h3>
-                <div class="flex justify-between items-center text-xs text-blue-200 mt-auto pt-4 border-t border-white/10">
-                    <span>عرض المحتوى</span>
-                    <i class="fas fa-arrow-left"></i>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div v-for="(ch, cIndex) in unit.chapters" :key="cIndex" @click="openParts(uIndex, cIndex)" class="lecture-card p-5 rounded-2xl cursor-pointer relative overflow-hidden shadow-lg group">
+                        <div class="absolute top-0 right-0 bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded-bl-lg">
+                            درس {{ cIndex + 1 }}
+                        </div>
+                        <h3 class="text-lg font-bold mb-2 mt-4 group-hover:text-yellow-300 leading-relaxed">{{ ch.chapter_name || ch.name }}</h3>
+                        <div class="flex justify-between items-center text-xs text-blue-200 mt-4 pt-3 border-t border-white/10">
+                            <span><i class="fas fa-play-circle ml-1"></i> اضغط للمشاهدة</span>
+                            <i class="fas fa-arrow-left opacity-50 group-hover:opacity-100 group-hover:-translate-x-1 transition"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <p v-if="units.length === 0" class="text-center text-gray-500 mt-10">لا يوجد محتوى متاح حالياً.</p>
         </div>
     </div>
 
     <script>
         const { createApp, ref, onMounted } = Vue;
+        // رجعنا الروابط القديمة عشان الداتا تظهر
         const URLS = {
             'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
             'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
@@ -53,14 +79,15 @@
 
         createApp({
             setup() {
-                const chapters = ref([]);
+                const units = ref([]);
+                const loading = ref(true);
                 const teacherName = ref('');
                 const params = new URLSearchParams(window.location.search);
                 const yid = params.get('yid');
                 const sid = params.get('sid');
                 const tid = params.get('tid');
 
-                const openParts = (idx) => window.location.href = `parts.html?yid=${yid}&sid=${sid}&tid=${tid}&lid=${idx}`;
+                const openParts = (uid, cid) => window.location.href = `parts.html?yid=${yid}&sid=${sid}&tid=${tid}&uid=${uid}&cid=${cid}`;
 
                 onMounted(async () => {
                     const code = localStorage.getItem('activeCode');
@@ -68,16 +95,29 @@
                     const snap = await db.ref('approvedStudents/' + code).once('value');
                     const section = snap.val()?.section?.trim() || 'علمي علوم';
                     
-                    const res = await fetch(URLS[section] || URLS['علمي علوم']);
-                    const data = await res.json();
-                    
-                    const year = data.find(y => y.id == yid) || data[0];
-                    const sub = year.subjects.find(s => s.id == sid);
-                    const teacher = sub.teachers.find(t => t.id == tid);
-                    teacherName.value = teacher.name;
-                    chapters.value = teacher.chapters || [];
+                    try {
+                        const res = await fetch(URLS[section] || URLS['علمي علوم']);
+                        const data = await res.json();
+                        const year = data.find(y => y.id == yid) || data[0];
+                        const sub = year.subjects.find(s => s.id == sid);
+                        const teacher = sub.teachers.find(t => t.id == tid);
+                        
+                        teacherName.value = teacher.name;
+
+                        // 🔥 السحر هنا: لو المدرس عنده نظام قديم، حوله لنظام جديد
+                        if (teacher.units) {
+                            units.value = teacher.units;
+                        } else if (teacher.chapters) {
+                            // تحويل الداتا القديمة لـ "وحدة عامة" عشان تظهر ومتروحش
+                            units.value = [{
+                                unit_name: "جميع المحاضرات والمراجعات",
+                                chapters: teacher.chapters
+                            }];
+                        }
+                    } catch(e) { console.error(e); }
+                    loading.value = false;
                 });
-                return { chapters, teacherName, openParts };
+                return { units, teacherName, loading, openParts };
             }
         }).mount('#app');
     </script>
