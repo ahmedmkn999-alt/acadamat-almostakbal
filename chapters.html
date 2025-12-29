@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>المدرسين</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="auth.js"></script>
+    <style>body { background: #020617; color: white; font-family: sans-serif; }</style>
+</head>
+<body class="p-4">
+    <div id="app">
+        <div class="flex items-center gap-2 mb-6">
+            <button onclick="history.back()" class="bg-blue-900 w-10 h-10 rounded-full text-white">➜</button>
+            <h1 class="text-xl font-bold text-yellow-400">اختر المدرس</h1>
+        </div>
+
+        <div v-if="loading" class="text-center">جاري التحميل...</div>
+        
+        <div v-else class="grid grid-cols-1 gap-4">
+            <div v-for="t in teachers" :key="t.id" @click="openTeacher(t)" class="bg-slate-800 p-4 rounded-xl flex items-center gap-4 cursor-pointer border border-slate-700 hover:border-yellow-500">
+                <img :src="t.image_url || 'https://img.icons8.com/color/480/teacher.png'" class="w-14 h-14 rounded-full bg-black">
+                <div>
+                    <h3 class="font-bold text-lg">{{ t.name }}</h3>
+                    <span class="text-sm text-gray-400">{{ t.chapters?.length || 0 }} فصول</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted } = Vue;
+        const URLS = {
+            'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
+            'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
+            'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json",
+            'أزهر': "https://plus-teal.vercel.app/organized_output.json"
+        };
+
+        createApp({
+            setup() {
+                const teachers = ref([]);
+                const loading = ref(true);
+                const params = new URLSearchParams(window.location.search);
+                const yid = params.get('yid');
+                const sid = params.get('sid');
+
+                const openTeacher = (t) => window.location.href = `lectures.html?yid=${yid}&sid=${sid}&tid=${t.id}`;
+
+                onMounted(async () => {
+                    const code = localStorage.getItem('activeCode');
+                    const db = firebase.database();
+                    const snap = await db.ref('approvedStudents/' + code).once('value');
+                    const section = snap.val()?.section?.trim() || 'علمي علوم';
+                    
+                    try {
+                        const res = await fetch(URLS[section] || URLS['علمي علوم']);
+                        const data = await res.json();
+                        const year = data.find(y => y.id == yid) || data[0];
+                        const subject = year.subjects.find(s => s.id == sid);
+                        teachers.value = subject.teachers || [];
+                    } catch(e) {}
+                    loading.value = false;
+                });
+                return { teachers, loading, openTeacher };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
