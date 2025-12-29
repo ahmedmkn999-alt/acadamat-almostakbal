@@ -2,182 +2,61 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>المواد الدراسية</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الفيديوهات</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="auth.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
     
     <style>
-        body { 
-            background-color: #0f172a; 
-            background-image: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            min-height: 100vh; color: white; font-family: 'Tajawal', sans-serif; 
-            padding-bottom: 80px; position: relative; overflow-x: hidden;
-        }
-
-        /* ✨✨✨ كود النجوم اللامعة ✨✨✨ */
-        .stars-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0; pointer-events: none; overflow: hidden;
-        }
-        .star {
-            position: absolute; width: 2px; height: 2px; background: white;
-            border-radius: 50%; opacity: 0;
-            animation: twinkle var(--duration) ease-in-out infinite;
-            animation-delay: var(--delay);
-        }
-        @keyframes twinkle {
-            0% { opacity: 0; transform: scale(0.5); }
-            50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 10px white; }
-            100% { opacity: 0; transform: scale(0.5); }
-        }
-        /* --------------------------------- */
-
-        /* خلفية FULL MARK */
-        body::before {
-            content: 'FULL MARK'; position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%) rotate(-15deg);
-            font-size: 18vw; font-weight: 900;
-            color: rgba(251, 191, 36, 0.03); z-index: -1; pointer-events: none;
-        }
-
-        /* الهيدر */
-        .profile-header {
-            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            position: sticky; top: 0; z-index: 50; padding: 15px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-radius: 0 0 25px 25px;
-        }
-
-        .user-avatar {
-            width: 55px; height: 55px; background: linear-gradient(135deg, #3b82f6, #fbbf24);
-            border-radius: 50%; padding: 2px; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
-        }
-        .user-avatar img { width: 100%; height: 100%; border-radius: 50%; border: 3px solid #0f172a; object-fit: cover; }
-
-        .typing-container { font-size: 0.85rem; color: #fbbf24; font-weight: bold; margin-top: 4px; display: flex; align-items: center; }
-        .cursor { display: inline-block; width: 2px; height: 14px; background: #fbbf24; margin-right: 2px; animation: blink 0.7s infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
-
-        /* كروت المواد */
-        .subject-card {
-            background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; overflow: hidden;
-            transition: all 0.3s ease; position: relative; z-index: 10;
-        }
-        .subject-card:hover {
-            transform: translateY(-8px); border-color: #fbbf24;
-            box-shadow: 0 15px 30px rgba(251, 191, 36, 0.1);
-        }
-        .sub-img-box { height: 130px; overflow: hidden; position: relative; }
-        .sub-img-box img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; filter: brightness(0.8); }
-        .subject-card:hover img { transform: scale(1.1); filter: brightness(1); }
+        body { background: #0f172a; color: white; font-family: sans-serif; padding-bottom: 50px; }
         
-        .sub-content { padding: 15px; text-align: center; }
-        .teacher-count { font-size: 0.75rem; color: #60a5fa; background: rgba(59, 130, 246, 0.15); padding: 4px 12px; border-radius: 50px; display: inline-block; margin-top: 5px; }
+        .header-box {
+            background: #1e293b; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: sticky; top: 0; z-index: 50; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .video-item {
+            background: #1e293b; padding: 20px; margin-bottom: 12px;
+            border-radius: 12px; display: flex; align-items: center; gap: 15px;
+            cursor: pointer; border: 1px solid rgba(255,255,255,0.05);
+            transition: 0.2s;
+        }
+        .video-item:active { background: #334155; transform: scale(0.98); }
+
+        .vid-num {
+            background: #0f172a; color: #94a3b8; width: 35px; height: 35px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold; flex-shrink: 0;
+        }
+        
+        .vid-title { font-weight: bold; color: white; flex: 1; }
+        .play-icon { color: #fbbf24; font-size: 1.5rem; }
     </style>
 </head>
-<body>
-
-    <div id="stars" class="stars-container"></div>
-
+<body class="p-4 pt-0">
     <div id="app">
-        <header class="profile-header">
-            <a href="timer.html" class="flex items-center gap-3 cursor-pointer">
-                <div class="user-avatar">
-                    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile">
-                </div>
-                <div>
-                    <h2 id="studentName" class="text-lg font-bold text-white leading-tight">جاري التحميل...</h2>
-                    <div class="typing-container">
-                        <span class="typing-text"></span><span class="cursor"></span>
-                    </div>
-                </div>
-            </a>
-            <button onclick="logout()" class="w-10 h-10 rounded-full bg-slate-800/80 border border-slate-700 text-gray-400 hover:text-red-500 hover:border-red-500 flex items-center justify-center transition shadow-lg">
-                <i class="fas fa-power-off"></i>
-            </button>
-        </header>
+        <div class="header-box -mx-4 mb-6 flex items-center gap-4">
+            <button onclick="history.back()" class="w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center text-white">➜</button>
+            <h1 class="text-lg font-bold text-yellow-400 truncate">{{ chapterName }}</h1>
+        </div>
 
-        <div class="p-6 relative z-10">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="h-8 w-2 bg-yellow-500 rounded-full"></div>
-                <h3 class="text-xl font-bold text-white">المواد الدراسية</h3>
-            </div>
-
-            <div v-if="loading" class="flex flex-col items-center justify-center mt-20">
-                <div class="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full mb-4"></div>
-                <p class="text-gray-400 animate-pulse">جاري تجهيز مكتبتك...</p>
-            </div>
-            
-            <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-                <div v-for="sub in subjects" :key="sub.id" @click="openSub(sub)" class="subject-card cursor-pointer group">
-                    <div class="sub-img-box">
-                        <div class="absolute inset-0 bg-gradient-to-t from-[#1e293b] via-transparent to-transparent z-10"></div>
-                        <img :src="getImg(sub.name)" alt="Subject" onerror="this.src='https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=500'">
-                    </div>
-                    <div class="sub-content">
-                        <h3 class="font-bold text-lg mb-1 text-white group-hover:text-yellow-400 transition">{{ sub.name }}</h3>
-                        <span class="teacher-count">
-                            <i class="fas fa-chalkboard-teacher"></i> {{ sub.teachers?.length || 0 }} مدرسين
-                        </span>
-                    </div>
-                </div>
+        <div v-if="videos.length > 0">
+            <div v-for="(vid, index) in videos" :key="index" @click="play(vid)" class="video-item">
+                <div class="vid-num">{{ index + 1 }}</div>
+                <div class="vid-title">{{ vid.video_name || vid.title || vid.name }}</div>
+                <i class="fas fa-play-circle play-icon"></i>
             </div>
         </div>
+
+        <div v-else class="text-center mt-20 text-gray-500">لا يوجد محتوى هنا</div>
     </div>
 
     <script>
-        // ✨ كود توليد النجوم ✨
-        function createStars() {
-            const container = document.getElementById('stars');
-            const starCount = 50; // عدد النجوم
-            for (let i = 0; i < starCount; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                // مكان عشوائي
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                // تأخير عشوائي لللمعان
-                star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
-                star.style.setProperty('--delay', (Math.random() * 5) + 's');
-                container.appendChild(star);
-            }
-        }
-        createStars(); // تشغيل النجوم
-
         const { createApp, ref, onMounted } = Vue;
-
-        const IMGS = {
-            "عرب": "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=600&q=80",
-            "نحو": "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&q=80",
-            "بلاغ": "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?w=600&q=80",
-            "نجليز": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80",
-            "English": "https://images.unsplash.com/photo-1526470608268-f6c482036101?w=600&q=80",
-            "فرنس": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80",
-            "French": "https://images.unsplash.com/photo-1503917988258-f87a78e3c995?w=600&q=80",
-            "فيزيا": "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=600&q=80",
-            "كيميا": "https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?w=600&q=80",
-            "أحيا": "https://images.unsplash.com/photo-1530026405124-efe3d232b3d8?w=600&q=80",
-            "بيولوج": "https://images.unsplash.com/photo-1576086213369-97a306d36557?w=600&q=80",
-            "رياض": "https://images.unsplash.com/photo-1635070041043-e3f001e34750?w=600&q=80",
-            "جبر": "https://images.unsplash.com/photo-1596495577886-d920f1fb7238?w=600&q=80",
-            "هندس": "https://images.unsplash.com/photo-1581094794329-c621221092a4?w=600&q=80",
-            "جيولوج": "https://images.unsplash.com/photo-1598281838025-6c930063d2e1?w=600&q=80",
-            "تاريخ": "https://images.unsplash.com/photo-1461360228754-6e81c478b882?w=600&q=80",
-            "جغرافي": "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=600&q=80",
-            "فلسف": "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=600&q=80",
-            "نفس": "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=600&q=80",
-            "default": "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&q=80"
-        };
-
         const URLS = {
             'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
             'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
@@ -185,68 +64,56 @@
             'أزهر': "https://plus-teal.vercel.app/organized_output.json"
         };
 
-        const phrases = ["✨ حلمك يستاهل!", "💪 عافر هتوصل", "🚀 اصنع مستقبلك", "🎓 دكتور المستقبل", "💡 الأفضل لك"];
-        let phraseIdx = 0, charIdx = 0, isDeleting = false;
-        
-        function typeEffect() {
-            const currentPhrase = phrases[phraseIdx];
-            const textElement = document.querySelector(".typing-text");
-            if (!textElement) return;
-            if (isDeleting) {
-                textElement.textContent = currentPhrase.substring(0, charIdx--);
-                if (charIdx < 0) { isDeleting = false; phraseIdx = (phraseIdx + 1) % phrases.length; }
-            } else {
-                textElement.textContent = currentPhrase.substring(0, charIdx++);
-                if (charIdx > currentPhrase.length) { isDeleting = true; setTimeout(typeEffect, 2000); return; }
-            }
-            setTimeout(typeEffect, isDeleting ? 50 : 100);
-        }
-
         createApp({
             setup() {
-                const subjects = ref([]);
-                const loading = ref(true);
-                const yid = ref(null);
-
-                const getImg = (n) => {
-                    if(!n) return IMGS['default'];
-                    for (const [key, url] of Object.entries(IMGS)) {
-                        if (n.includes(key)) return url;
-                    }
-                    return IMGS['default'];
+                const videos = ref([]);
+                const chapterName = ref('');
+                
+                const play = (v) => {
+                    localStorage.setItem('currentVideo', JSON.stringify(v));
+                    window.location.href = 'player.html';
                 };
-                
-                const openSub = (s) => window.location.href = `chapters.html?yid=${yid.value}&sid=${s.id}`;
-                
-                onMounted(async () => {
-                    const code = localStorage.getItem('activeCode');
-                    if(!code) return;
 
+                onMounted(async () => {
+                    const params = new URLSearchParams(window.location.search);
+                    const uid = params.get('uid');
+                    const cid = params.get('cid');
+                    const code = localStorage.getItem('activeCode');
                     const db = firebase.database();
+                    const snap = await db.ref('approvedStudents/' + code).once('value');
+                    const section = snap.val()?.section?.trim() || 'علمي علوم';
+                    
                     try {
-                        const snap = await db.ref('approvedStudents/' + code).once('value');
-                        const student = snap.val();
-                        if(student) {
-                            document.getElementById('studentName').innerText = student.studentName;
-                            typeEffect();
-                        }
-                        const section = student?.section?.trim() || 'علمي علوم';
-                        const res = await fetch(URLS[section] || URLS['علمي علوم']);
+                        const res = await fetch(URLS[section]);
                         const data = await res.json();
-                        let year = data.find(y => y.name.includes('3') || y.id == 3) || data[0];
-                        yid.value = year.id;
-                        subjects.value = year.subjects || [];
-                    } catch(e) { console.error(e); } 
-                    finally { loading.value = false; }
+                        
+                        const yid = params.get('yid');
+                        const sid = params.get('sid');
+                        const tid = params.get('tid');
+
+                        const year = data.find(y => y.id == yid) || data[0];
+                        const sub = year.subjects.find(s => s.id == sid);
+                        const teacher = sub.teachers.find(t => t.id == tid);
+                        
+                        let targetChapter;
+                        if (teacher.units && teacher.units.length > 0) {
+                            targetChapter = teacher.units[uid].chapters[cid];
+                        } else {
+                            targetChapter = teacher.chapters[cid];
+                        }
+                        
+                        if(targetChapter) {
+                            chapterName.value = targetChapter.chapter_name || targetChapter.name;
+                            let vids = [];
+                            if(targetChapter.videos) vids = [...vids, ...targetChapter.videos];
+                            if(targetChapter.lectures) targetChapter.lectures.forEach(l => { if(l.videos) vids = [...vids, ...l.videos] });
+                            videos.value = vids;
+                        }
+                    } catch(e) {}
                 });
-                return { subjects, loading, getImg, openSub };
+                return { videos, chapterName, play };
             }
         }).mount('#app');
-
-        function logout() {
-            if(confirm("هل أنت متأكد من تسجيل الخروج؟")) { localStorage.clear(); window.location.href='index.html'; }
-        }
     </script>
 </body>
-    </html>
-                    
+</html>
