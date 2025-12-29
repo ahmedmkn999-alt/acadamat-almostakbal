@@ -5,38 +5,70 @@
     <title>Admin</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="auth.js"></script>
+    
     <style>
-        body { background: #020617; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
-        div { background: #1e293b; padding: 40px; border-radius: 20px; text-align: center; width: 300px; border: 1px solid #334155; }
-        input, select, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
-        button { background: #3b82f6; color: white; cursor: pointer; font-weight: bold; }
-        #res { color: #4ade80; display: none; margin-top: 10px; font-weight: bold; font-size: 1.2rem; }
+        body { background: #020617; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; margin: 0; }
+        .container { background: #1e293b; padding: 40px; border-radius: 20px; text-align: center; width: 90%; max-width: 350px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        h2 { color: #fbbf24; margin-bottom: 20px; font-size: 1.5rem; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; outline: none; }
+        button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: none; background: #3b82f6; color: white; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.3s; }
+        button:hover { background: #2563eb; }
+        #res { color: #4ade80; display: none; margin-top: 15px; font-weight: bold; font-size: 1.4rem; background: #064e3b; padding: 10px; border-radius: 8px; border: 1px dashed #4ade80; }
     </style>
 </head>
 <body>
-    <div>
-        <h2 style="color:#fbbf24; margin-bottom:20px;">إنشاء كود</h2>
-        <input id="n" placeholder="اسم الطالب">
+    <div class="container">
+        <h2>🔐 لوحة التحكم</h2>
+        <input id="n" placeholder="اسم الطالب الثلاثي">
         <select id="s">
-            <option>علمي علوم</option><option>علمي رياضة</option><option>أدبي</option><option>أزهر</option>
+            <option value="علمي علوم">🧬 علمي علوم</option>
+            <option value="علمي رياضة">📐 علمي رياضة</option>
+            <option value="أدبي">📜 أدبي</option>
+            <option value="أزهر">🕌 أزهر</option>
         </select>
-        <button onclick="gen()">إنشاء</button>
+        <button onclick="gen()">✨ إنشاء كود جديد</button>
         <div id="res"></div>
     </div>
+
     <script>
+        // كود الربط الجديد بتاعك
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1QB3qaFfkGYq0OWOEAr83V25NAPFwxzs",
+            authDomain: "fullmark-2025.firebaseapp.com",
+            databaseURL: "https://fullmark-2025-default-rtdb.firebaseio.com",
+            projectId: "fullmark-2025",
+            storageBucket: "fullmark-2025.firebasestorage.app",
+            messagingSenderId: "963956202032",
+            appId: "1:963956202032:web:4df914457d79b75dee2bf5"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+
         function gen() {
             const n = document.getElementById('n').value;
             const s = document.getElementById('s').value;
-            if(!n) return alert('الاسم مطلوب');
+            if(!n) return alert('⚠️ يرجى كتابة اسم الطالب!');
+
             const c = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            // الكود صالح لمدة 30 يوم
             db.ref('approvedStudents/'+c).set({
-                studentName: n, section: s, expiry: Date.now() + (30*86400000), 
-                deviceId: null, isBlocked: false
+                studentName: n, 
+                section: s, 
+                expiry: Date.now() + (30*86400000), 
+                deviceId: null, 
+                isBlocked: false,
+                createdAt: Date.now()
             }).then(() => {
-                document.getElementById('res').style.display='block';
-                document.getElementById('res').innerText = c;
+                const r = document.getElementById('res');
+                r.style.display='block';
+                r.innerText = c;
+                
+                // تفريغ خانة الاسم عشان لو هتعمل كود تاني
+                document.getElementById('n').value = '';
+            }).catch(error => {
+                alert("حدث خطأ: " + error.message);
             });
         }
     </script>
