@@ -3,72 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مشاهدة</title>
+    <title>Video Player</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: black; margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; user-select: none; }
-        #videoContainer { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #000; }
+        body { background: black; margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        #videoContainer { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
         video { width: 100%; max-height: 100%; }
-        
-        /* طبقات اللمس */
-        .touch-layer { position: absolute; top: 0; bottom: 0; width: 30%; z-index: 10; }
-        .touch-left { left: 0; }
-        .touch-right { right: 0; }
-        .touch-center { left: 30%; width: 40%; }
 
-        /* التحكم */
-        .controls {
+        /* شريط التحكم السفلي - واضح جداً */
+        .controls-bar {
             position: absolute; bottom: 0; left: 0; width: 100%;
-            background: linear-gradient(transparent, rgba(0,0,0,0.9));
-            padding: 20px; z-index: 50;
+            background: rgba(0, 0, 0, 0.8); /* خلفية سوداء شفافة */
+            padding: 15px; z-index: 50;
             display: flex; flex-direction: column; gap: 10px;
         }
-        
-        input[type=range] { width: 100%; accent-color: #fbbf24; cursor: pointer; height: 4px; }
-        
-        .btn-icon { font-size: 1.2rem; color: white; padding: 10px; cursor: pointer; }
-        .time-text { color: white; font-size: 0.9rem; font-family: monospace; }
-        
-        .overlay-msg {
+
+        /* زر التشغيل الكبير في النص */
+        .center-play-btn {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.6); color: white; padding: 10px 20px; border-radius: 20px;
-            font-weight: bold; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 40;
+            font-size: 3rem; color: white; opacity: 0.8; pointer-events: none; z-index: 10;
+            text-shadow: 0 0 10px black;
         }
+
+        input[type=range] { width: 100%; height: 5px; accent-color: #fbbf24; cursor: pointer; }
+
+        .btn { color: white; font-size: 1.2rem; padding: 5px 10px; cursor: pointer; }
+        .time { color: white; font-family: monospace; font-size: 0.9rem; margin-right: 10px; }
+        
+        /* زرار التكبير */
+        .fullscreen-btn { border: 1px solid white; border-radius: 5px; padding: 2px 8px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
     <div id="videoContainer">
-        <video id="vid" playsinline poster="https://via.placeholder.com/1280x720/000000/FFFFFF?text=FullMark"></video>
+        <video id="vid" playsinline onclick="togglePlay()"></video>
+        
+        <div id="centerIcon" class="center-play-btn"><i class="fas fa-play"></i></div>
 
-        <div class="touch-layer touch-left" id="areaLeft"></div>
-        <div class="touch-layer touch-center" id="areaCenter"></div>
-        <div class="touch-layer touch-right" id="areaRight"></div>
-
-        <div id="msgBox" class="overlay-msg"></div>
-
-        <button onclick="history.back()" class="absolute top-4 right-4 z-50 bg-black/50 w-10 h-10 rounded-full text-white flex items-center justify-center">
+        <button onclick="history.back()" class="absolute top-5 right-5 z-50 bg-black/60 text-white w-10 h-10 rounded-full flex items-center justify-center">
             <i class="fas fa-arrow-right"></i>
         </button>
 
-        <div class="controls">
+        <div class="controls-bar">
             <input type="range" id="progressBar" value="0" min="0" max="100">
             
             <div class="flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <button class="btn-icon" onclick="togglePlay()"><i id="playIcon" class="fas fa-play"></i></button>
-                    <span id="timeDisplay" class="time-text">00:00 / 00:00</span>
+                <div class="flex items-center">
+                    <button class="btn" onclick="togglePlay()"><i id="playBtn" class="fas fa-play"></i></button>
+                    <span id="timeDisplay" class="time">00:00 / 00:00</span>
                 </div>
 
-                <div class="flex items-center gap-4">
-                    <select onchange="document.getElementById('vid').playbackRate = this.value" class="bg-black/50 text-white border border-white/20 rounded px-1 text-xs">
+                <div class="flex items-center gap-3">
+                    <select onchange="changeSpeed(this.value)" class="bg-slate-800 text-white text-xs p-1 rounded border border-slate-600">
                         <option value="1">1x</option>
                         <option value="1.25">1.25x</option>
                         <option value="1.5">1.5x</option>
                         <option value="2">2x</option>
                     </select>
-                    <button class="btn-icon" onclick="toggleFullScreen()"><i class="fas fa-expand"></i></button>
+                    <button class="btn fullscreen-btn" onclick="toggleFS()"><i class="fas fa-expand"></i> تكبير</button>
                 </div>
             </div>
         </div>
@@ -76,67 +70,48 @@
 
     <script>
         const video = document.getElementById('vid');
-        const container = document.getElementById('videoContainer');
         const vData = JSON.parse(localStorage.getItem('currentVideo'));
 
-        // تحميل الفيديو
+        // تشغيل الفيديو
         if(vData) {
-            let src = vData.stream_url || vData.link || vData.url || vData.video_url;
+            let src = vData.stream_url || vData.link || vData.url;
             if(src.includes('youtube') || src.includes('youtu.be')) {
+                // يوتيوب: نعرضه في iframe عشان يشتغل صح
                 if(src.includes('watch?v=')) src = src.replace('watch?v=', 'embed/');
                 else if(src.includes('youtu.be/')) src = src.replace('youtu.be/', 'youtube.com/embed/');
-                container.innerHTML = `<iframe src="${src}" class="w-full h-full border-0" allowfullscreen></iframe><button onclick="history.back()" class="absolute top-4 right-4 z-50 bg-black/50 w-10 h-10 rounded-full text-white flex items-center justify-center"><i class="fas fa-arrow-right"></i></button>`;
+                document.getElementById('videoContainer').innerHTML = `<iframe src="${src}" class="w-full h-full" allowfullscreen></iframe><button onclick="history.back()" class="absolute top-5 right-5 z-50 bg-black/50 w-10 h-10 rounded-full text-white flex items-center justify-center"><i class="fas fa-arrow-right"></i></button>`;
             } else {
                 video.src = src;
             }
         }
 
-        // اللمس المزدوج
-        let lastTap = 0;
-        
-        document.getElementById('areaLeft').addEventListener('click', (e) => handleDoubleTap(e, -10));
-        document.getElementById('areaRight').addEventListener('click', (e) => handleDoubleTap(e, 10));
-        document.getElementById('areaCenter').addEventListener('click', togglePlay);
-
-        function handleDoubleTap(e, sec) {
-            const now = new Date().getTime();
-            if (now - lastTap < 300) {
-                video.currentTime += sec;
-                showMsg(sec > 0 ? `⏩ +${sec} ثانية` : `⏪ ${sec} ثانية`);
-            }
-            lastTap = now;
-        }
-
-        function showMsg(text) {
-            const el = document.getElementById('msgBox');
-            el.innerText = text;
-            el.style.opacity = '1';
-            setTimeout(() => el.style.opacity = '0', 600);
-        }
-
-        // تشغيل / إيقاف
         function togglePlay() {
-            if(video.paused) { video.play(); document.getElementById('playIcon').className = 'fas fa-pause'; }
-            else { video.pause(); document.getElementById('playIcon').className = 'fas fa-play'; }
+            const icon = document.getElementById('playBtn');
+            const center = document.getElementById('centerIcon');
+            if(video.paused) {
+                video.play();
+                icon.className = 'fas fa-pause';
+                center.style.display = 'none';
+            } else {
+                video.pause();
+                icon.className = 'fas fa-play';
+                center.style.display = 'block';
+                center.innerHTML = '<i class="fas fa-pause"></i>';
+            }
         }
 
-        // ✅ التكبير / التصغير
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                container.requestFullscreen().catch(err => alert(`Error: ${err.message}`));
-            } else {
-                document.exitFullscreen();
-            }
+        function changeSpeed(val) { video.playbackRate = val; }
+
+        function toggleFS() {
+            if (!document.fullscreenElement) document.getElementById('videoContainer').requestFullscreen();
+            else document.exitFullscreen();
         }
 
         // تحديث الوقت والشريط
         video.addEventListener('timeupdate', () => {
-            const pct = (video.currentTime / video.duration) * 100;
-            document.getElementById('progressBar').value = isNaN(pct) ? 0 : pct;
-            
-            // ✅ تحديث نص الوقت
-            document.getElementById('timeDisplay').innerText = 
-                formatTime(video.currentTime) + " / " + formatTime(video.duration);
+            const p = (video.currentTime / video.duration) * 100;
+            document.getElementById('progressBar').value = isNaN(p) ? 0 : p;
+            document.getElementById('timeDisplay').innerText = fmt(video.currentTime) + " / " + fmt(video.duration);
         });
 
         // سحب الشريط
@@ -144,14 +119,12 @@
             video.currentTime = (e.target.value / 100) * video.duration;
         });
 
-        // تنسيق الوقت (دقائق:ثواني)
-        function formatTime(s) {
+        function fmt(s) {
             if(isNaN(s)) return "00:00";
-            const m = Math.floor(s / 60);
-            const sec = Math.floor(s % 60);
-            return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+            let m = Math.floor(s/60);
+            let sec = Math.floor(s%60);
+            return m + ":" + (sec < 10 ? "0" : "") + sec;
         }
     </script>
 </body>
-    </html>
-    
+</html>
