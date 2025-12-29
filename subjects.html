@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>المواد الدراسية</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="auth.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="auth.js"></script> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
     
     <style>
         body { 
@@ -20,33 +21,36 @@
             padding-bottom: 80px;
         }
 
-        /* تصميم الهيدر البروفايل */
+        /* تصميم الهيدر (البروفايل) */
         .profile-header {
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(12px);
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(15px);
             border-bottom: 1px solid rgba(255,255,255,0.1);
             position: sticky; top: 0; z-index: 50;
             padding: 15px 20px;
             display: flex; justify-content: space-between; align-items: center;
             border-radius: 0 0 25px 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
         }
 
-        .user-info { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .user-info { display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; }
+        .user-info:active { transform: scale(0.95); }
+
         .user-avatar {
-            width: 50px; height: 50px;
+            width: 55px; height: 55px;
             background: linear-gradient(135deg, #3b82f6, #fbbf24);
             border-radius: 50%; padding: 2px;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
         }
         .user-avatar img {
             width: 100%; height: 100%; border-radius: 50%;
             border: 3px solid #0f172a; object-fit: cover;
         }
 
-        /* الجمل التحفيزية */
+        /* الجمل التحفيزية المتحركة */
         .typing-container {
             font-size: 0.85rem; color: #fbbf24; font-weight: bold;
-            margin-top: 2px; display: flex; align-items: center;
+            margin-top: 4px; display: flex; align-items: center;
         }
         .cursor { display: inline-block; width: 2px; height: 14px; background: #fbbf24; margin-right: 2px; animation: blink 0.7s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
@@ -56,16 +60,18 @@
             background: linear-gradient(145deg, #1e293b, #0f172a);
             border: 1px solid rgba(255,255,255,0.05);
             border-radius: 20px; overflow: hidden;
-            transition: 0.3s; position: relative;
+            transition: all 0.3s ease; position: relative;
         }
         .subject-card:hover {
-            transform: translateY(-5px); border-color: #fbbf24;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            transform: translateY(-8px); border-color: #fbbf24;
+            box-shadow: 0 15px 30px rgba(251, 191, 36, 0.15);
         }
-        .sub-img-box { height: 120px; overflow: hidden; position: relative; }
+        .sub-img-box { height: 130px; overflow: hidden; position: relative; }
         .sub-img-box img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
         .subject-card:hover img { transform: scale(1.1); }
+        
         .sub-content { padding: 15px; text-align: center; }
+        .teacher-count { font-size: 0.75rem; color: #60a5fa; background: rgba(59, 130, 246, 0.15); padding: 4px 12px; border-radius: 50px; display: inline-block; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -78,37 +84,44 @@
                     <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile">
                 </div>
                 <div>
-                    <h2 id="studentName" class="text-lg font-bold text-white leading-tight">...</h2>
+                    <h2 id="studentName" class="text-lg font-bold text-white leading-tight">جاري التحميل...</h2>
                     <div class="typing-container">
                         <span class="typing-text"></span><span class="cursor"></span>
                     </div>
                 </div>
             </a>
 
-            <button onclick="logout()" class="w-10 h-10 rounded-full bg-slate-700/50 hover:bg-red-500/20 text-gray-300 hover:text-red-500 flex items-center justify-center transition">
-                <i class="fas fa-sign-out-alt"></i>
+            <button onclick="logout()" class="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 text-gray-400 hover:text-red-500 hover:border-red-500 flex items-center justify-center transition shadow-lg">
+                <i class="fas fa-power-off"></i>
             </button>
         </header>
 
 
         <div class="p-6">
-            <h3 class="text-xl font-bold mb-6 border-r-4 border-yellow-500 pr-3">المواد المتاحة</h3>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="h-8 w-2 bg-yellow-500 rounded-full"></div>
+                <h3 class="text-xl font-bold text-white">المواد الدراسية</h3>
+            </div>
 
-            <div v-if="loading" class="text-center mt-20">
-                <div class="animate-spin w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-                <p class="text-gray-400">جاري تجهيز مكتبتك...</p>
+            <div v-if="loading" class="flex flex-col items-center justify-center mt-20">
+                <div class="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full mb-4"></div>
+                <p class="text-gray-400 animate-pulse">جاري تجهيز مكتبتك...</p>
             </div>
             
             <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
                 <div v-for="sub in subjects" :key="sub.id" @click="openSub(sub)" class="subject-card cursor-pointer group">
                     <div class="sub-img-box">
-                        <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition z-10"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10"></div>
                         <img :src="getImg(sub.name)" alt="Subject">
+                        <div class="absolute bottom-2 right-2 z-20 text-white font-bold text-sm opacity-0 group-hover:opacity-100 transition duration-300">
+                            استعرض المادة <i class="fas fa-arrow-left text-xs"></i>
+                        </div>
                     </div>
+                    
                     <div class="sub-content">
-                        <h3 class="font-bold text-lg mb-1">{{ sub.name }}</h3>
-                        <span class="text-xs text-blue-400 bg-blue-900/20 px-3 py-1 rounded-full">
-                            {{ sub.teachers?.length || 0 }} مدرسين
+                        <h3 class="font-bold text-lg mb-1 text-white group-hover:text-yellow-400 transition">{{ sub.name }}</h3>
+                        <span class="teacher-count">
+                            <i class="fas fa-chalkboard-teacher"></i> {{ sub.teachers?.length || 0 }} مدرسين
                         </span>
                     </div>
                 </div>
@@ -120,19 +133,28 @@
     <script>
         const { createApp, ref, onMounted } = Vue;
 
-        // روابط صور المواد (Unsplash)
+        // مكتبة صور ذكية (شاملة)
         const IMGS = {
-            "عربية": "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=400",
-            "إنجليزية": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400",
-            "فرنسية": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400",
-            "فيزياء": "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=400",
-            "كيمياء": "https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?w=400",
-            "أحياء": "https://images.unsplash.com/photo-1530026405124-efe3d232b3d8?w=400",
-            "رياضيات": "https://images.unsplash.com/photo-1635070041043-e3f001e34750?w=400",
-            "جيولوجيا": "https://images.unsplash.com/photo-1598281838025-6c930063d2e1?w=400",
-            "تاريخ": "https://images.unsplash.com/photo-1461360228754-6e81c478b882?w=400",
-            "جغرافيا": "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=400",
-            "default": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400"
+            "عرب": "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=500", // عربي، لغة عربية
+            "نحو": "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500",
+            "بلاغ": "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500",
+            "نجليز": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=500", // إنجليزي
+            "English": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=500",
+            "فرنس": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=500", // فرنسي
+            "French": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=500",
+            "فيزيا": "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=500",
+            "كيميا": "https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?w=500",
+            "أحيا": "https://images.unsplash.com/photo-1530026405124-efe3d232b3d8?w=500", 
+            "بيولوج": "https://images.unsplash.com/photo-1530026405124-efe3d232b3d8?w=500",
+            "رياض": "https://images.unsplash.com/photo-1635070041043-e3f001e34750?w=500",
+            "جبر": "https://images.unsplash.com/photo-1635070041043-e3f001e34750?w=500",
+            "هندس": "https://images.unsplash.com/photo-1635070041043-e3f001e34750?w=500",
+            "جيولوج": "https://images.unsplash.com/photo-1598281838025-6c930063d2e1?w=500",
+            "تاريخ": "https://images.unsplash.com/photo-1461360228754-6e81c478b882?w=500",
+            "جغرافي": "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=500",
+            "فلسف": "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=500",
+            "نفس": "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=500", 
+            "default": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500" // صورة افتراضية
         };
 
         const URLS = {
@@ -143,7 +165,7 @@
         };
 
         // 🔥 كود الكتابة المتحركة (Typing Effect)
-        const phrases = ["✨ حلمك يستاهل!", "💪 عافر هتوصل", "🚀 اصنع مستقبلك", "🎓 دكتور المستقبل"];
+        const phrases = ["✨ حلمك يستاهل!", "💪 عافر هتوصل", "🚀 اصنع مستقبلك", "🎓 دكتور المستقبل", "💡 الأفضل لك"];
         let phraseIdx = 0, charIdx = 0, isDeleting = false;
         
         function typeEffect() {
@@ -165,46 +187,5 @@
         createApp({
             setup() {
                 const subjects = ref([]);
-                const loading = ref(true);
-                const yid = ref(null);
-
-                const getImg = (n) => {
-                    for (const [key, url] of Object.entries(IMGS)) { if (n.includes(key)) return url; }
-                    return IMGS['default'];
-                };
-                
-                const openSub = (s) => window.location.href = `chapters.html?yid=${yid.value}&sid=${s.id}`;
-                
-                onMounted(async () => {
-                    const code = localStorage.getItem('activeCode');
-                    const db = firebase.database();
-                    const snap = await db.ref('approvedStudents/' + code).once('value');
-                    const student = snap.val();
-                    
-                    if(student) {
-                        document.getElementById('studentName').innerText = student.studentName;
-                        typeEffect(); // تشغيل الأنيميشن بعد تحميل الاسم
-                    }
-
-                    const section = student?.section?.trim() || 'علمي علوم';
-                    
-                    try {
-                        const res = await fetch(URLS[section] || URLS['علمي علوم']);
-                        const data = await res.json();
-                        let year = data.find(y => y.name.includes('3') || y.id == 3) || data[0];
-                        yid.value = year.id;
-                        subjects.value = year.subjects || [];
-                    } catch(e) {}
-                    loading.value = false;
-                });
-                return { subjects, loading, getImg, openSub };
-            }
-        }).mount('#app');
-
-        function logout() {
-            if(confirm("تسجيل خروج؟")) { localStorage.clear(); window.location.href='index.html'; }
-        }
-    </script>
-</body>
-            </html>
-    
+                const
+        
