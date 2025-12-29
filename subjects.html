@@ -17,9 +17,8 @@
         @keyframes twinkle { 0%, 100% { opacity: 0.2; transform: scale(1); } 50% { opacity: 1; transform: scale(1.5); } }
         .profile-header { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(99, 102, 241, 0.2); position: sticky; top: 0; z-index: 50; padding: 12px 20px; border-radius: 0 0 25px 25px; display: flex; justify-content: space-between; align-items: center; }
         .user-avatar { width: 50px; height: 50px; background: linear-gradient(135deg, #6366f1, #d946ef); border-radius: 15px; padding: 2px; transform: rotate(-5deg); transition: 0.3s; cursor: pointer; }
-        .user-avatar:active { transform: scale(0.9); }
         .user-avatar img { width: 100%; height: 100%; border-radius: 13px; object-fit: cover; background: #0f172a; }
-        .subject-card { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 25px 15px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-align: center; }
+        .subject-card { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 25px 15px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-align: center; position: relative; z-index: 10; }
         .subject-card:hover { transform: translateY(-10px); border-color: #d946ef; box-shadow: 0 15px 35px rgba(217, 70, 239, 0.2); }
         .sub-img-box { width: 85px; height: 85px; margin: 0 auto 15px; }
         .sub-img-box img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); transition: 0.4s; }
@@ -29,23 +28,32 @@
     <div id="stars" class="stars-container"></div>
     <div id="app">
         <header class="profile-header">
-            <div class="flex items-center gap-3" @click="window.location.href='timer.html'">
+            <div class="flex items-center gap-3 cursor-pointer" @click="goToProfile">
                 <div class="user-avatar shadow-lg"><img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png"></div>
                 <div>
                     <h2 class="text-md font-bold text-white">{{ studentName }}</h2>
                     <div class="text-indigo-400 text-[10px] font-bold"><i class="fas fa-rocket ml-1"></i> عرض البروفايل</div>
                 </div>
             </div>
-            <button onclick="logout()" class="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500"><i class="fas fa-power-off"></i></button>
+            <button onclick="logout()" class="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 transition active:scale-90">
+                <i class="fas fa-power-off"></i>
+            </button>
         </header>
 
         <div class="p-6 relative z-10">
             <h3 class="text-xl font-black text-white mb-8 border-r-4 border-fuchsia-500 pr-3">المكتبة الدراسية</h3>
-            <div v-if="loading" class="flex flex-col items-center justify-center mt-32 text-indigo-300 animate-pulse text-xs uppercase tracking-widest">Loading Library...</div>
+            
+            <div v-if="loading" class="flex flex-col items-center justify-center mt-32 text-indigo-300 animate-pulse text-xs uppercase tracking-widest">
+                <i class="fas fa-spinner fa-spin text-2xl mb-2"></i> Loading Library...
+            </div>
+            
             <div v-else class="grid grid-cols-2 gap-4">
                 <div v-for="sub in subjects" :key="sub.id" @click="openSub(sub)" class="subject-card group cursor-pointer">
-                    <div class="sub-img-box"><img :src="getImgUrl(sub.name)"></div>
+                    <div class="sub-img-box">
+                        <img :src="getImgUrl(sub.name)" alt="Subject Image">
+                    </div>
                     <h3 class="font-bold text-sm text-gray-100 group-hover:text-fuchsia-400 transition">{{ sub.name }}</h3>
+                    <p class="text-[10px] text-gray-500 mt-1">{{ sub.teachers?.length || 0 }} مدرسين</p>
                 </div>
             </div>
         </div>
@@ -68,38 +76,88 @@
         const { createApp, ref, onMounted } = Vue;
         createApp({
             setup() {
-                const subjects = ref([]); const loading = ref(true); const studentName = ref('جاري التحميل...'); const yid = ref(null);
+                const subjects = ref([]); 
+                const loading = ref(true); 
+                const studentName = ref('جاري التحميل...'); 
+                const yid = ref(null);
+
+                // دالة التنقل للملف الشخصي
+                const goToProfile = () => { window.location.href = 'timer.html'; };
+
+                // تحسين مكتبة الصور لتشمل احتمالات أكثر
                 const IMGS = {
                     "فيزيا": "https://cdn3d.iconscout.com/3d/premium/thumb/physics-7265691-5840333.png",
                     "كيميا": "https://cdn3d.iconscout.com/3d/premium/thumb/chemistry-atoms-5691557-4740112.png",
                     "أحيا": "https://cdn3d.iconscout.com/3d/premium/thumb/dna-5256241-4385108.png",
+                    "بيولوج": "https://cdn3d.iconscout.com/3d/premium/thumb/dna-5256241-4385108.png",
                     "عرب": "https://cdn3d.iconscout.com/3d/premium/thumb/ramadan-quran-5136006-4286786.png",
                     "English": "https://cdn3d.iconscout.com/3d/premium/thumb/english-book-10041135-8135359.png",
+                    "نجليز": "https://cdn3d.iconscout.com/3d/premium/thumb/english-book-10041135-8135359.png",
                     "رياض": "https://cdn3d.iconscout.com/3d/premium/thumb/mathematics-9173295-7489437.png",
                     "تاريخ": "https://cdn3d.iconscout.com/3d/premium/thumb/pharaoh-6450376-5310636.png",
-                    "جغراف": "https://cdn3d.iconscout.com/3d/premium/thumb/earth-5134701-4282715.png"
+                    "جغراف": "https://cdn3d.iconscout.com/3d/premium/thumb/earth-5134701-4282715.png",
+                    "فرنس": "https://cdn3d.iconscout.com/3d/premium/thumb/eiffel-tower-5374026-4491752.png",
+                    "فلسف": "https://cdn3d.iconscout.com/3d/premium/thumb/thought-5285141-4414349.png",
+                    "نفس": "https://cdn3d.iconscout.com/3d/premium/thumb/psychology-9860472-8012170.png"
                 };
-                const getImgUrl = (n) => { for (let k in IMGS) if (n.includes(k)) return IMGS[k]; return "https://cdn3d.iconscout.com/3d/premium/thumb/book-5110435-4256920.png"; };
+
+                const getImgUrl = (n) => {
+                    if(!n) return "https://cdn3d.iconscout.com/3d/premium/thumb/book-5110435-4256920.png";
+                    for (let k in IMGS) {
+                        if (n.includes(k)) return IMGS[k];
+                    }
+                    return "https://cdn3d.iconscout.com/3d/premium/thumb/book-5110435-4256920.png";
+                };
+
                 const openSub = (s) => window.location.href = `chapters.html?yid=${yid.value}&sid=${s.id}`;
 
                 onMounted(async () => {
-                    const db = firebase.database(); const code = localStorage.getItem('activeCode');
+                    // تأكد من تهيئة Firebase إذا لم تكن مهيئة
+                    const firebaseConfig = { 
+                        databaseURL: "https://fullmark-2025-default-rtdb.firebaseio.com" 
+                    };
+                    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+                    const db = firebase.database();
+                    
+                    const code = localStorage.getItem('activeCode');
                     if (!code) return window.location.href = 'index.html';
-                    const snap = await db.ref('approvedStudents/' + code).once('value');
-                    const student = snap.val();
-                    if (student) {
-                        studentName.value = student.studentName;
-                        const res = await fetch("https://plus-teal.vercel.app/organized_output.json");
-                        const data = await res.json();
-                        let year = data.find(y => y.id == 3) || data[0];
-                        yid.value = year.id; subjects.value = year.subjects;
+
+                    try {
+                        const snap = await db.ref('approvedStudents/' + code).once('value');
+                        const student = snap.val();
+                        if (student) {
+                            studentName.value = student.studentName;
+                            
+                            // تحديد رابط البيانات بناءً على الشعبة
+                            const URLS = {
+                                'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
+                                'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
+                                'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json"
+                            };
+
+                            const res = await fetch(URLS[student.section] || URLS['علمي علوم']);
+                            const data = await res.json();
+                            let year = data.find(y => y.id == 3) || data[0];
+                            yid.value = year.id; 
+                            subjects.value = year.subjects;
+                        }
+                    } catch (e) {
+                        console.error("Error loading data:", e);
+                    } finally {
+                        loading.value = false;
                     }
-                    loading.value = false;
                 });
-                return { subjects, loading, studentName, getImgUrl, openSub };
+
+                return { subjects, loading, studentName, getImgUrl, openSub, goToProfile };
             }
         }).mount('#app');
-        function logout() { if(confirm("خروج؟")) { localStorage.clear(); location.href='index.html'; } }
+
+        function logout() { 
+            if(confirm("هل أنت متأكد من تسجيل الخروج؟")) { 
+                localStorage.clear(); 
+                window.location.href='index.html'; 
+            } 
+        }
     </script>
 </body>
 </html>
