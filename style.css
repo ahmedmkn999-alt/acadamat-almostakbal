@@ -1,0 +1,82 @@
+/* 🎨 ملف: style.css - الثيم الأزرق الملكي والذهبي */
+
+:root {
+    --bg-dark: #020617;           /* كحلي غامق جداً (الخلفية) */
+    --card-bg: rgba(15, 23, 42, 0.7); /* لون الكروت شفاف */
+    --primary-blue: #1e3a8a;      /* أزرق ملكي */
+    --accent-blue: #3b82f6;       /* أزرق زاهي (للأزرار واللمعان) */
+    --accent-gold: #fbbf24;       /* ذهبي (للعناوين المهمة) */
+    --text-main: #f1f5f9;         /* أبيض (للنصوص) */
+    --text-sec: #94a3b8;          /* رمادي فاتح (للنصوص الفرعية) */
+    --glass-border: rgba(59, 130, 246, 0.2); /* حدود زرقاء شفافة */
+    --error: #ef4444;
+    --success: #10b981;
+}
+
+/* إعدادات الصفحة الأساسية */
+body {
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    margin: 0;
+    /* خلفية شبكية خفيفة جداً */
+    background-image: radial-gradient(#1e293b 1px, transparent 1px);
+    background-size: 30px 30px;
+    direction: rtl;
+}
+
+/* الهيدر الزجاجي */
+.glass-panel {
+    background: rgba(2, 6, 23, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* الكروت (للمواد والمدرسين) */
+.glass-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+    background: rgba(30, 58, 138, 0.3); /* تمييز أزرق خفيف */
+    border-color: var(--accent-blue);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.3);
+}
+
+/* النصوص الملونة */
+.text-gold { color: var(--accent-gold) !important; }
+.text-blue { color: var(--accent-blue) !important; }
+
+/* الأيقونات */
+.icon-box {
+    background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+    color: white;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+/* الأزرار */
+button, .btn {
+    transition: all 0.3s ease;
+}
+button:active {
+    transform: scale(0.95);
+}
+
+/* شريط التمرير (Scrollbar) */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: var(--primary-blue); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
+
+/* أنيميشن الظهور */
+.animate-fade-in { animation: fadeIn 0.5s ease-out; }
+@keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(15px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
