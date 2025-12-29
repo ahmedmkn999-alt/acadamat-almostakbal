@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Mark | الفيديوهات</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
+    
+    <script type="module" src="devcheck.js"></script>
+    <script src="auth.js"></script>
+    
+    <script src="1_science.js"></script>
+    <script src="2_math.js"></script>
+    <script src="3_lit.js"></script>
+
+    <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#08402C',
+            secondary: '#00F5C4',
+            dark: '#020A07',
+            card: '#0C241C',
+            'card-hover': '#1A3C30'
+          },
+          fontFamily: { sans: ['Tajawal', 'sans-serif'] }
+        }
+      }
+    }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <style>
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background-color: #020A07; 
+            color: #E6F0E8; 
+            margin: 0;
+            background-image: radial-gradient(circle at 10% 90%, rgba(8, 64, 44, 0.2) 0%, transparent 40%);
+        }
+        
+        .glass-panel {
+            background: rgba(12, 36, 28, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 245, 196, 0.1);
+        }
+        
+        .glass-card {
+            background: rgba(12, 36, 28, 0.5); 
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .glass-card:hover {
+            background: rgba(12, 36, 28, 0.8); 
+            transform: translateY(-5px);
+            border-color: #00F5C4; 
+            box-shadow: 0 8px 25px rgba(0, 245, 196, 0.15);
+        }
+
+        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from {opacity:0; transform:translateY(15px);} to{opacity:1; transform:translateY(0);} }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #020A07; }
+        ::-webkit-scrollbar-thumb { background: #08402C; border-radius: 10px; }
+        
+        /* Toasts */
+        .toast {
+            min-width: 250px; padding: 1rem; border-radius: 0.5rem;
+            color: white; font-weight: 600; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .toast.error { background: rgba(220, 38, 38, 0.9); }
+        .toast.success { background: rgba(5, 150, 105, 0.9); color: #fff; }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden flex flex-col">
+
+<div id="app" class="flex-1 flex flex-col h-full overflow-hidden">
+
+    <header class="glass-panel h-16 flex items-center justify-between px-4 z-20 shadow-lg">
+        <div class="flex items-center gap-3">
+            <button @click="goBack" class="w-9 h-9 rounded-full bg-primary/30 flex items-center justify-center text-secondary hover:bg-secondary hover:text-black transition-all">
+                <i class="ph ph-arrow-right text-lg font-bold"></i>
+            </button>
+            <div>
+                <h1 class="text-lg font-bold text-white leading-tight truncate max-w-[200px]">{{ lectureName }}</h1>
+                <p class="text-xs text-gray-400">{{ teacherName }}</p>
+            </div>
+        </div>
+        
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-secondary to-primary flex items-center justify-center shadow-lg shadow-secondary/10">
+            <i class="ph ph-play-circle text-black text-xl"></i>
+        </div>
+    </header>
+
+    <div v-if="loading" class="flex-1 flex flex-col justify-center items-center">
+        <i class="ph ph-spinner-gap animate-spin text-4xl text-secondary mb-3"></i>
+        <p class="text-gray-400 text-sm">جاري تحميل الفيديوهات...</p>
+    </div>
+
+    <div v-else-if="videos.length === 0" class="flex-1 flex flex-col justify-center items-center text-gray-500">
+        <i class="ph ph-film-strip text-5xl mb-2 opacity-50"></i>
+        <p>لا توجد فيديوهات متاحة في هذا الدرس.</p>
+    </div>
+
+    <main v-else class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar pb-20">
+        <div v-for="(video, index) in videos" :key="index" @click="playVideo(video)"
+             class="glass-card w-full p-4 rounded-xl cursor-pointer group flex flex-col gap-3 animate-fade-in relative overflow-hidden"
+             :style="{ animationDelay: index * 0.05 + 's' }">
+            
+            <div class="w-full h-40 bg-black/40 rounded-lg flex items-center justify-center relative overflow-hidden group-hover:scale-[1.02] transition-transform duration-300">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                <i class="ph ph-play-fill text-4xl text-white opacity-80 group-hover:text-secondary group-hover:scale-110 transition-all z-10"></i>
+                
+                <span class="absolute bottom-2 right-2 bg-black/60 px-2 py-0.5 rounded text-xs text-white backdrop-blur-sm">فيديو</span>
+            </div>
+
+            <div class="flex items-start justify-between gap-2">
+                <h3 class="font-bold text-base text-gray-100 group-hover:text-secondary transition-colors leading-snug">{{ video.title }}</h3>
+                <i class="ph ph-caret-left text-gray-600 group-hover:text-secondary text-lg mt-1 transition-transform group-hover:-translate-x-1"></i>
+            </div>
+        </div>
+    </main>
+
+    <div class="fixed bottom-6 left-6 z-50 flex flex-col gap-2 pointer-events-none">
+        <transition-group name="toast">
+            <div v-for="toast in toasts" :key="toast.id" :class="['toast', toast.type]">
+                {{ toast.message }}
+            </div>
+        </transition-group>
+    </div>
+
+</div>
+
+<script>
+const { createApp, ref, onMounted } = Vue;
+
+createApp({
+  setup() {
+    const loading = ref(true);
+    const videos = ref([]);
+    const teacherName = ref('');
+    const lectureName = ref('');
+    const toasts = ref([]);
+
+    // قراءة البارامترات من الرابط
+    const urlParams = new URLSearchParams(window.location.search);
+    const yid = urlParams.get('yid');
+    const sid = urlParams.get('sid');
+    const tid = urlParams.get('tid');
+    const cid = urlParams.get('cid');
+    const lid = urlParams.get('lid'); // Lecture ID (Index)
+
+    const showToast = (message, type='info') => {
+      const id = Date.now();
+      toasts.value.push({ id, message, type });
+      setTimeout(() => toasts.value = toasts.value.filter(t => t.id !== id), 3000);
+    };
+
+    const goBack = () => {
+        // العودة لصفحة الدروس
+        window.location.href = `lectures.html?yid=${yid}&sid=${sid}&tid=${tid}&cid=${cid}`;
+    };
+
+    const playVideo = (video) => {
+        if (!video.stream_url) {
+            showToast("الرابط غير متاح حالياً", "error");
+            return;
+        }
+        
+        // حفظ بيانات الفيديو للتشغيل
+        localStorage.setItem("video_source", video.stream_url);
+        localStorage.setItem("video_title", video.title);
+        
+        // التوجيه للمشغل
+        window.location.href = 'player.html';
+    };
+
+    onMounted(async () => {
+        const activeCode = localStorage.getItem('activeCode');
+        if (!activeCode) { window.location.href = 'index.html'; return; }
+
+        try {
+            // 1. تحديد الشعبة وجلب الداتا
+            const db = firebase.database();
+            const snapshot = await db.ref('approvedStudents/' + activeCode).once('value');
+            const student = snapshot.val();
+            const section = student?.section?.trim() || 'DEFAULT';
+
+            let data = [];
+            if (section === 'علمي علوم' && typeof SCIENCE_RAW !== 'undefined') data = SCIENCE_RAW;
+            else if (section === 'علمي رياضة' && typeof MATH_RAW !== 'undefined') data = MATH_RAW;
+            else if (section === 'أدبي' && typeof LIT_RAW !== 'undefined') data = LIT_RAW;
+            else if (typeof SCIENCE_RAW !== 'undefined') data = SCIENCE_RAW;
+
+            // 2. الوصول للفيديوهات
+            const year = data.find(y => y.id == yid);
+            const subject = year?.subjects.find(s => s.id == sid);
+            const teacher = subject?.teachers.find(t => t.id == tid);
+            const chapter = teacher?.chapters.find(c => c.id == cid);
+            
+            // lid هنا هو الـ index بتاع المحاضرة في المصفوفة
+            const lecture = chapter?.lectures ? chapter.lectures[lid] : null;
+
+            if (teacher && lecture) {
+                teacherName.value = teacher.name;
+                lectureName.value = lecture.name;
+                videos.value = lecture.videos || [];
+            } else {
+                showToast("لم يتم العثور على الفيديوهات", "error");
+            }
+
+        } catch (err) {
+            console.error(err);
+            showToast("حدث خطأ في تحميل البيانات", "error");
+        } finally {
+            loading.value = false;
+        }
+    });
+
+    return { 
+        loading, videos, teacherName, lectureName, toasts,
+        goBack, playVideo 
+    };
+  }
+}).mount('#app');
+</script>
+
+</body>
+</html>
