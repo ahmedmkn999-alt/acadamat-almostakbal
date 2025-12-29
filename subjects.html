@@ -14,75 +14,63 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* --- تصميم الخلفية الاحترافية الجديدة --- */
         body { 
-            background-color: #0f172a; /* لون أساسي */
-            /* تدرج لوني فخم */
+            background-color: #0f172a; 
             background-image: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            min-height: 100vh;
-            color: white; 
-            font-family: 'Tajawal', sans-serif; 
-            padding-bottom: 80px;
-            position: relative;
-            overflow-x: hidden; /* لمنع الشريط الجانبي بسبب النص الكبير */
+            min-height: 100vh; color: white; font-family: 'Tajawal', sans-serif; 
+            padding-bottom: 80px; position: relative; overflow-x: hidden;
         }
 
-        /* كلمة FULL MARK في الخلفية (Watermark) */
+        /* ✨✨✨ كود النجوم اللامعة ✨✨✨ */
+        .stars-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none; overflow: hidden;
+        }
+        .star {
+            position: absolute; width: 2px; height: 2px; background: white;
+            border-radius: 50%; opacity: 0;
+            animation: twinkle var(--duration) ease-in-out infinite;
+            animation-delay: var(--delay);
+        }
+        @keyframes twinkle {
+            0% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 10px white; }
+            100% { opacity: 0; transform: scale(0.5); }
+        }
+        /* --------------------------------- */
+
+        /* خلفية FULL MARK */
         body::before {
-            content: 'FULL MARK';
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-15deg); /* في المنتصف ومائلة */
-            font-size: 18vw; /* حجم ضخم متجاوب مع الشاشة */
-            font-weight: 900;
-            color: rgba(251, 191, 36, 0.03); /* لون ذهبي شفاف جداً */
-            z-index: -1; /* خلف كل المحتوى */
-            white-space: nowrap;
-            pointer-events: none; /* لا تؤثر على اللمس */
+            content: 'FULL MARK'; position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            font-size: 18vw; font-weight: 900;
+            color: rgba(251, 191, 36, 0.03); z-index: -1; pointer-events: none;
         }
-        /* --------------------------------------- */
 
-        /* تصميم الهيدر (البروفايل) */
+        /* الهيدر */
         .profile-header {
-            background: rgba(15, 23, 42, 0.8); /* خلفية شفافة */
-            backdrop-filter: blur(15px); /* تأثير ضبابي */
+            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(15px);
             border-bottom: 1px solid rgba(255,255,255,0.05);
-            position: sticky; top: 0; z-index: 50;
-            padding: 15px 20px;
+            position: sticky; top: 0; z-index: 50; padding: 15px 20px;
             display: flex; justify-content: space-between; align-items: center;
             border-radius: 0 0 25px 25px;
         }
 
-        .user-info { display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; }
-        .user-info:active { transform: scale(0.95); }
-
         .user-avatar {
-            width: 55px; height: 55px;
-            background: linear-gradient(135deg, #3b82f6, #fbbf24);
-            border-radius: 50%; padding: 2px;
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+            width: 55px; height: 55px; background: linear-gradient(135deg, #3b82f6, #fbbf24);
+            border-radius: 50%; padding: 2px; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
         }
-        .user-avatar img {
-            width: 100%; height: 100%; border-radius: 50%;
-            border: 3px solid #0f172a; object-fit: cover;
-        }
+        .user-avatar img { width: 100%; height: 100%; border-radius: 50%; border: 3px solid #0f172a; object-fit: cover; }
 
-        /* الجمل التحفيزية المتحركة */
-        .typing-container {
-            font-size: 0.85rem; color: #fbbf24; font-weight: bold;
-            margin-top: 4px; display: flex; align-items: center;
-        }
+        .typing-container { font-size: 0.85rem; color: #fbbf24; font-weight: bold; margin-top: 4px; display: flex; align-items: center; }
         .cursor { display: inline-block; width: 2px; height: 14px; background: #fbbf24; margin-right: 2px; animation: blink 0.7s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
 
         /* كروت المواد */
         .subject-card {
-            background: rgba(30, 41, 59, 0.6); /* خلفية نصف شفافة للكارت */
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 20px; overflow: hidden;
-            transition: all 0.3s ease; position: relative;
+            background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; overflow: hidden;
+            transition: all 0.3s ease; position: relative; z-index: 10;
         }
         .subject-card:hover {
             transform: translateY(-8px); border-color: #fbbf24;
@@ -98,10 +86,11 @@
 </head>
 <body>
 
+    <div id="stars" class="stars-container"></div>
+
     <div id="app">
-        
         <header class="profile-header">
-            <a href="timer.html" class="user-info">
+            <a href="timer.html" class="flex items-center gap-3 cursor-pointer">
                 <div class="user-avatar">
                     <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile">
                 </div>
@@ -117,25 +106,23 @@
             </button>
         </header>
 
-
-        <div class="p-6">
-            <div class="flex items-center gap-3 mb-6 relative z-10">
+        <div class="p-6 relative z-10">
+            <div class="flex items-center gap-3 mb-6">
                 <div class="h-8 w-2 bg-yellow-500 rounded-full"></div>
                 <h3 class="text-xl font-bold text-white">المواد الدراسية</h3>
             </div>
 
-            <div v-if="loading" class="flex flex-col items-center justify-center mt-20 relative z-10">
+            <div v-if="loading" class="flex flex-col items-center justify-center mt-20">
                 <div class="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full mb-4"></div>
                 <p class="text-gray-400 animate-pulse">جاري تجهيز مكتبتك...</p>
             </div>
             
-            <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 relative z-10">
+            <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
                 <div v-for="sub in subjects" :key="sub.id" @click="openSub(sub)" class="subject-card cursor-pointer group">
                     <div class="sub-img-box">
                         <div class="absolute inset-0 bg-gradient-to-t from-[#1e293b] via-transparent to-transparent z-10"></div>
                         <img :src="getImg(sub.name)" alt="Subject" onerror="this.src='https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=500'">
                     </div>
-                    
                     <div class="sub-content">
                         <h3 class="font-bold text-lg mb-1 text-white group-hover:text-yellow-400 transition">{{ sub.name }}</h3>
                         <span class="teacher-count">
@@ -145,34 +132,50 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <script>
+        // ✨ كود توليد النجوم ✨
+        function createStars() {
+            const container = document.getElementById('stars');
+            const starCount = 50; // عدد النجوم
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                // مكان عشوائي
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                // تأخير عشوائي لللمعان
+                star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+                star.style.setProperty('--delay', (Math.random() * 5) + 's');
+                container.appendChild(star);
+            }
+        }
+        createStars(); // تشغيل النجوم
+
         const { createApp, ref, onMounted } = Vue;
 
-        // ✅✅✅ صور واقعية احترافية (Unsplash High Quality) ✅✅✅
         const IMGS = {
-            "عرب": "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=600&q=80", // كتب عربية
+            "عرب": "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=600&q=80",
             "نحو": "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&q=80",
             "بلاغ": "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?w=600&q=80",
-            "نجليز": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80", // إنجليزي/لندن
+            "نجليز": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80",
             "English": "https://images.unsplash.com/photo-1526470608268-f6c482036101?w=600&q=80",
-            "فرنس": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80", // برج إيفل
+            "فرنس": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80",
             "French": "https://images.unsplash.com/photo-1503917988258-f87a78e3c995?w=600&q=80",
-            "فيزيا": "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=600&q=80", // فيزياء/فضاء/طاقة
-            "كيميا": "https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?w=600&q=80", // أدوات معمل واقعية
-            "أحيا": "https://images.unsplash.com/photo-1530026405124-efe3d232b3d8?w=600&q=80", // مجهر وخلايا
+            "فيزيا": "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=600&q=80",
+            "كيميا": "https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?w=600&q=80",
+            "أحيا": "https://images.unsplash.com/photo-1530026405124-efe3d232b3d8?w=600&q=80",
             "بيولوج": "https://images.unsplash.com/photo-1576086213369-97a306d36557?w=600&q=80",
-            "رياض": "https://images.unsplash.com/photo-1635070041043-e3f001e34750?w=600&q=80", // معادلات رياضية
+            "رياض": "https://images.unsplash.com/photo-1635070041043-e3f001e34750?w=600&q=80",
             "جبر": "https://images.unsplash.com/photo-1596495577886-d920f1fb7238?w=600&q=80",
             "هندس": "https://images.unsplash.com/photo-1581094794329-c621221092a4?w=600&q=80",
-            "جيولوج": "https://images.unsplash.com/photo-1598281838025-6c930063d2e1?w=600&q=80", // صخور وطبيعة
-            "تاريخ": "https://images.unsplash.com/photo-1461360228754-6e81c478b882?w=600&q=80", // آثار قديمة
-            "جغرافي": "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=600&q=80", // خريطة وبوصلة
-            "فلسف": "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=600&q=80", // تمثال مفكر
-            "نفس": "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=600&q=80", // علم نفس/عقل
-            "default": "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&q=80" // صورة كتاب عامة
+            "جيولوج": "https://images.unsplash.com/photo-1598281838025-6c930063d2e1?w=600&q=80",
+            "تاريخ": "https://images.unsplash.com/photo-1461360228754-6e81c478b882?w=600&q=80",
+            "جغرافي": "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=600&q=80",
+            "فلسف": "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=600&q=80",
+            "نفس": "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=600&q=80",
+            "default": "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&q=80"
         };
 
         const URLS = {
@@ -182,9 +185,9 @@
             'أزهر': "https://plus-teal.vercel.app/organized_output.json"
         };
 
-        // كود الكتابة المتحركة
         const phrases = ["✨ حلمك يستاهل!", "💪 عافر هتوصل", "🚀 اصنع مستقبلك", "🎓 دكتور المستقبل", "💡 الأفضل لك"];
         let phraseIdx = 0, charIdx = 0, isDeleting = false;
+        
         function typeEffect() {
             const currentPhrase = phrases[phraseIdx];
             const textElement = document.querySelector(".typing-text");
@@ -245,5 +248,4 @@
         }
     </script>
 </body>
-    </html>
-    
+</html>
