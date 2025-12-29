@@ -3,90 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>قائمة الفيديوهات</title>
+    <title>المحتوى الدراسي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="auth.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
     
     <style>
         body { 
             background-color: #0f172a; 
-            background-image: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            background-image: radial-gradient(#1e293b 1px, transparent 1px);
+            background-size: 30px 30px;
             color: white; font-family: 'Tajawal', sans-serif; 
-            min-height: 100vh; position: relative; overflow-x: hidden;
-            padding-bottom: 60px;
+            padding-bottom: 80px; position: relative; overflow-x: hidden;
         }
 
-        /* --- خلفية FULL MARK --- */
+        /* Watermark */
         body::before {
-            content: 'FULL MARK';
-            position: fixed; top: 50%; left: 50%;
+            content: 'FULL MARK'; position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%) rotate(-15deg);
-            font-size: 18vw; font-weight: 900;
-            color: rgba(251, 191, 36, 0.03);
+            font-size: 18vw; font-weight: 900; color: rgba(251, 191, 36, 0.03);
             z-index: 0; pointer-events: none; white-space: nowrap;
         }
         #app { position: relative; z-index: 10; }
-        /* ----------------------- */
 
-        .header-sticky {
-            position: sticky; top: 0; z-index: 50;
-            background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding: 15px; margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        /* تصميم الكارت (زي الصورة اللي بعتها) */
+        .session-card {
+            background: white; /* كارت فاتح ليبرز في الخلفية الغامقة */
+            color: #1e293b;
+            border-radius: 25px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative; overflow: hidden;
         }
         
-        .video-card {
-            background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(5px);
-            padding: 20px; margin-bottom: 15px; /* مسافة كبيرة */
-            border-radius: 16px; 
-            border: 1px solid rgba(255,255,255,0.05);
-            border-right: 5px solid #3b82f6; /* خط جانبي أزرق */
-            display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2); cursor: pointer; transition: 0.2s;
+        .card-header {
+            display: flex; justify-content: space-between; align-items: start;
+            margin-bottom: 20px;
         }
-        .video-card:active { transform: scale(0.98); background: #334155; }
         
-        .play-btn {
-            width: 45px; height: 45px; border-radius: 50%; 
-            background: linear-gradient(135deg, #3b82f6, #2563eb); color: white;
-            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        .lesson-title { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
+        .lesson-subtitle { font-size: 0.9rem; color: #ef4444; font-weight: bold; margin-bottom: 5px; }
+
+        /* احصائيات (فيديو - ملف - امتحان) */
+        .stats-container {
+            display: flex; gap: 10px; justify-content: space-around; margin-bottom: 20px;
         }
-        .vid-num {
-            font-size: 1.2rem; font-weight: bold; color: #64748b; margin-left: 15px;
-            min-width: 30px; text-align: center;
+        .stat-box {
+            background: #f1f5f9; padding: 10px; border-radius: 15px;
+            width: 30%; text-align: center;
+        }
+        .stat-icon { color: #3b82f6; font-size: 1.2rem; margin-bottom: 5px; }
+        .stat-num { font-weight: bold; font-size: 1.1rem; color: #0f172a; }
+        .stat-label { font-size: 0.8rem; color: #64748b; }
+
+        /* الزرار السفلي */
+        .action-btn {
+            background: #0f172a; color: white; width: 100%; padding: 15px;
+            border-radius: 15px; font-weight: bold; display: flex;
+            justify-content: center; align-items: center; gap: 10px;
+            transition: 0.3s;
+        }
+        .action-btn:hover { background: #3b82f6; }
+
+        .unit-badge {
+            background: #fbbf24; color: black; padding: 5px 15px; 
+            border-radius: 20px; font-weight: bold; display: inline-block; 
+            margin: 30px 0 15px; font-size: 1.1rem;
         }
     </style>
 </head>
-<body>
+<body class="p-4 md:p-6">
     <div id="app">
-        <div class="header-sticky flex items-center gap-4">
-            <button onclick="history.back()" class="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-full text-white transition flex items-center justify-center">
-                <i class="fas fa-arrow-right"></i>
-            </button>
-            <h1 class="text-lg font-bold text-yellow-400 truncate">{{ chapterName }}</h1>
+        <div class="flex items-center gap-4 mb-8">
+            <button onclick="history.back()" class="bg-slate-800 w-12 h-12 rounded-full text-white text-xl flex items-center justify-center shadow-lg">➜</button>
+            <div>
+                <h1 class="text-2xl font-bold text-yellow-400">{{ teacherName }}</h1>
+                <p class="text-gray-400 text-xs">اختر المحاضرة</p>
+            </div>
         </div>
 
-        <div class="p-4 pt-0">
-            <div v-if="videos.length > 0">
-                <div v-for="(vid, index) in videos" :key="index" @click="play(vid)" class="video-card">
-                    <div class="flex items-center gap-2">
-                        <span class="vid-num">{{ index + 1 }}</span>
-                        <h3 class="font-bold text-white text-lg leading-relaxed">{{ vid.video_name || vid.title || vid.name }}</h3>
-                    </div>
-                    <div class="play-btn"><i class="fas fa-play ml-1"></i></div>
-                </div>
-            </div>
+        <div v-if="loading" class="text-center mt-20">
+             <div class="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+             <p class="text-gray-400">جاري تحميل الحصص...</p>
+        </div>
 
-            <div v-else class="text-center mt-20 text-gray-500 opacity-60">
-                <i class="fas fa-video-slash text-5xl mb-4"></i>
-                <p>لا يوجد محتوى في هذه الحصة</p>
+        <div v-else>
+            <div v-for="(unit, uIndex) in units" :key="uIndex">
+                <div class="unit-badge">{{ unit.unit_name }}</div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div v-for="(ch, cIndex) in unit.chapters" :key="cIndex" class="session-card">
+                        
+                        <div class="card-header">
+                            <div>
+                                <div class="lesson-subtitle">المحاضرة {{ cIndex + 1 }}</div>
+                                <div class="lesson-title">{{ ch.chapter_name || ch.name }}</div>
+                            </div>
+                            <img src="https://cdn-icons-png.flaticon.com/512/3413/3413535.png" width="50">
+                        </div>
+
+                        <div class="stats-container">
+                            <div class="stat-box">
+                                <div class="stat-icon"><i class="fas fa-video"></i></div>
+                                <div class="stat-num">{{ getVideoCount(ch) }}</div>
+                                <div class="stat-label">فيديو</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-icon"><i class="fas fa-file-pdf"></i></div>
+                                <div class="stat-num">0</div>
+                                <div class="stat-label">ملف</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-icon"><i class="fas fa-edit"></i></div>
+                                <div class="stat-num">0</div>
+                                <div class="stat-label">امتحان</div>
+                            </div>
+                        </div>
+
+                        <button @click="openParts(uIndex, cIndex)" class="action-btn">
+                            محتوى المحاضرة <i class="fas fa-arrow-left"></i>
+                        </button>
+
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -102,56 +146,59 @@
 
         createApp({
             setup() {
-                const videos = ref([]);
-                const chapterName = ref('جاري التحميل...');
-                
-                const play = (v) => {
-                    localStorage.setItem('currentVideo', JSON.stringify(v));
-                    window.location.href = 'player.html';
+                const units = ref([]);
+                const loading = ref(true);
+                const teacherName = ref('');
+                const params = new URLSearchParams(window.location.search);
+                const yid = params.get('yid');
+                const sid = params.get('sid');
+                const tid = params.get('tid');
+
+                // ✅ النقطة المهمة: هنا بنبعت رقم الوحدة ورقم الدرس بدقة
+                const openParts = (uid, cid) => {
+                    window.location.href = `parts.html?yid=${yid}&sid=${sid}&tid=${tid}&uid=${uid}&cid=${cid}`;
+                };
+
+                const getVideoCount = (ch) => {
+                    let c = 0;
+                    if(ch.videos) c += ch.videos.length;
+                    if(ch.lectures) ch.lectures.forEach(l => { if(l.videos) c += l.videos.length });
+                    return c;
                 };
 
                 onMounted(async () => {
-                    const params = new URLSearchParams(window.location.search);
-                    const uid = params.get('uid');
-                    const cid = params.get('cid');
                     const code = localStorage.getItem('activeCode');
                     const db = firebase.database();
                     const snap = await db.ref('approvedStudents/' + code).once('value');
                     const section = snap.val()?.section?.trim() || 'علمي علوم';
                     
                     try {
-                        const res = await fetch(URLS[section] || URLS['علمي علوم']);
+                        const res = await fetch(URLS[section]);
                         const data = await res.json();
-                        
-                        const yid = params.get('yid');
-                        const sid = params.get('sid');
-                        const tid = params.get('tid');
-
                         const year = data.find(y => y.id == yid) || data[0];
                         const sub = year.subjects.find(s => s.id == sid);
                         const teacher = sub.teachers.find(t => t.id == tid);
                         
-                        let targetChapter;
-                        // المنطق الذكي: فصل المحتوى بدقة
-                        if (teacher.units && teacher.units.length > 0) {
-                            targetChapter = teacher.units[uid].chapters[cid];
-                        } else {
-                            targetChapter = teacher.chapters[cid];
-                        }
-                        
-                        if(targetChapter) {
-                            chapterName.value = targetChapter.chapter_name || targetChapter.name;
-                            let vids = [];
-                            if(targetChapter.videos) vids = [...vids, ...targetChapter.videos];
-                            if(targetChapter.lectures) targetChapter.lectures.forEach(l => { if(l.videos) vids = [...vids, ...l.videos] });
-                            videos.value = vids;
-                        }
+                        teacherName.value = teacher.name;
 
+                        if (teacher.units && teacher.units.length > 0) {
+                            units.value = teacher.units;
+                        } else if (teacher.chapters && teacher.chapters.length > 0) {
+                            // تجميع القديم عشان يظهر في كروت برضه
+                            units.value = [{
+                                unit_name: "جميع المحاضرات",
+                                chapters: teacher.chapters
+                            }];
+                        } else {
+                            units.value = [];
+                        }
                     } catch(e) {}
+                    loading.value = false;
                 });
-                return { videos, chapterName, play };
+                return { units, teacherName, loading, openParts, getVideoCount };
             }
         }).mount('#app');
     </script>
 </body>
-</html>
+    </html>
+    
