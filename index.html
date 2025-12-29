@@ -17,13 +17,19 @@
             background-size: 30px 30px;
             color: white; font-family: 'Cairo', sans-serif;
             height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0;
-            flex-direction: column; overflow: hidden; /* منع السكرول */
+            flex-direction: column; overflow: hidden;
+        }
+        /* كلاس لإخفاء المحتوى لحد ما نتأكد إن مفيش تسجيل دخول */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #020617; z-index: 100; display: flex; justify-content: center; align-items: center;
         }
         .login-card {
             background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 25px;
             padding: 40px 30px; width: 90%; max-width: 400px; text-align: center;
             box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            display: none; /* مخفي افتراضياً لحد ما نتأكد */
         }
         .avatar {
             width: 90px; height: 90px; background: linear-gradient(135deg, #1e3a8a, #3b82f6);
@@ -48,18 +54,21 @@
         }
         button:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(30, 58, 138, 0.6); }
         
-        /* تأثير الكتابة للجمل التحفيزية */
         .typing-container { height: 30px; margin-top: 25px; display: flex; justify-content: center; align-items: center; }
         .typing-text { color: #fbbf24; font-weight: bold; font-size: 1rem; }
         .cursor { display: inline-block; width: 2px; height: 18px; background: #fbbf24; margin-right: 2px; animation: blink 0.7s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
-
         .footer { position: fixed; bottom: 20px; font-size: 0.8rem; color: #64748b; }
         .footer span { color: #3b82f6; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="login-card">
+
+    <div id="loader" class="loading-overlay">
+        <div class="text-yellow-400 font-bold text-xl animate-pulse">جاري الدخول...</div>
+    </div>
+
+    <div class="login-card" id="loginCard">
         <div class="avatar"><i class="fas fa-graduation-cap"></i></div>
         <h2>FULL MARK</h2>
         <p class="subtitle">منصة المستقبل التعليمية</p>
@@ -79,6 +88,23 @@
     <div class="footer">Designed By <span>AHMED MOHAMED</span></div>
 
     <script>
+        // ✅ 1. الكود السحري: الدخول التلقائي
+        // بنفحصه أول حاجة عشان لو مسجل يدخل علطول
+        const savedCode = localStorage.getItem('activeCode');
+        const savedDevice = localStorage.getItem('localDeviceId');
+
+        if (savedCode && savedDevice) {
+            // لو فيه كود محفوظ، حوله فوراً للمواد
+            window.location.href = "subjects.html";
+        } else {
+            // لو مفيش كود، خفي شاشة التحميل واظهر كارت الدخول
+            window.onload = function() {
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('loginCard').style.display = 'block';
+                type(); // شغل الكتابة
+            };
+        }
+
         // تأثير الكتابة
         const phrases = ["✨ حلمك يستاهل تعبك", "🚀 اصنع مستقبلك الآن", "💡 عافر.. هتوصل!"];
         let i = 0, j = 0, isDeleting = false;
@@ -94,9 +120,7 @@
             }
             setTimeout(type, isDeleting ? 50 : 100);
         }
-        document.addEventListener("DOMContentLoaded", type);
 
-        // الفايربيس (تأكد من وضع الكونفيج الجديد هنا)
         const firebaseConfig = {
             apiKey: "AIzaSyD1QB3qaFfkGYq0OWOEAr83V25NAPFwxzs",
             authDomain: "fullmark-2025.firebaseapp.com",
@@ -116,6 +140,8 @@
             const msg = document.getElementById('statusMessage');
 
             btn.innerHTML = '...جاري التحقق';
+            
+            // التأكد من وجود بصمة الجهاز أو إنشاؤها
             let deviceId = localStorage.getItem('localDeviceId');
             if (!deviceId) {
                 deviceId = 'DID-' + Math.random().toString(36).substr(2, 9);
@@ -125,19 +151,31 @@
             try {
                 const snapshot = await db.ref('approvedStudents/' + code).once('value');
                 const data = snapshot.val();
+
                 if (!data) throw "الكود غير صحيح ❌";
                 if (data.isBlocked) throw "تم حظر هذا الحساب ⛔";
-                if (data.deviceId && data.deviceId !== deviceId) throw "الكود مستخدم على جهاز آخر 📱";
+                
+                // 🔒 حماية الجهاز الواحد
+                if (data.deviceId && data.deviceId !== deviceId) {
+                    throw "هذا الكود مستخدم على جهاز آخر ولا يمكن فتحة هنا 📱🚫";
+                }
 
-                if (!data.deviceId) await db.ref('approvedStudents/' + code).update({ deviceId: deviceId });
+                // لو أول مرة، اربط الكود بالجهاز ده
+                if (!data.deviceId) {
+                    await db.ref('approvedStudents/' + code).update({ deviceId: deviceId });
+                }
+
+                // حفظ الكود للدخول التلقائي المرة القادمة
                 localStorage.setItem('activeCode', code);
                 window.location.href = "subjects.html"; 
+
             } catch (err) {
                 msg.textContent = err;
                 msg.style.display = 'block';
-                btn.innerHTML = 'تسجيل الدخول';
+                btn.innerHTML = 'تسجيل الدخول <i class="fas fa-arrow-left mr-2"></i>';
             }
         });
     </script>
 </body>
-</html>
+    </html>
+    
