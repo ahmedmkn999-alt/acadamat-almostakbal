@@ -10,44 +10,56 @@
     <script src="auth.js"></script>
     <style>
         body { background: #020617; color: white; font-family: sans-serif; }
+        
+        /* 🛑 هنا سر التكبير */
         .teacher-card {
             background: linear-gradient(180deg, #1e293b, #0f172a);
-            border: 1px solid rgba(255,255,255,0.05);
-            min-height: 250px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            border-radius: 25px; transition: 0.3s; position: relative; overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.05);
+            border-radius: 30px;
+            padding: 30px;
+            min-height: 300px; /* كارت طويل */
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .teacher-card:hover {
-            transform: translateY(-8px); border-color: #fbbf24;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            transform: translateY(-10px) scale(1.02);
+            border-color: #fbbf24;
+            box-shadow: 0 20px 50px rgba(251, 191, 36, 0.2);
         }
-        .teacher-card img {
-            width: 130px; height: 130px; border: 4px solid #fbbf24; border-radius: 50%;
-            margin-bottom: 20px; object-fit: cover; z-index: 10;
+        .teacher-img {
+            width: 160px; height: 160px; /* صورة ضخمة */
+            border-radius: 50%;
+            border: 5px solid #fbbf24;
+            object-fit: cover; margin-bottom: 20px;
+            background: #000;
         }
-        .teacher-name { font-size: 1.5rem; font-weight: 800; color: white; margin-bottom: 5px; z-index: 10; }
-        .bg-glow {
-            position: absolute; top: 0; width: 100%; height: 5px;
-            background: linear-gradient(90deg, #3b82f6, #fbbf24);
+        .teacher-name {
+            font-size: 1.8rem; /* خط كبير جداً */
+            font-weight: 900; color: white; margin-bottom: 10px;
+        }
+        .badge {
+            background: rgba(59, 130, 246, 0.2); color: #60a5fa;
+            padding: 5px 20px; border-radius: 20px; font-weight: bold; font-size: 1rem;
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-6 md:p-10">
     <div id="app">
-        <div class="flex items-center gap-4 mb-8">
-            <button onclick="history.back()" class="bg-slate-800 hover:bg-slate-700 w-12 h-12 rounded-full text-white flex items-center justify-center transition">➜</button>
-            <h1 class="text-2xl font-bold text-yellow-400">اختر المدرس</h1>
+        <div class="flex items-center gap-4 mb-10">
+            <button onclick="history.back()" class="bg-slate-800 w-14 h-14 rounded-full text-white text-2xl flex items-center justify-center">➜</button>
+            <h1 class="text-3xl font-bold text-yellow-400">نخبة المدرسين</h1>
         </div>
 
-        <div v-if="loading" class="text-center mt-20 text-xl">جاري تحميل المدرسين...</div>
+        <div v-if="loading" class="text-center mt-20 text-2xl animate-pulse">جاري التحميل...</div>
         
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div v-for="t in teachers" :key="t.id" @click="openTeacher(t)" class="teacher-card cursor-pointer group">
-                <div class="bg-glow opacity-50 group-hover:opacity-100 transition"></div>
-                <img :src="t.image_url || 'https://img.icons8.com/color/480/teacher.png'">
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div v-for="t in teachers" :key="t.id" @click="openTeacher(t)" class="teacher-card cursor-pointer">
+                <img :src="t.image_url || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'" class="teacher-img">
                 <h3 class="teacher-name">{{ t.name }}</h3>
-                <span class="text-blue-200 bg-blue-900/30 px-4 py-1 rounded-full text-sm">
-                    {{ (t.units ? t.units.length : 0) + (t.chapters ? t.chapters.length : 0) }} محتوى تعليمي
+                <span class="badge">
+                     {{ (t.units ? t.units.length : 0) + (t.chapters ? t.chapters.length : 0) }} محتوى تعليمي
                 </span>
             </div>
         </div>
@@ -55,11 +67,11 @@
 
     <script>
         const { createApp, ref, onMounted } = Vue;
-        // ⚠️ هنا الروابط القديمة بتاعتك عشان الداتا تظهر
+        // الروابط القديمة عشان الداتا تظهر
         const URLS = {
             'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
             'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
-            'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json",
+            'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json", 
             'أزهر': "https://plus-teal.vercel.app/organized_output.json"
         };
 
