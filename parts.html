@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>الفيديوهات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="auth.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #020617; color: white; font-family: sans-serif; }
+        .part-item {
+            background: rgba(30, 41, 59, 0.4);
+            border-left: 4px solid #3b82f6;
+            transition: all 0.3s;
+        }
+        .part-item:hover {
+            background: rgba(30, 41, 59, 0.8);
+            border-left-color: #fbbf24;
+            transform: translateX(-5px);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div id="app">
+        <div class="flex items-center gap-4 mb-8">
+            <button onclick="history.back()" class="bg-slate-800 hover:bg-slate-700 w-12 h-12 rounded-full text-white flex items-center justify-center transition">➜</button>
+            <div>
+                <h1 class="text-xl font-bold text-yellow-400">{{ chapterName }}</h1>
+                <p class="text-gray-400 text-sm">قائمة الفيديوهات</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-3">
+            <div v-for="(vid, index) in videos" :key="index" @click="play(vid)" class="part-item p-4 rounded-r-xl cursor-pointer flex items-center justify-between group">
+                <div class="flex items-center gap-4">
+                    <span class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:bg-yellow-500 group-hover:text-black transition">{{ index + 1 }}</span>
+                    <h3 class="font-medium text-lg">{{ vid.video_name || vid.title || vid.name }}</h3>
+                </div>
+                <i class="fas fa-play-circle text-2xl text-blue-500 group-hover:text-yellow-400 transition"></i>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted } = Vue;
+        const URLS = {
+            'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
+            'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
+            'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json",
+            'أزهر': "https://plus-teal.vercel.app/organized_output.json"
+        };
+
+        createApp({
+            setup() {
+                const videos = ref([]);
+                const chapterName = ref('');
+                const params = new URLSearchParams(window.location.search);
+                const yid = params.get('yid');
+                const sid = params.get('sid');
+                const tid = params.get('tid');
+                const lid = params.get('lid');
+
+                const play = (v) => {
+                    localStorage.setItem('currentVideo', JSON.stringify(v));
+                    window.location.href = 'player.html';
+                };
+
+                onMounted(async () => {
+                    const code = localStorage.getItem('activeCode');
+                    const db = firebase.database();
+                    const snap = await db.ref('approvedStudents/' + code).once('value');
+                    const section = snap.val()?.section?.trim() || 'علمي علوم';
+                    
+                    const res = await fetch(URLS[section] || URLS['علمي علوم']);
+                    const data = await res.json();
+                    
+                    const year = data.find(y => y.id == yid) || data[0];
+                    const sub = year.subjects.find(s => s.id == sid);
+                    const teacher = sub.teachers.find(t => t.id == tid);
+                    
+                    const targetChapter = teacher.chapters[lid];
+                    if(targetChapter) {
+                        chapterName.value = targetChapter.chapter_name || targetChapter.name;
+                        let vids = [];
+                        if(targetChapter.videos) vids = [...vids, ...targetChapter.videos];
+                        if(targetChapter.lectures) targetChapter.lectures.forEach(l => { if(l.videos) vids = [...vids, ...l.videos] });
+                        videos.value = vids;
+                    }
+                });
+                return { videos, chapterName, play };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
